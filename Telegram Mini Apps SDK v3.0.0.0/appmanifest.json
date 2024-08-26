@@ -1,0 +1,42 @@
+{
+	"name": "Telegram Mini Apps SDK v3.0.0.0",
+	"short_name": "Telegram Mini Apps SDK v3.0.0.0",
+	"description": "The Telegram Mini Apps SDK Plugin for Construct 3 allows developers to seamlessly integrate the Telegram Mini Apps SDK into their Construct 3 projects. This plugin provides the necessary tools for Construct 3 interaction with Telegram Mini Apps features.",
+	"start_url": "index.html",
+	"display": "fullscreen",
+	"orientation": "landscape",
+	"background_color": "#ffffff",
+	"icons": [
+		{
+			"src": "icons/icon-16.png",
+			"sizes": "16x16",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-32.png",
+			"sizes": "32x32",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-64.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-128.png",
+			"sizes": "128x128",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-256.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	],
+	"screenshots": []
+}
