@@ -37,10 +37,7 @@ C3.Plugins.TelegramMiniAppsSDK.Cnds =
         OnAlertClosed() { return true; },
         OnConfirmOK() { return true; },
         OnConfirmClosed() { return true; },
-        OnScanQrPopupResult(data) {
-            this.scanQrPopupData = data;
-            return true;
-        },
+        OnScanQrPopupResult() { return true; },
         /**
          *
          * @author Biometric Manager
@@ -74,9 +71,9 @@ C3.Plugins.TelegramMiniAppsSDK.Cnds =
          * @author Invoice
          * @alias invoice
          */
-        OnInvoiceCancelled(id) { return true; },
-        OnInvoiceFailed(id) { return true; },
-        OnInvoicePaid(id) { return true; },
-        OnInvoicePending(id) { return true; },
+        OnInvoiceCancelled() { return true; },
+        OnInvoiceFailed() { return true; },
+        OnInvoicePaid() { return true; },
+        OnInvoicePending() { return true; },
     };
 // export {};

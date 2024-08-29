@@ -68,13 +68,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.TelegramMiniAppsSDK.Acts.UpdateBiometricToken,
 		C3.Plugins.TelegramMiniAppsSDK.Acts.CloudStorageSetItem,
 		C3.Plugins.TelegramMiniAppsSDK.Acts.CloudStorageRemoveItem,
-		C3.Plugins.TelegramMiniAppsSDK.Acts.CloudStorageGetItem,
-		C3.Plugins.System.Acts.WaitForPreviousActions,
 		C3.Plugins.TextBox.Acts.AppendText,
-		C3.Plugins.TelegramMiniAppsSDK.Exps.CloudStorageValue,
-		C3.Plugins.TelegramMiniAppsSDK.Cnds.OnCloudStorageItemGetSuccess,
-		C3.Plugins.Browser.Acts.ConsoleLog,
-		C3.Plugins.TelegramMiniAppsSDK.Cnds.OnCloudStorageError
+		C3.Plugins.TelegramMiniAppsSDK.Exps.CloudStorageValue
 	];
 };
 self.C3_JsPropNameTable = [

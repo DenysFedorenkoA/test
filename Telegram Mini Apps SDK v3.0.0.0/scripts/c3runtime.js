@@ -5840,12 +5840,10 @@ self.C3_ExpressionFuncs = [
 			return () => ((("Got 'username': " + f0("username")) + "\n") + "-----");
 		},
 		() => "GetLanguageCode",
-		() => "language_coode",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => ((("Got 'language_code': " + f0("language_code")) + "\n") + "-----");
-		},
-		() => "Alo"
+		}
 ];
 
 

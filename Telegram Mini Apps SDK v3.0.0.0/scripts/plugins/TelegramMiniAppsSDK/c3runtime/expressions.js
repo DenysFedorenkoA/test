@@ -24,6 +24,7 @@ C3.Plugins.TelegramMiniAppsSDK.Exps =
         IsClosingConfirmationEnabled() { return this._getNumberFromBoolean(Telegram.WebApp.isClosingConfirmationEnabled); },
         IsVerticalSwipesEnabled() { return this._getNumberFromBoolean(Telegram.WebApp.isVerticalSwipesEnabled); },
         ColorScheme() { return Telegram.WebApp.colorScheme; },
+        QrTextData() { return this.qrTextReceived; },
         /**
          *
          * @author Buttons
@@ -61,11 +62,11 @@ C3.Plugins.TelegramMiniAppsSDK.Exps =
          * @alias cloud-storage
          */
         CloudStorageValue(key) {
-            const item = this.cloudStorageValues.find(k => k.key === key);
-            if (item) {
-                return item.value;
+            if (this.cloudStorage !== null && this.cloudStorage[key] !== null) {
+                return this.cloudStorage[key];
             }
-            return '';
+            else
+                return '';
         }
     };
 // export {};

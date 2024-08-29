@@ -48,16 +48,10 @@ C3.Plugins.TelegramMiniAppsSDK.Acts =
             });
         },
         AuthenticateBiometricManager(reason) {
-            Telegram.WebApp.BiometricManager.authenticate({
+            const params = {
                 reason: reason
-            }, async (isAuthenticated) => {
-                if (isAuthenticated) {
-                    await this._triggerAsync(this.PluginConditions.OnBiometricAuthenticateSuccess);
-                }
-                else {
-                    await this._triggerAsync(this.PluginConditions.OnBiometricAuthenticateError);
-                }
-            });
+            };
+            Telegram.WebApp.BiometricManager.authenticate(params, () => { });
         },
         OpenSettingsBiometricManager() { Telegram.WebApp.BiometricManager.openSettings(); },
         RequestAccessBiometricManager(reason) {
@@ -143,26 +137,25 @@ C3.Plugins.TelegramMiniAppsSDK.Acts =
             });
         },
         ShowAlert(message) {
-            Telegram.WebApp.showAlert(message, async () => {
-                await this._triggerAsync(this.PluginConditions.OnAlertClosed);
+            Telegram.WebApp.showAlert(message, () => {
+                this._trigger(this.PluginConditions.OnAlertClosed);
             });
         },
         ShowConfirm(message) {
-            Telegram.WebApp.showConfirm(message, async (ok) => {
+            Telegram.WebApp.showConfirm(message, (ok) => {
                 if (ok) {
-                    await this._triggerAsync(this.PluginConditions.OnConfirmOK);
+                    this._trigger(this.PluginConditions.OnConfirmOK);
                 }
                 else {
-                    await this._triggerAsync(this.PluginConditions.OnConfirmClosed);
+                    this._trigger(this.PluginConditions.OnConfirmClosed);
                 }
             });
         },
         ShowScanQrPopup(text) {
-            Telegram.WebApp.showScanQrPopup({
+            const params = {
                 text: text
-            }, async (data) => {
-                this._triggerAsync(this.PluginConditions.OnScanQrPopupResult(data));
-            });
+            };
+            Telegram.WebApp.showScanQrPopup(params);
         },
         CloseScanQrPopup() { Telegram.WebApp.closeScanQrPopup(); },
         CopyToClipboard(data) {
@@ -175,12 +168,12 @@ C3.Plugins.TelegramMiniAppsSDK.Acts =
             document.body.removeChild(o);
         },
         GetChatMember(botToken, chatId = '@channelusername', userId) {
-            isUserInChannel(botToken, chatId, userId).then(async (isInChannel) => {
+            isUserInChannel(botToken, chatId, userId).then(isInChannel => {
                 if (isInChannel) {
-                    await this._triggerAsync(this.PluginConditions.OnGetChatMemberSuccess);
+                    this._trigger(this.PluginConditions.OnGetChatMemberSuccess);
                 }
                 else {
-                    await this._triggerAsync(this.PluginConditions.OnGetChatMemberError);
+                    this._trigger(this.PluginConditions.OnGetChatMemberError);
                 }
             });
         },
@@ -189,42 +182,34 @@ C3.Plugins.TelegramMiniAppsSDK.Acts =
          * @author Cloud Storade
          * @alias cloud-storage
          */
+        /**
+         * @deprecated
+         */
         CloudStorageGetItem(key) {
-            Telegram.WebApp.CloudStorage.getItem(key, async (error, value) => {
-                if (error !== null) {
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageError(error));
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemGetError(key));
-                }
-                else {
-                    //console.log(`I'm trigger!`, `Key:${key}, Value:${value}`);
-                    this.cloudStorageValues.push({
-                        key: key,
-                        value: value
-                    });
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemGetSuccess(key));
-                }
-            });
+            // if (this.cloudStorage !== null) {
+            //     this.cloudStorage[key];
+            // } else {
+            // }
+            // Telegram.WebApp.CloudStorage.getItem(key, (error, value) => {
+            //     if (error !== null) {
+            //         this._trigger(this.PluginConditions.OnCloudStorageError(error));
+            //         this._trigger(this.PluginConditions.OnCloudStorageItemGetError(key));          
+            //     } else {
+            //         this.cloudStorageValue = (value !== null) ? value : '';
+            //         this._trigger(this.PluginConditions.OnCloudStorageItemGetSuccess(key));
+            //     }
+            // })
         },
         CloudStorageSetItem(key, value) {
-            Telegram.WebApp.CloudStorage.setItem(key, value, async (error, success) => {
-                if (error !== null) {
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageError(error));
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemSetError(key));
-                }
-                else if (success) {
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemSetSuccess(key));
-                }
+            Telegram.WebApp.CloudStorage.setItem(key, value, (error, success) => {
+                if (success)
+                    this._loadCloudStorage();
             });
         },
         CloudStorageRemoveItem(key) {
-            Telegram.WebApp.CloudStorage.removeItem(key, async (error, success) => {
-                if (error !== null) {
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageError(error));
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemRemoveError(key));
-                }
-                else if (success) {
-                    await this._triggerAsync(this.PluginConditions.OnCloudStorageItemRemoveSuccess(key));
-                }
+            Telegram.WebApp.CloudStorage.removeItem(key, (error, success) => {
+                if (success)
+                    this._loadCloudStorage();
             });
         },
         /**
@@ -232,23 +217,8 @@ C3.Plugins.TelegramMiniAppsSDK.Acts =
          * @author Invoice
          * @alias invoice
          */
-        OpenInvoice(id, url) {
-            Telegram.WebApp.openInvoice(url, async (url, status) => {
-                switch (status) {
-                    case 'cancelled':
-                        await this._triggerAsync(this.PluginConditions.OnInvoiceCancelled(id));
-                        break;
-                    case 'failed':
-                        await this._triggerAsync(this.PluginConditions.OnInvoiceFailed(id));
-                        break;
-                    case 'paid':
-                        await this._triggerAsync(this.PluginConditions.OnInvoicePaid(id));
-                        break;
-                    case 'pending':
-                        await this._triggerAsync(this.PluginConditions.OnInvoicePending(id));
-                        break;
-                }
-            });
+        OpenInvoice(url) {
+            Telegram.WebApp.openInvoice(url, () => { });
         },
     };
 async function isUserInChannel(botToken, chatId, userId) {

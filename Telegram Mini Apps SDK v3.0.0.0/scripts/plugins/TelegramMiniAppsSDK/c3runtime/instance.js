@@ -5,8 +5,9 @@ class SingleGlobalInstance extends globalThis.ISDKInstanceBase {
         this.isVerticalSwipesEnabled = false;
         this.isClosingConfirmationEnabled = false;
         this.isExpanded = false;
-        this.scanQrPopupData = '';
-        this.cloudStorageValues = [];
+        this.qrTextReceived = '';
+        this.biometricToken = '';
+        this.cloudStorage = null;
         this.PluginConditions = C3.Plugins.TelegramMiniAppsSDK.Cnds;
         const properties = this._getInitProperties();
         if (properties) {
@@ -28,16 +29,9 @@ class SingleGlobalInstance extends globalThis.ISDKInstanceBase {
             }
             Telegram.WebApp.disableVerticalSwipes();
         }
+        this._loadCloudStorage();
+        this._setupEventHandlers();
         Telegram.WebApp.ready();
-        Telegram.WebApp.onEvent('backButtonClicked', () => {
-            this._trigger(C3.Plugins.TelegramMiniAppsSDK.Cnds.OnClickBackButton);
-        });
-        Telegram.WebApp.onEvent('mainButtonClicked', () => {
-            this._trigger(C3.Plugins.TelegramMiniAppsSDK.Cnds.OnClickMainButton);
-        });
-        Telegram.WebApp.onEvent('settingsButtonClicked', () => {
-            this._trigger(C3.Plugins.TelegramMiniAppsSDK.Cnds.OnClickSettingsButton);
-        });
     }
     _release() {
         super._release();
@@ -55,6 +49,69 @@ class SingleGlobalInstance extends globalThis.ISDKInstanceBase {
         else {
             return false;
         }
+    }
+    _loadCloudStorage() {
+        Telegram.WebApp.CloudStorage.getKeys((error, keys) => {
+            if (keys !== null) {
+                Telegram.WebApp.CloudStorage.getItems(keys, (error, values) => {
+                    if (error === null) {
+                        this.cloudStorage = values;
+                    }
+                });
+            }
+        });
+    }
+    _setupEventHandlers() {
+        Telegram.WebApp.onEvent('backButtonClicked', () => {
+            this._trigger(this.PluginConditions.OnClickBackButton);
+        });
+        Telegram.WebApp.onEvent('mainButtonClicked', () => {
+            this._trigger(this.PluginConditions.OnClickMainButton);
+        });
+        Telegram.WebApp.onEvent('settingsButtonClicked', () => {
+            this._trigger(this.PluginConditions.OnClickSettingsButton);
+        });
+        Telegram.WebApp.onEvent('invoiceClosed', (eventData) => {
+            switch (eventData.status) {
+                case 'paid':
+                    this._trigger(this.PluginConditions.OnInvoicePaid);
+                    break;
+                case 'cancelled':
+                    this._trigger(this.PluginConditions.OnInvoiceCancelled);
+                    break;
+                case 'failed':
+                    this._trigger(this.PluginConditions.OnInvoiceFailed);
+                    break;
+                case 'pending':
+                    this._trigger(this.PluginConditions.OnInvoicePending);
+                    break;
+            }
+        });
+        Telegram.WebApp.onEvent('biometricTokenUpdated', (eventData) => {
+            switch (eventData.isUpdated) {
+                case true:
+                    this._trigger(this.PluginConditions.OnUpdateBiometricTokenSuccess);
+                    break;
+                case false:
+                    this._trigger(this.PluginConditions.OnUpdateBiometricTokenError);
+                    break;
+            }
+        });
+        Telegram.WebApp.onEvent('biometricAuthRequested', (eventData) => {
+            switch (eventData.isAuthenticated) {
+                case true:
+                    this.biometricToken = (eventData.biometricToken) ? eventData.biometricToken : '';
+                    this._trigger(this.PluginConditions.OnBiometricAuthenticateSuccess);
+                    break;
+                case false:
+                    this._trigger(this.PluginConditions.OnBiometricAuthenticateError);
+                    break;
+            }
+        });
+        Telegram.WebApp.onEvent('qrTextReceived', (eventData) => {
+            this.qrTextReceived = eventData.data;
+            this._trigger(this.PluginConditions.OnScanQrPopupResult);
+        });
     }
 }
 ;
