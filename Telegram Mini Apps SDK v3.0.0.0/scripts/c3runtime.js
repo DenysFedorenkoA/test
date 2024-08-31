@@ -4334,10 +4334,10 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.ScriptsInEvents.EventSheet1_Event1_Act1,
 		C3.Plugins.System.Cnds.CompareBoolVar,
-		C3.Plugins.Text.Cnds.CompareText,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.Dictionary.Exps.AsJSON,
+		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Touch.Cnds.OnTapGesture,
 		C3.Plugins.Dictionary.Cnds.HasKey,
 		C3.Plugins.Dictionary.Acts.SetKey,
@@ -4460,7 +4460,6 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
-		() => "",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
