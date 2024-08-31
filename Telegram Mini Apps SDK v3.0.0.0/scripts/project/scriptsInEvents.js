@@ -35,7 +35,7 @@ const scriptsInEvents = {
 
 	async EventSheet1_Event3_Act2(runtime, localVars)
 	{
-		Telegram.WebApp.CloudStorage.setItem('var',globalVars.var);
+		Telegram.WebApp.CloudStorage.setItem('var',runtime.globalVars.var);
 	}
 
 };
