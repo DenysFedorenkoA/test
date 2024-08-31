@@ -32,7 +32,7 @@ const scriptsInEvents = {
 		retrieveData();
 	},
 
-	async EventSheet1_Event3_Act2(runtime, localVars)
+	async EventSheet1_Event2_Act2(runtime, localVars)
 	{
 		Telegram.WebApp.CloudStorage.setItem('var',globalVars.var);
 	}
