@@ -4320,17 +4320,19 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Touch,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.ScriptsInEvents.EventSheet1_Event1_Act1,
-		C3.Plugins.System.Acts.WaitForPreviousActions,
+		C3.Plugins.System.Cnds.CompareBoolVar,
+		C3.Plugins.Text.Cnds.CompareText,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.Touch.Cnds.OnTapGesture,
 		C3.Plugins.System.Acts.AddVar,
-		C3.ScriptsInEvents.EventSheet1_Event2_Act2
+		C3.ScriptsInEvents.EventSheet1_Event3_Act2
 	];
 };
 self.C3_JsPropNameTable = [
 	{Text: 0},
 	{Touch: 0},
-	{var: 0}
+	{var: 0},
+	{loadComplite: 0}
 ];
 
 self.InstanceType = {
@@ -4436,6 +4438,7 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
+		() => "",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
