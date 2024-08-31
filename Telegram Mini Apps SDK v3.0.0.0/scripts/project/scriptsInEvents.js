@@ -3,14 +3,38 @@
 
 const scriptsInEvents = {
 
-	async Es_main_Event1_Act1(runtime, localVars)
+	async EventSheet1_Event1_Act1(runtime, localVars)
 	{
-		document.cookie.split(';').forEach(cookie => {
-			const eqPos = cookie.indexOf('=');
-			const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-			document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+		async function readFromCloudStorage(key) {
+		  return new Promise((resolve, reject) => {
+		    Telegram.WebApp.CloudStorage.getItem(key, (err, data) => {
+		      if (err) {
+		        reject(err);
+		      } else {
+		        resolve(data);
+		      }
+		    });
+		  });
+		}
 		
-		});
+		async function retrieveData() {
+		  try {
+		    const tDayData = await readFromCloudStorage('var');
+		
+		
+		    runtime.globalVars.var = Number(tDayData);
+		
+		  } catch (err) {
+		    console.error('Error retrieving data from CloudStorage:', err);
+		  }
+		}
+		
+		retrieveData();
+	},
+
+	async EventSheet1_Event3_Act2(runtime, localVars)
+	{
+		Telegram.WebApp.CloudStorage.setItem('var',globalVars.var);
 	}
 
 };
