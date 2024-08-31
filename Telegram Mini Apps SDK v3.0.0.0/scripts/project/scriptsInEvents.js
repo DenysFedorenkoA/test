@@ -22,7 +22,7 @@ const scriptsInEvents = {
 		    const tDayData = await readFromCloudStorage('var');
 		
 		
-		    runtime.globalVars.var = Number(tDayData);
+		    runtime.globalVars.var = String(tDayData);
 			runtime.globalVars.loadComplite=true;
 		
 		  } catch (err) {
@@ -33,9 +33,9 @@ const scriptsInEvents = {
 		retrieveData();
 	},
 
-	async EventSheet1_Event3_Act2(runtime, localVars)
+	async EventSheet1_Event7_Act1(runtime, localVars)
 	{
-		Telegram.WebApp.CloudStorage.setItem('var',runtime.globalVars.var);
+		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	}
 
 };
