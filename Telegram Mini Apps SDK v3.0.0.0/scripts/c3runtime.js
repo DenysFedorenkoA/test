@@ -5957,7 +5957,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.EsMain_Event47_Act1,
 		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.ScriptsInEvents.EsMain_Event56_Act1,
-		C3.ScriptsInEvents.EsMain_Event56_Act2,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
