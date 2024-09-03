@@ -6933,12 +6933,13 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
-			return () => and(n0.ExpObject((n1.ExpInstVar_Family()).toString()), "\n");
+			return () => (and("G_Gun", n0.ExpObject((n1.ExpInstVar_Family()).toString())) + "\n");
 		},
 		p => {
-			const n0 = p._GetNode(0);
+			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
-			return () => n0.ExpObject((n1.ExpInstVar_Family()).toString());
+			const n2 = p._GetNode(2);
+			return () => f0(n1.ExpObject((n2.ExpInstVar_Family()).toString()));
 		},
 		p => {
 			const n0 = p._GetNode(0);
