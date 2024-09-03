@@ -5859,6 +5859,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.CreateObjectByName,
 		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.System.Cnds.PickLastCreated,
+		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Exps.Width,
 		C3.Plugins.Sprite.Acts.SetWidth,
 		C3.Plugins.Sprite.Acts.SetHeight,
@@ -5882,7 +5883,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.EveryTick,
 		C3.Behaviors.Tween.Cnds.OnTweensFinished,
 		C3.Plugins.System.Cnds.PickAll,
-		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
 		C3.Plugins.System.Acts.SetGroupActive,
 		C3.Plugins.Sprite.Exps.ImagePointX,
@@ -5941,7 +5941,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.EsCoin_Event3_Act1,
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
-		C3.Plugins.Keyboard.Cnds.OnKey,
 		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
@@ -6946,6 +6945,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject();
 		},
+		() => 270,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 10);
@@ -7179,7 +7179,6 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => and("G_Gun", v0.GetValue());
 		},
-		() => 270,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
@@ -7862,10 +7861,6 @@ self.C3_ExpressionFuncs = [
 			const n1 = p._GetNode(1);
 			return () => ((v0.GetValue()) === (n1.ExpObject(".data")) ? 1 : 0);
 		},
-		() => "test",
-		() => "armory",
-		() => "popUp",
-		() => "upgradeArmory",
 		() => "language",
 		() => "translateSprite",
 		() => "changedLanguage",
@@ -7918,6 +7913,7 @@ self.C3_ExpressionFuncs = [
 			const v2 = p._GetNode(2).GetVar();
 			return () => and(n0.ExpObject((v1.GetValue() + ".stage")), (v2.GetValue() + 1));
 		},
+		() => "popUp",
 		() => "openPopUp",
 		() => "UI",
 		p => {
