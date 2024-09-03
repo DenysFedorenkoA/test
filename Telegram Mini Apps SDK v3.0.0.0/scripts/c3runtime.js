@@ -5941,7 +5941,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
 		C3.Plugins.Keyboard.Cnds.OnKey,
-		C3.Plugins.Json.Exps.ToBeautifiedString,
 		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
@@ -5954,6 +5953,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.SetObjectTimescale,
 		C3.Plugins.Text.Acts.SetInstanceVar,
 		C3.Plugins.Text.Acts.SetFontColor,
+		C3.Plugins.Json.Exps.ToBeautifiedString,
 		C3.ScriptsInEvents.EsMain_Event47_Act1,
 		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.ScriptsInEvents.EsMain_Event56_Act1,
@@ -6929,6 +6929,11 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpInstVar_Family()).toString();
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => and(n0.ExpObject((n1.ExpInstVar_Family()).toString()), "\n");
 		},
 		p => {
 			const n0 = p._GetNode(0);
