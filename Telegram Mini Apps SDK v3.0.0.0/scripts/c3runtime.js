@@ -5856,15 +5856,15 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Json.Cnds.CompareValue,
-		C3.Plugins.Text.Acts.AppendText,
-		C3.Plugins.System.Acts.CreateObjectByName,
-		C3.Plugins.Sprite.Exps.X,
+		C3.Plugins.Sprite.Acts.Spawn,
 		C3.Plugins.System.Cnds.PickLastCreated,
+		C3.Plugins.Text.Acts.AppendText,
+		C3.Plugins.Sprite.Exps.UID,
 		C3.Plugins.Sprite.Exps.Width,
 		C3.Plugins.Sprite.Acts.SetWidth,
 		C3.Plugins.Sprite.Acts.SetHeight,
 		C3.Plugins.LocalStorage.Exps.ItemValue,
-		C3.Plugins.Sprite.Exps.UID,
+		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
 		C3.Plugins.Json.Acts.SetValue,
@@ -5883,6 +5883,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.EveryTick,
 		C3.Behaviors.Tween.Cnds.OnTweensFinished,
 		C3.Plugins.System.Cnds.PickAll,
+		C3.Plugins.System.Acts.CreateObjectByName,
 		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
 		C3.Plugins.System.Acts.SetGroupActive,
@@ -5911,7 +5912,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Dictionary.Acts.SetKey,
 		C3.Plugins.Dictionary.Acts.AddKey,
 		C3.Plugins.Dictionary.Exps.AsJSON,
-		C3.Plugins.Sprite.Acts.Spawn,
 		C3.Plugins.Sprite.Exps.Angle,
 		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
@@ -6931,20 +6931,10 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpInstVar_Family()).toString();
 		},
 		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (and("G_Gun", n0.ExpObject((n1.ExpInstVar_Family()).toString())) + "\n");
-		},
-		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
 			const n2 = p._GetNode(2);
 			return () => f0(n1.ExpObject((n2.ExpInstVar_Family()).toString()));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => and("G_Gun", n0.ExpObject((n1.ExpInstVar_Family()).toString()));
 		},
 		() => "Container",
 		p => {
