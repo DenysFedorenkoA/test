@@ -1,11 +1,11 @@
 {
-	"name": "New project",
-	"short_name": "New project",
+	"name": "MDG",
+	"short_name": "MDG",
 	"description": "",
 	"start_url": "index.html",
 	"display": "fullscreen",
 	"orientation": "portrait",
-	"background_color": "#ffffff",
+	"background_color": "#000000",
 	"icons": [
 		{
 			"src": "icons/icon-16.png",
