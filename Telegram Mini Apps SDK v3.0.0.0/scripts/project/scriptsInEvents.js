@@ -66,7 +66,7 @@ const scriptsInEvents = {
 		
 		    runtime.globalVars.varData = String(varData);
 			runtime.globalVars.gameVar = String(gameVar);
-			runtime.globalVars.gamesave = String(gameSave);
+			runtime.globalVars.gameSave = String(gameSave);
 			runtime.globalVars.loadComplite=true;
 		
 		  } catch (err) {
