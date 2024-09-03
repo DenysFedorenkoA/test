@@ -77,6 +77,37 @@ const scriptsInEvents = {
 		retrieveData();
 	},
 
+	async EsMain_Event56_Act2(runtime, localVars)
+	{
+		async function readFromCloudStorage(key) {
+		  return new Promise((resolve, reject) => {
+		    Telegram.WebApp.CloudStorage.getItem(key, (err, data) => {
+		      if (err) {
+		        reject(err);
+		      } else {
+		        resolve(data);
+		      }
+		    });
+		  });
+		}
+		
+		async function retrieveData() {
+		  try {
+		    const tDayData = await readFromCloudStorage('var');
+		
+		
+		    runtime.globalVars.var = String(tDayData);
+			runtime.globalVars.qwe = 1;
+			runtime.globalVars.loadComplite=true;
+		
+		  } catch (err) {
+		    console.error('Error retrieving data from CloudStorage:', err);
+		  }
+		}
+		
+		retrieveData();
+	},
+
 	async EsHomeevents_Event20_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.close()
