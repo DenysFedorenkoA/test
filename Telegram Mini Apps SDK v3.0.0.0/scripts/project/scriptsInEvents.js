@@ -62,7 +62,7 @@ const scriptsInEvents = {
 		  try {
 		    const varData = await readFromCloudStorage('varData');
 			const gameVar = await readFromCloudStorage('gameVar');
-			const gameSave = await readFromCloudStorage('gameVar');
+			const gameSave = await readFromCloudStorage('gameSave');
 		
 		    runtime.globalVars.varData = String(varData);
 			runtime.globalVars.gameVar = String(gameVar);
