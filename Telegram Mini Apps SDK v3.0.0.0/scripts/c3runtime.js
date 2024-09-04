@@ -5857,6 +5857,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Json.Cnds.CompareValue,
 		C3.Plugins.Sprite.Exps.UID,
+		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
 		C3.Plugins.Json.Acts.SetValue,
@@ -5946,7 +5947,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
 		C3.Plugins.Keyboard.Cnds.OnKey,
-		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
@@ -6937,6 +6937,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar_Family();
 		},
+		() => "yes\n",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7835,8 +7836,6 @@ self.C3_ExpressionFuncs = [
 		() => "armory",
 		() => "popUp",
 		() => "upgradeArmory",
-		() => "create\n",
-		() => "destroy\n",
 		() => "language",
 		() => "translateSprite",
 		() => "changedLanguage",
