@@ -5857,7 +5857,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Json.Cnds.CompareValue,
 		C3.Plugins.Sprite.Exps.UID,
-		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
 		C3.Plugins.Json.Acts.SetValue,
@@ -5880,6 +5879,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.PickLastCreated,
 		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
+		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.Sprite.Exps.Width,
 		C3.Plugins.Sprite.Acts.SetWidth,
@@ -6940,7 +6940,6 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar_Family();
 		},
-		() => "yes1\n",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7148,6 +7147,9 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpObject(".number_of_gun");
 		},
 		() => "Guns_Create",
+		() => 2,
+		() => 3,
+		() => "4\n",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 10);
@@ -7229,9 +7231,7 @@ self.C3_ExpressionFuncs = [
 		() => 85.5,
 		() => 755,
 		() => 195.5,
-		() => 2,
 		() => 305.5,
-		() => 3,
 		() => 415.5,
 		() => 4,
 		() => 525.5,
