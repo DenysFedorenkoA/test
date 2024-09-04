@@ -6925,6 +6925,12 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpInstVar_Family()).toString();
 		},
 		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			const n2 = p._GetNode(2);
+			return () => f0(n1.ExpObject((n2.ExpInstVar_Family()).toString()));
+		},
+		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject();
 		},
