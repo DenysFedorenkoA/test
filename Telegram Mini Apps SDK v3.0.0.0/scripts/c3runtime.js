@@ -5856,14 +5856,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Json.Cnds.CompareValue,
-		C3.Plugins.System.Acts.CreateObjectByName,
-		C3.Plugins.Sprite.Exps.X,
-		C3.Plugins.System.Cnds.PickLastCreated,
-		C3.Plugins.Sprite.Acts.SetAngle,
-		C3.Plugins.Sprite.Exps.Width,
-		C3.Plugins.Sprite.Acts.SetWidth,
-		C3.Plugins.Sprite.Acts.SetHeight,
-		C3.Plugins.LocalStorage.Exps.ItemValue,
 		C3.Plugins.Sprite.Exps.UID,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
@@ -5883,10 +5875,22 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.EveryTick,
 		C3.Behaviors.Tween.Cnds.OnTweensFinished,
 		C3.Plugins.System.Cnds.PickAll,
+		C3.Plugins.System.Acts.CreateObjectByName,
+		C3.Plugins.System.Cnds.PickLastCreated,
+		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
+		C3.Plugins.Sprite.Exps.X,
+		C3.Plugins.Sprite.Exps.Width,
+		C3.Plugins.Sprite.Acts.SetWidth,
+		C3.Plugins.Sprite.Acts.SetHeight,
+		C3.Plugins.Text.Cnds.OnCreated,
+		C3.Plugins.Text.Cnds.CompareInstanceVar,
+		C3.Plugins.Text.Cnds.PickParent,
+		C3.Plugins.Text.Acts.SetPos,
 		C3.Plugins.System.Acts.SetGroupActive,
 		C3.Plugins.Sprite.Exps.ImagePointX,
 		C3.Plugins.Sprite.Exps.ImagePointY,
+		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.Dictionary.Exps.Get,
 		C3.Plugins.Sprite.Acts.AddInstanceVar,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
@@ -5915,12 +5919,14 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.Sprite.Cnds.OnCollision,
+		C3.Plugins.Sprite.Acts.SubInstanceVar,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelMembersCount,
 		C3.Plugins.System.Cnds.ForEachOrdered,
 		C3.Plugins.TiledBg.Acts.MoveToTop,
 		C3.Plugins.System.Exps.float,
 		C3.Plugins.System.Exps.tokenat,
 		C3.Plugins.TiledBg.Exps.Width,
+		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Behaviors.Bullet.Acts.SetEnabled,
 		C3.Plugins.System.Exps.dt,
 		C3.Plugins.Sprite.Acts.StopAnim,
@@ -5941,11 +5947,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
 		C3.Plugins.System.Cnds.OnSignal,
-		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
-		C3.Plugins.Text.Cnds.CompareInstanceVar,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
-		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.System.Exps.viewportmidx,
 		C3.Plugins.System.Exps.viewporttop,
 		C3.Plugins.System.Exps.viewportmidy,
@@ -5954,17 +5957,15 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Acts.SetFontColor,
 		C3.Plugins.Json.Exps.ToBeautifiedString,
 		C3.ScriptsInEvents.EsMain_Event47_Act1,
-		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.ScriptsInEvents.EsMain_Event56_Act1,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
 		C3.Plugins.System.Acts.SetCanvasSize,
 		C3.Plugins.System.Cnds.OnLoadComplete,
+		C3.Plugins.System.Acts.ToggleBoolVar,
 		C3.Plugins.System.Acts.SetTimescale,
-		C3.Behaviors.Tween.Cnds.IsPlaying,
 		C3.Plugins.System.Cnds.Every,
-		C3.Plugins.Text.Acts.SetPos,
 		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.AJAX.Acts.RequestFile,
 		C3.Plugins.Json.Cnds.HasKey,
@@ -5974,65 +5975,63 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.ResetGlobals,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerReset,
 		C3.Plugins.System.Acts.RestartLayout,
-		C3.Plugins.Dictionary.Acts.Clear,
-		C3.Plugins.Json.Acts.DeleteKey,
-		C3.Plugins.Json.Exps.CurrentKey,
+		C3.ScriptsInEvents.EsHomeevents_Event18_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event19_Act1,
 		C3.ScriptsInEvents.EsHomeevents_Event21_Act1,
 		C3.ScriptsInEvents.EsHomeevents_Event22_Act1,
 		C3.ScriptsInEvents.EsHomeevents_Event24_Act1,
 		C3.ScriptsInEvents.EsHomeevents_Event25_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event26_Act1,
 		C3.ScriptsInEvents.EsHomeevents_Event27_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event28_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act1,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerSetName,
-		C3.ScriptsInEvents.EsHomeevents_Event31_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event31_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event31_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event31_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event32_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event32_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event32_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event32_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event32_Act5,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act5,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act6,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act7,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act8,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act9,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act10,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act11,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act12,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act13,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act14,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act15,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act16,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act17,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act18,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act19,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act20,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act21,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act22,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act23,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act24,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act25,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act26,
-		C3.ScriptsInEvents.EsHomeevents_Event33_Act27,
+		C3.ScriptsInEvents.EsHomeevents_Event28_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event28_Act2,
+		C3.ScriptsInEvents.EsHomeevents_Event28_Act3,
+		C3.ScriptsInEvents.EsHomeevents_Event28_Act4,
+		C3.ScriptsInEvents.EsHomeevents_Event29_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event29_Act2,
+		C3.ScriptsInEvents.EsHomeevents_Event29_Act3,
+		C3.ScriptsInEvents.EsHomeevents_Event29_Act4,
+		C3.ScriptsInEvents.EsHomeevents_Event29_Act5,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act2,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act3,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act4,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act5,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act6,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act7,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act8,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act9,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act10,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act11,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act12,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act13,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act14,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act15,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act16,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act17,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act18,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act19,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act20,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act21,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act22,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act23,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act24,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act25,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act26,
+		C3.ScriptsInEvents.EsHomeevents_Event30_Act27,
+		C3.ScriptsInEvents.EsHomeevents_Event36,
+		C3.ScriptsInEvents.EsHomeevents_Event37,
+		C3.ScriptsInEvents.EsHomeevents_Event38,
 		C3.ScriptsInEvents.EsHomeevents_Event39,
-		C3.ScriptsInEvents.EsHomeevents_Event40,
-		C3.ScriptsInEvents.EsHomeevents_Event41,
-		C3.ScriptsInEvents.EsHomeevents_Event42,
-		C3.ScriptsInEvents.EsHomeevents_Event47_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event47_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event47_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event47_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event47_Act6,
+		C3.ScriptsInEvents.EsHomeevents_Event44_Act1,
+		C3.ScriptsInEvents.EsHomeevents_Event44_Act2,
+		C3.ScriptsInEvents.EsHomeevents_Event44_Act3,
+		C3.ScriptsInEvents.EsHomeevents_Event44_Act4,
+		C3.ScriptsInEvents.EsHomeevents_Event44_Act6,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
 		C3.Plugins.GameAnalytics.Acts.initialize,
+		C3.Plugins.LocalStorage.Exps.ItemValue,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
 		C3.Plugins.Date.Cnds.CompareTimeStamps,
@@ -6051,13 +6050,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreateError,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsAnyFetch,
 		C3.Plugins.GamePush_Channels.Cnds.EachMember,
-		C3.ScriptsInEvents.EsHomeevents_Event89_Act7,
+		C3.ScriptsInEvents.EsHomeevents_Event86_Act7,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsRegistered,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersRegister,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsTodayRewardClaimed,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersClaimDay,
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
-		C3.ScriptsInEvents.EsHomeevents_Event108_Act1
+		C3.ScriptsInEvents.EsHomeevents_Event105_Act1
 	];
 };
 self.C3_JsPropNameTable = [
@@ -6153,7 +6152,6 @@ self.C3_JsPropNameTable = [
 	{angle_bullet: 0},
 	{is_bullet_valid: 0},
 	{G_Bullet1: 0},
-	{G_Bullet2: 0},
 	{DicData: 0},
 	{Array_RandomSetGun: 0},
 	{Array_RandomSetMonster: 0},
@@ -6247,8 +6245,6 @@ self.C3_JsPropNameTable = [
 	{Wall_TextLevelUpgrade: 0},
 	{PlayButton: 0},
 	{InviteButton: 0},
-	{Pause: 0},
-	{PauseButton: 0},
 	{Exit: 0},
 	{Continue: 0},
 	{TaskButton: 0},
@@ -6282,12 +6278,10 @@ self.C3_JsPropNameTable = [
 	{mouth7: 0},
 	{mouth8: 0},
 	{mouth9: 0},
-	{ArmoryInfoBut: 0},
 	{btn_arrow: 0},
 	{btn_arrow2: 0},
 	{type: 0},
 	{buttons: 0},
-	{Home_ButtonSetting: 0},
 	{Home_ButtonYesDelete: 0},
 	{IncreaeBut: 0},
 	{MisInfoBut: 0},
@@ -6428,6 +6422,7 @@ self.C3_JsPropNameTable = [
 	{gameSave: 0},
 	{wave_test: 0},
 	{indexGuide: 0},
+	{pause: 0},
 	{varKey: 0},
 	{gamePushID: 0},
 	{id: 0},
@@ -6500,7 +6495,6 @@ self.InstanceType = {
 	Monster_SpawnScope: class extends self.ISpriteInstance {},
 	Monsters_Explosion: class extends self.ISpriteInstance {},
 	G_Bullet1: class extends self.ISpriteInstance {},
-	G_Bullet2: class extends self.ISpriteInstance {},
 	DicData: class extends self.IDictionaryInstance {},
 	Array_RandomSetGun: class extends self.IArrayInstance {},
 	Array_RandomSetMonster: class extends self.IArrayInstance {},
@@ -6577,7 +6571,6 @@ self.InstanceType = {
 	Wall_TextLevelUpgrade: class extends self.ISpriteFontInstance {},
 	PlayButton: class extends self.ISpriteInstance {},
 	InviteButton: class extends self.ISpriteInstance {},
-	PauseButton: class extends self.ISpriteInstance {},
 	Exit: class extends self.ISpriteInstance {},
 	Continue: class extends self.ISpriteInstance {},
 	TaskButton: class extends self.ISpriteInstance {},
@@ -6609,11 +6602,9 @@ self.InstanceType = {
 	mouth7: class extends self.ISpriteInstance {},
 	mouth8: class extends self.ISpriteInstance {},
 	mouth9: class extends self.ISpriteInstance {},
-	ArmoryInfoBut: class extends self.ISpriteInstance {},
 	btn_arrow: class extends self.ISpriteInstance {},
 	btn_arrow2: class extends self.ISpriteInstance {},
 	buttons: class extends self.ISpriteInstance {},
-	Home_ButtonSetting: class extends self.ISpriteInstance {},
 	Home_ButtonYesDelete: class extends self.ISpriteInstance {},
 	IncreaeBut: class extends self.ISpriteInstance {},
 	MisInfoBut: class extends self.ISpriteInstance {},
@@ -6933,50 +6924,30 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpInstVar_Family()).toString();
 		},
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			const n2 = p._GetNode(2);
-			return () => f0(n1.ExpObject((n2.ExpInstVar_Family()).toString()));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => and("G_Gun", n0.ExpObject((n1.ExpInstVar_Family()).toString()));
-		},
-		() => "Container",
-		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject();
 		},
-		() => 270,
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 10);
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0();
+			const n1 = p._GetNode(1);
+			return () => n0.ExpObject((n1.ExpInstVar_Family()).toString());
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => ((n0.ExpObject(".type")) === (f1()) ? 1 : 0);
+			return () => n0.ExpInstVar_Family();
 		},
+		() => "Guns_Get Gun Merge Max",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const n1 = p._GetNode(1);
+			return () => ((v0.GetValue()) < (n1.ExpInstVar_Family()) ? 1 : 0);
+		},
+		() => "Guns_Data",
+		() => "Guns_Apply Upgrade",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot1");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot2");
+			const n1 = p._GetNode(1);
+			return () => ((n0.ExpInstVar_Family()) === (n1.ExpObject(".type")) ? 1 : 0);
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -7005,43 +6976,6 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".time_shoot");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".number_of_gun");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 30);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 20);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 5);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (and("[outlineback=#000000][lineThickness=4]", n0.ExpInstVar()) + "[/lineThickness][underneath][/outline]");
-		},
-		() => "Guns_Get Gun Merge Max",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const n1 = p._GetNode(1);
-			return () => ((v0.GetValue()) < (n1.ExpInstVar_Family()) ? 1 : 0);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar_Family();
-		},
-		() => "Guns_Data",
-		() => "Guns_Apply Upgrade",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => ((n0.ExpInstVar_Family()) === (n1.ExpObject(".type")) ? 1 : 0);
 		},
 		() => "Guns_Save Data",
 		p => {
@@ -7141,6 +7075,10 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0();
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
 			return () => Math.floor(f0(0, n1.ExpObject()));
 		},
@@ -7182,11 +7120,42 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => and("G_Gun", v0.GetValue());
 		},
+		() => "Container",
+		() => 270,
 		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".bullet_type");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".bullet_type_shoot");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".bullet_type_shoot1");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".bullet_type_shoot2");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".number_of_gun");
 		},
 		() => "Guns_Create",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 10);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 30);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 20);
+		},
+		() => "margeCount",
 		() => "Guns_Spawn",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7463,11 +7432,6 @@ self.C3_ExpressionFuncs = [
 		() => -714706433490943,
 		() => -28002851839,
 		() => "Bullets_Attack Monsters",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar_Family() - n1.ExpInstVar_Family());
-		},
 		() => "Main",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7787,6 +7751,10 @@ self.C3_ExpressionFuncs = [
 		() => "Coin_Format Number",
 		() => "Coin_Update",
 		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
+		},
+		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
 			return () => (and("[outlineback=#000000][lineThickness=4]", f0(v1.GetValue())) + "[/lineThickness][underneath][/outline]");
@@ -7983,6 +7951,9 @@ self.C3_ExpressionFuncs = [
 			return () => (and("[outlineback=#000000][lineThickness=4]", f0(n1.ExpInstVar())) + "[/lineThickness][underneath][/outline]");
 		},
 		() => 404,
+		() => "infoButtons",
+		() => "infoArm",
+		() => "infoMission",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() + 6);
@@ -8022,7 +7993,6 @@ self.C3_ExpressionFuncs = [
 		() => "menuText",
 		() => "buttonPlay",
 		() => "buttonInvite",
-		() => "buttonMissionInfo",
 		() => "SubGiftDate",
 		() => "SubGiftGot",
 		() => 9,

@@ -33,7 +33,7 @@
 		"friendBonus":"Бонус за друзей +  ",
 		"coins%":" % монет",
 		"wave":"ВОЛНА ",
-		"stage ":"ЭТАП ",
+		"stage":"ЭТАП ",
 		"infinity":"БЕСКОНЕЧНОСТЬ"
 	},
 	
@@ -70,7 +70,7 @@
 		"friendBonus":"Friends bonus +  ",
 		"coins%":" % coins",
 		"wave":"WAVE ",
-		"stage ":"STAGE ",
+		"stage":"STAGE ",
 		"infinity":"INFINITY"
 	}
 }
