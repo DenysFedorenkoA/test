@@ -5855,13 +5855,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.System.Cnds.OnLayoutStart,
+		C3.Plugins.Json.Acts.Parse,
+		C3.Plugins.Eponesh_GameScore.Exps.PlayerGet,
 		C3.Plugins.Json.Cnds.CompareValue,
 		C3.Plugins.Sprite.Exps.UID,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
 		C3.Plugins.Json.Acts.SetValue,
-		C3.Plugins.Json.Acts.Parse,
-		C3.Plugins.Eponesh_GameScore.Exps.PlayerGet,
 		C3.Plugins.Arr.Acts.SetSize,
 		C3.Plugins.Arr.Acts.Push,
 		C3.Plugins.System.Exps.random,
@@ -6921,7 +6921,19 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => Math.abs((n0.ExpInstVar_Family() - v1.GetValue()));
 		},
-		() => "loadGun",
+		() => "Guns_Start  Load Data",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#714035][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("dataguns");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("datagunmerge");
+		},
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpInstVar_Family()).toString();
@@ -6940,6 +6952,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar_Family();
 		},
+		() => "loadGun",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7041,19 +7054,6 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpObject(("." + v1.GetValue()));
 		},
 		() => "Guns_Load Data Complete",
-		() => "Guns_Start  Load Data",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#714035][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("dataguns");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("datagunmerge");
-		},
 		() => "Guns_Get Order Random",
 		p => {
 			const n0 = p._GetNode(0);
