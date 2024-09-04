@@ -5973,6 +5973,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.AJAX.Exps.LastData,
 		C3.Plugins.System.Acts.Signal,
 		C3.Plugins.System.Acts.ResetGlobals,
+		C3.Plugins.Dictionary.Acts.Clear,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerReset,
 		C3.Plugins.Json.Acts.DeleteKey,
 		C3.Plugins.Json.Exps.CurrentKey,
