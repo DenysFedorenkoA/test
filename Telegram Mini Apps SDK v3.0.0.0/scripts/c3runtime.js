@@ -5957,10 +5957,9 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Acts.SetInstanceVar,
 		C3.Plugins.Text.Acts.SetFontColor,
 		C3.ScriptsInEvents.EsMain_Event44_Act1,
-		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.Json.Exps.ToBeautifiedString,
 		C3.Plugins.Dictionary.Exps.AsJSON,
-		C3.ScriptsInEvents.EsMain_Event80_Act1,
+		C3.ScriptsInEvents.EsMain_Event79_Act1,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
@@ -6421,7 +6420,6 @@ self.C3_JsPropNameTable = [
 	{gameVar: 0},
 	{gameSave: 0},
 	{layerName: 0},
-	{log: 0},
 	{key: 0},
 	{data: 0},
 	{add: 0},
@@ -7905,10 +7903,6 @@ self.C3_ExpressionFuncs = [
 		() => "buttonSettings",
 		() => "settings",
 		() => "saveDataCloudStorage",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue() + "\n");
-		},
 		() => "saveGun",
 		() => "gameSave",
 		() => "saveVarible",

@@ -41,18 +41,10 @@ const scriptsInEvents = {
 
 	async EsMain_Event44_Act1(runtime, localVars)
 	{
-		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data)
-		    .then(() => {
-		        // Данные успешно сохранены
-		        runtime.globalVars.log = String("complite");
-		    })
-		    .catch((error) => {
-		        // Произошла ошибка при сохранении
-		        runtime.globalVars.log = String("error");
-		    });
+		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	},
 
-	async EsMain_Event80_Act1(runtime, localVars)
+	async EsMain_Event79_Act1(runtime, localVars)
 	{
 		async function readFromCloudStorage(key) {
 		  return new Promise((resolve, reject) => {
