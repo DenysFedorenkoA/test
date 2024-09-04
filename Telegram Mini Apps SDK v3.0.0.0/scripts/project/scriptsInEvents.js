@@ -44,7 +44,7 @@ const scriptsInEvents = {
 		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	},
 
-	async EsMain_Event55_Act1(runtime, localVars)
+	async EsMain_Event79_Act1(runtime, localVars)
 	{
 		async function readFromCloudStorage(key) {
 		  return new Promise((resolve, reject) => {

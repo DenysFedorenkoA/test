@@ -5910,16 +5910,15 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Tween.Acts.StopTweens,
 		C3.Plugins.Sprite.Cnds.PickByUID,
 		C3.Plugins.Spritefont2.Exps.Text,
-		C3.Plugins.TiledBg.Acts.SetWidth,
-		C3.Plugins.Dictionary.Acts.SetKey,
 		C3.Plugins.Dictionary.Acts.AddKey,
-		C3.Plugins.Dictionary.Exps.AsJSON,
+		C3.Plugins.Dictionary.Acts.SetKey,
 		C3.Plugins.Sprite.Acts.Spawn,
 		C3.Plugins.Sprite.Exps.Angle,
 		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.Sprite.Cnds.OnCollision,
 		C3.Plugins.Sprite.Acts.SubInstanceVar,
+		C3.Plugins.TiledBg.Acts.SetWidth,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelMembersCount,
 		C3.Plugins.System.Cnds.ForEachOrdered,
 		C3.Plugins.TiledBg.Acts.MoveToTop,
@@ -5947,6 +5946,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
 		C3.Plugins.System.Exps.timescale,
+		C3.Plugins.Dictionary.Exps.AsJSON,
 		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
@@ -5959,7 +5959,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Acts.SetFontColor,
 		C3.ScriptsInEvents.EsMain_Event44_Act1,
 		C3.Plugins.Json.Exps.ToBeautifiedString,
-		C3.ScriptsInEvents.EsMain_Event55_Act1,
+		C3.ScriptsInEvents.EsMain_Event79_Act1,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
@@ -6381,8 +6381,6 @@ self.C3_JsPropNameTable = [
 	{y_start: 0},
 	{gun_set_uid_old: 0},
 	{uid_set_gun_start_drag: 0},
-	{key: 0},
-	{data: 0},
 	{type_bullet: 0},
 	{speed: 0},
 	{Monster_IsDestroyWall: 0},
@@ -6422,6 +6420,8 @@ self.C3_JsPropNameTable = [
 	{gameVar: 0},
 	{gameSave: 0},
 	{layerName: 0},
+	{key: 0},
+	{data: 0},
 	{add: 0},
 	{wave_test: 0},
 	{indexGuide: 0},
@@ -6923,7 +6923,6 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => Math.abs((n0.ExpInstVar_Family() - v1.GetValue()));
 		},
-		() => "www",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
@@ -7376,61 +7375,6 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => (and("[outlineback=#2A2C62][lineThickness=4]", f0(v1.GetValue())) + "[/lineThickness][underneath][/outline]");
 		},
-		() => "loadGameVariable",
-		() => "waveCurrent",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject("waveCurrent");
-		},
-		() => "Wall_Defender.health",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("Wall_Defender.health"));
-		},
-		() => "Wall_Defender.health_full",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("Wall_Defender.health_full"));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() / n1.ExpInstVar());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() * n1.ExpInstVar());
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
-		},
-		() => "indexWaveChild",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("indexWaveChild"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("PowerUPD"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedUPD"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedTimeUPD"));
-		},
-		() => "setGameVariable",
-		() => "gameVar",
 		() => "YES",
 		() => "NO",
 		() => "isGuide",
@@ -7658,6 +7602,8 @@ self.C3_ExpressionFuncs = [
 		},
 		() => 470,
 		() => "Wave_Restart",
+		() => "Wall_Defender.health",
+		() => "indexWaveChild",
 		() => "Wave_Setup",
 		() => "Wave_Button Start",
 		() => "Bottom",
@@ -7691,6 +7637,7 @@ self.C3_ExpressionFuncs = [
 			return () => ((n0.ExpObject()) === (0) ? 1 : 0);
 		},
 		() => "changedLanguage",
+		() => "waveCurrent",
 		() => "win",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7755,6 +7702,7 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "wall_costUpgrade",
 		() => "wall_levelUpdate",
+		() => "Wall_Defender.health_full",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
@@ -7799,6 +7747,11 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
+			return () => (n0.ExpInstVar() * n1.ExpInstVar());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
 			return () => and(and(n0.ExpInstVar(), "/"), n1.ExpInstVar());
 		},
 		() => "Wall_Destroy",
@@ -7818,6 +7771,15 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "Wall_Restore",
 		() => "Wall_Setup",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpInstVar() / n1.ExpInstVar());
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
+		},
 		() => "Wall_Data",
 		() => "Wall_Data Load Complete",
 		() => "Wall_Data Load",
@@ -7945,6 +7907,43 @@ self.C3_ExpressionFuncs = [
 		() => "gameSave",
 		() => "saveVarible",
 		() => "varData",
+		() => "loadGameVariable",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("waveCurrent");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("Wall_Defender.health"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("Wall_Defender.health_full"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("indexWaveChild"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("PowerUPD"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("SpeedUPD"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("SpeedTimeUPD"));
+		},
+		() => "setGameVariable",
+		() => "gameVar",
 		() => "loadDataCloudStorage",
 		() => "coins",
 		p => {
