@@ -39,12 +39,12 @@ const scriptsInEvents = {
 		localVars.result = abbreviateNumber(localVars.num_coin)
 	},
 
-	async EsMain_Event47_Act1(runtime, localVars)
+	async EsMain_Event43_Act1(runtime, localVars)
 	{
 		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	},
 
-	async EsMain_Event56_Act1(runtime, localVars)
+	async EsMain_Event54_Act1(runtime, localVars)
 	{
 		async function readFromCloudStorage(key) {
 		  return new Promise((resolve, reject) => {
