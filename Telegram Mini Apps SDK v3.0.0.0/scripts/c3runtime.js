@@ -5830,10 +5830,10 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Touch.Cnds.OnTouchObject,
 		C3.Behaviors.Tween.Cnds.IsAnyPlaying,
-		C3.Plugins.Sprite.Cnds.IsOverlapping,
 		C3.Plugins.Sprite.Cnds.IsVisible,
-		C3.Behaviors.Tween.Acts.TweenTwoProperties,
-		C3.Behaviors.Tween.Acts.TweenOneProperty,
+		C3.Plugins.System.Acts.WaitForPreviousActions,
+		C3.Plugins.Sprite.Exps.X,
+		C3.Plugins.Sprite.Acts.SetPosToObject,
 		C3.Plugins.Sprite.Acts.SetAnimFrame,
 		C3.Plugins.Sprite.Cnds.CompareFrame,
 		C3.Plugins.Sprite.Acts.ZMoveToObject,
@@ -5854,6 +5854,10 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Cryptography.Acts.EncryptBinary,
 		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
+		C3.Plugins.Sprite.Cnds.OnCreated,
+		C3.Plugins.Dictionary.Cnds.HasKey,
+		C3.Plugins.Dictionary.Exps.Get,
+		C3.Plugins.Text.Cnds.CompareInstanceVar,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Json.Acts.Parse,
 		C3.Plugins.Eponesh_GameScore.Exps.PlayerGet,
@@ -5867,7 +5871,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Exps.random,
 		C3.Plugins.Arr.Exps.Width,
 		C3.Plugins.Arr.Exps.At,
-		C3.Plugins.Sprite.Cnds.OnCreated,
 		C3.Behaviors.Turret.Acts.AddTarget,
 		C3.Behaviors.Turret.Cnds.OnShoot,
 		C3.Behaviors.Turret.Cnds.IsEnabled,
@@ -5879,18 +5882,17 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.PickLastCreated,
 		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
-		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.Sprite.Exps.Width,
 		C3.Plugins.Sprite.Acts.SetWidth,
 		C3.Plugins.Sprite.Acts.SetHeight,
+		C3.Behaviors.Tween.Acts.TweenTwoProperties,
 		C3.Plugins.Text.Cnds.OnCreated,
-		C3.Plugins.Text.Cnds.CompareInstanceVar,
 		C3.Plugins.Text.Cnds.PickParent,
 		C3.Plugins.Text.Acts.SetPos,
 		C3.Plugins.System.Acts.SetGroupActive,
 		C3.Plugins.Sprite.Exps.ImagePointX,
 		C3.Plugins.Sprite.Exps.ImagePointY,
-		C3.Plugins.Dictionary.Exps.Get,
+		C3.Plugins.Sprite.Cnds.IsOverlapping,
 		C3.Plugins.Sprite.Acts.AddInstanceVar,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
@@ -5908,7 +5910,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Tween.Acts.StopTweens,
 		C3.Plugins.Sprite.Cnds.PickByUID,
 		C3.Plugins.Spritefont2.Exps.Text,
-		C3.Plugins.Dictionary.Cnds.HasKey,
 		C3.Plugins.TiledBg.Acts.SetWidth,
 		C3.Plugins.Dictionary.Acts.SetKey,
 		C3.Plugins.Dictionary.Acts.AddKey,
@@ -5928,24 +5929,24 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Behaviors.Bullet.Acts.SetEnabled,
 		C3.Plugins.System.Exps.dt,
+		C3.Behaviors.Tween.Acts.TweenOneProperty,
 		C3.Plugins.Sprite.Acts.StopAnim,
 		C3.Behaviors.MoveTo.Acts.Stop,
 		C3.Plugins.Sprite.Cnds.OnAnyAnimFinished,
 		C3.Plugins.Sprite.Cnds.IsAnimPlaying,
-		C3.Plugins.Sprite.Acts.SetPosToObject,
 		C3.Plugins.Sprite.Cnds.OnDestroyed,
 		C3.Plugins.System.Acts.GoToLayout,
 		C3.Plugins.System.Acts.SetLayerInteractive,
 		C3.Plugins.Sprite.Exps.Count,
 		C3.Plugins.System.Acts.Signal,
 		C3.Plugins.Json.Exps.ArraySize,
-		C3.Plugins.System.Acts.WaitForPreviousActions,
 		C3.Plugins.Cryptography.Cnds.OnEncryptionFinished,
 		C3.Plugins.BinaryData.Exps.GetBase64,
 		C3.Plugins.System.Exps.layoutheight,
 		C3.ScriptsInEvents.EsCoin_Event3_Act1,
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
+		C3.Plugins.System.Exps.timescale,
 		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
@@ -6827,19 +6828,20 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "star_fill",
 		() => "Button Open Upgrade",
+		() => "armory",
+		() => "popUp",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() / 1.5);
+			return () => n0.ExpObject();
 		},
-		() => 0.1,
-		() => 640,
-		() => 0.2,
+		() => "upgradeArmory",
 		() => "Button Change Page Upgrade",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ((v0.GetValue()) === (0) ? 1 : 0);
 		},
 		() => "click",
+		() => 0.2,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => ((n0.ExpInstVar()) === (1) ? 1 : 0);
@@ -6921,6 +6923,26 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => Math.abs((n0.ExpInstVar_Family() - v1.GetValue()));
 		},
+		() => "www",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("SpeedUPD.SUcost"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject("PowerUPD.PUcost"));
+		},
+		() => "powerLvl",
+		() => "powerUpgradeCost",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpInstVar());
+		},
+		() => "speedLvl",
+		() => "speedUpgradeCost",
 		() => "Guns_Start  Load Data",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -6946,13 +6968,8 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
-		p => {
-			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar_Family();
 		},
-		() => "loadGun",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7160,6 +7177,10 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpObject() - 20);
 		},
 		() => "margeCount",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 22);
+		},
 		() => "Guns_Spawn",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7189,6 +7210,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject("Shoot_Point1");
 		},
+		() => 0.1,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject("Shoot_Point2");
@@ -7395,16 +7417,6 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("PowerUPD.PUcost"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedUPD.SUcost"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
 			return () => f0(n1.ExpObject("PowerUPD"));
 		},
 		p => {
@@ -7578,6 +7590,10 @@ self.C3_ExpressionFuncs = [
 		() => "Monsters_Explosion",
 		() => "Monsters_Tween",
 		() => "M1",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() / 1.5);
+		},
 		() => 56,
 		() => "M2",
 		() => "M3",
@@ -7835,6 +7851,11 @@ self.C3_ExpressionFuncs = [
 			const n1 = p._GetNode(1);
 			return () => ((v0.GetValue()) === (n1.ExpObject(".data")) ? 1 : 0);
 		},
+		() => "speed",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => and("speed x", f0());
+		},
 		() => "language",
 		() => "translateSprite",
 		() => "translateOneText",
@@ -7885,7 +7906,6 @@ self.C3_ExpressionFuncs = [
 			const v2 = p._GetNode(2).GetVar();
 			return () => and(n0.ExpObject((v1.GetValue() + ".stage")), (v2.GetValue() + 1));
 		},
-		() => "popUp",
 		() => "openPopUp",
 		() => "UI",
 		p => {
@@ -7946,14 +7966,6 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#000000][lineThickness=4]L3[/lineThickness][underneath][/outline]",
 		() => 389,
 		() => "[outlineback=#004C04][lineThickness=4]15000[/lineThickness][underneath][/outline]",
-		() => 401,
-		() => "[outlineback=#000000][lineThickness=4]PowerUPD.PUcost[/lineThickness][underneath][/outline]",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => (and("[outlineback=#000000][lineThickness=4]", f0(n1.ExpInstVar())) + "[/lineThickness][underneath][/outline]");
-		},
-		() => 404,
 		() => "infoButtons",
 		() => "infoArm",
 		() => "infoMission",
