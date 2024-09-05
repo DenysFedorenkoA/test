@@ -5846,13 +5846,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Cnds.PickByUID,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.System.Cnds.CompareVar,
-		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.Sprite.Cnds.OnAnimFinished,
 		C3.Plugins.System.Acts.SubVar,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerSet,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerSync,
 		C3.Plugins.BinaryData.Acts.SetFromText,
 		C3.Plugins.Cryptography.Acts.EncryptBinary,
+		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.Sprite.Cnds.OnCreated,
 		C3.Plugins.Dictionary.Cnds.HasKey,
@@ -6891,6 +6891,15 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpInstVar();
 		},
 		() => "press",
+		() => "Press",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => v0.GetValue();
+		},
+		() => "coin",
+		() => "22F8765Wk",
+		() => 100,
+		() => "encrypt",
 		() => "PowerUPD",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -6901,15 +6910,6 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpInstVar() + 10000);
 		},
 		() => "PowerUPD.PUcost",
-		() => "Press",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => v0.GetValue();
-		},
-		() => "coin",
-		() => "22F8765Wk",
-		() => 100,
-		() => "encrypt",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
