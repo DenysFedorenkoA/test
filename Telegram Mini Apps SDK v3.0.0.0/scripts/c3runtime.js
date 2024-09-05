@@ -5959,7 +5959,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.EsMain_Event44_Act1,
 		C3.Plugins.Json.Exps.ToBeautifiedString,
 		C3.Plugins.Dictionary.Exps.AsJSON,
-		C3.ScriptsInEvents.EsMain_Event79_Act1,
+		C3.ScriptsInEvents.EsMain_Event80_Act1,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
@@ -6033,6 +6033,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.EsHomeevents_Event44_Act6,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
 		C3.Plugins.GameAnalytics.Acts.initialize,
+		C3.Plugins.Eponesh_GameScore.Cnds.OnPlayerLoadComplete,
 		C3.Plugins.LocalStorage.Exps.ItemValue,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
@@ -6043,7 +6044,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.BinaryData.Exps.GetAllText,
 		C3.Plugins.System.Cnds.TriggerOnce,
 		C3.Plugins.TextBox.Acts.SetText,
-		C3.Plugins.Eponesh_GameScore.Cnds.OnPlayerLoadComplete,
 		C3.Plugins.GamePush_Channels.Acts.CreateChannel,
 		C3.Plugins.GamePush_Channels.Acts.FetchChannel,
 		C3.Plugins.Eponesh_GameScore.Exps.PlayerName,
@@ -6052,13 +6052,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreateError,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsAnyFetch,
 		C3.Plugins.GamePush_Channels.Cnds.EachMember,
-		C3.ScriptsInEvents.EsHomeevents_Event86_Act7,
+		C3.ScriptsInEvents.EsHomeevents_Event87_Act7,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsRegistered,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersRegister,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsTodayRewardClaimed,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersClaimDay,
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
-		C3.ScriptsInEvents.EsHomeevents_Event105_Act1
+		C3.ScriptsInEvents.EsHomeevents_Event106_Act1
 	];
 };
 self.C3_JsPropNameTable = [

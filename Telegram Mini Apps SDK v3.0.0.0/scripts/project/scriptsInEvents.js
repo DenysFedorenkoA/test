@@ -44,7 +44,7 @@ const scriptsInEvents = {
 		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	},
 
-	async EsMain_Event79_Act1(runtime, localVars)
+	async EsMain_Event80_Act1(runtime, localVars)
 	{
 		async function readFromCloudStorage(key) {
 		  return new Promise((resolve, reject) => {
@@ -367,12 +367,12 @@ const scriptsInEvents = {
 		console.log(runtime.globalVars.Start_param);
 	},
 
-	async EsHomeevents_Event86_Act7(runtime, localVars)
+	async EsHomeevents_Event87_Act7(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.TGINVITEURL)
 	},
 
-	async EsHomeevents_Event105_Act1(runtime, localVars)
+	async EsHomeevents_Event106_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink('https://t.me/gs_community')
 	}
