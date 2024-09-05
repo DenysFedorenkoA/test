@@ -34,85 +34,47 @@ function abbreviateNumber(n) {
 
 const scriptsInEvents = {
 
-	async EsCoin_Event3_Act1(runtime, localVars)
+	async Coin_Event3_Act1(runtime, localVars)
 	{
 		localVars.result = abbreviateNumber(localVars.num_coin)
 	},
 
-	async EsMain_Event44_Act1(runtime, localVars)
-	{
-		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
-	},
-
-	async EsMain_Event80_Act1(runtime, localVars)
-	{
-		async function readFromCloudStorage(key) {
-		  return new Promise((resolve, reject) => {
-		    Telegram.WebApp.CloudStorage.getItem(key, (err, data) => {
-		      if (err) {
-		        reject(err);
-		      } else {
-		        resolve(data);
-		      }
-		    });
-		  });
-		}
-		
-		async function retrieveData() {
-		  try {
-		    const varData = await readFromCloudStorage('varData');
-			const gameVar = await readFromCloudStorage('gameVar');
-			const gameSave = await readFromCloudStorage('gameSave');
-		
-		    runtime.globalVars.varData = String(varData);
-			runtime.globalVars.gameVar = String(gameVar);
-			runtime.globalVars.gameSave = String(gameSave);
-			runtime.globalVars.loadComplite=true;
-		
-		  } catch (err) {
-		    console.error('Error retrieving data from CloudStorage:', err);
-		  }
-		}
-		
-		retrieveData();
-	},
-
-	async EsHomeevents_Event18_Act1(runtime, localVars)
+	async Homeevents_Event22_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.close()
 	},
 
-	async EsHomeevents_Event19_Act1(runtime, localVars)
+	async Homeevents_Event23_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.enableClosingConfirmation()
 	},
 
-	async EsHomeevents_Event21_Act1(runtime, localVars)
+	async Homeevents_Event25_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.setHeaderColor('#aa2132') 
 	},
 
-	async EsHomeevents_Event22_Act1(runtime, localVars)
+	async Homeevents_Event26_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.openLink('https://docs.telegram-mini-apps.com/')
 	},
 
-	async EsHomeevents_Event24_Act1(runtime, localVars)
+	async Homeevents_Event28_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.showAlert('Привет!!!')
 	},
 
-	async EsHomeevents_Event25_Act1(runtime, localVars)
+	async Homeevents_Event29_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.showConfirm('Хочешь сыграть?')
 	},
 
-	async EsHomeevents_Event26_Act1(runtime, localVars)
+	async Homeevents_Event30_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.setBackgroundColor('#888311')
 	},
 
-	async EsHomeevents_Event27_Act1(runtime, localVars)
+	async Homeevents_Event31_Act1(runtime, localVars)
 	{
 		  const search = new URLSearchParams(decodeURIComponent(window.Telegram.WebApp.initData));
 		  const user = JSON.parse(search.get('user'));
@@ -124,231 +86,231 @@ const scriptsInEvents = {
 		runtime.globalVars.username = user.username;
 	},
 
-	async EsHomeevents_Event28_Act1(runtime, localVars)
+	async Homeevents_Event32_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.MainButton.show()
 	},
 
-	async EsHomeevents_Event28_Act2(runtime, localVars)
+	async Homeevents_Event32_Act2(runtime, localVars)
 	{
 		window.Telegram.WebApp.BackButton.show()
 	},
 
-	async EsHomeevents_Event28_Act3(runtime, localVars)
+	async Homeevents_Event32_Act3(runtime, localVars)
 	{
 		window.Telegram.WebApp.SettingsButton.show()
 	},
 
-	async EsHomeevents_Event28_Act4(runtime, localVars)
+	async Homeevents_Event32_Act4(runtime, localVars)
 	{
 		window.Telegram.WebApp.CloseButton.hide()
 	},
 
-	async EsHomeevents_Event29_Act1(runtime, localVars)
+	async Homeevents_Event33_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.initData
 	},
 
-	async EsHomeevents_Event29_Act2(runtime, localVars)
+	async Homeevents_Event33_Act2(runtime, localVars)
 	{
 		window.Telegram.WebApp.initDataUnsafe
 	},
 
-	async EsHomeevents_Event29_Act3(runtime, localVars)
+	async Homeevents_Event33_Act3(runtime, localVars)
 	{
 		window.Telegram.WebApp.version
 	},
 
-	async EsHomeevents_Event29_Act4(runtime, localVars)
+	async Homeevents_Event33_Act4(runtime, localVars)
 	{
 		window.Telegram.WebApp.initDataUnsafe.user.id
 	},
 
-	async EsHomeevents_Event29_Act5(runtime, localVars)
+	async Homeevents_Event33_Act5(runtime, localVars)
 	{
 		window.Telegram.WebApp.initDataUnsafe.user.isBot
 	},
 
-	async EsHomeevents_Event30_Act1(runtime, localVars)
+	async Homeevents_Event34_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.platform
 	},
 
-	async EsHomeevents_Event30_Act2(runtime, localVars)
+	async Homeevents_Event34_Act2(runtime, localVars)
 	{
 		window.Telegram.WebApp.colorScheme
 	},
 
-	async EsHomeevents_Event30_Act3(runtime, localVars)
+	async Homeevents_Event34_Act3(runtime, localVars)
 	{
 		window.Telegram.WebApp.themeParams
 	},
 
-	async EsHomeevents_Event30_Act4(runtime, localVars)
+	async Homeevents_Event34_Act4(runtime, localVars)
 	{
 		window.Telegram.WebApp.isExpanded
 	},
 
-	async EsHomeevents_Event30_Act5(runtime, localVars)
+	async Homeevents_Event34_Act5(runtime, localVars)
 	{
 		window.Telegram.WebApp.viewportHeight
 	},
 
-	async EsHomeevents_Event30_Act6(runtime, localVars)
+	async Homeevents_Event34_Act6(runtime, localVars)
 	{
 		window.Telegram.WebApp.viewportStableHeight
 	},
 
-	async EsHomeevents_Event30_Act7(runtime, localVars)
+	async Homeevents_Event34_Act7(runtime, localVars)
 	{
 		window.Telegram.WebApp.headerColor
 	},
 
-	async EsHomeevents_Event30_Act8(runtime, localVars)
+	async Homeevents_Event34_Act8(runtime, localVars)
 	{
 		window.Telegram.WebApp.backgroundColor
 	},
 
-	async EsHomeevents_Event30_Act9(runtime, localVars)
+	async Homeevents_Event34_Act9(runtime, localVars)
 	{
 		window.Telegram.WebApp.isClosingConfirmationEnabled
 	},
 
-	async EsHomeevents_Event30_Act10(runtime, localVars)
+	async Homeevents_Event34_Act10(runtime, localVars)
 	{
 		window.Telegram.WebApp.BackButton
 	},
 
-	async EsHomeevents_Event30_Act11(runtime, localVars)
+	async Homeevents_Event34_Act11(runtime, localVars)
 	{
 		window.Telegram.WebApp.MainButton
 	},
 
-	async EsHomeevents_Event30_Act12(runtime, localVars)
+	async Homeevents_Event34_Act12(runtime, localVars)
 	{
 		window.Telegram.WebApp.SettingsButton
 	},
 
-	async EsHomeevents_Event30_Act13(runtime, localVars)
+	async Homeevents_Event34_Act13(runtime, localVars)
 	{
 		window.Telegram.WebApp.HapticFeedback
 	},
 
-	async EsHomeevents_Event30_Act14(runtime, localVars)
+	async Homeevents_Event34_Act14(runtime, localVars)
 	{
 		window.Telegram.WebApp.CloudStorage
 	},
 
-	async EsHomeevents_Event30_Act15(runtime, localVars)
+	async Homeevents_Event34_Act15(runtime, localVars)
 	{
 		window.Telegram.WebApp.BiometricManager 
 	},
 
-	async EsHomeevents_Event30_Act16(runtime, localVars)
+	async Homeevents_Event34_Act16(runtime, localVars)
 	{
 		window.Telegram.WebApp.isVersionAtLeast(version) 
 	},
 
-	async EsHomeevents_Event30_Act17(runtime, localVars)
+	async Homeevents_Event34_Act17(runtime, localVars)
 	{
 		window.Telegram.WebApp.onEvent(eventType, eventHandler)
 	},
 
-	async EsHomeevents_Event30_Act18(runtime, localVars)
+	async Homeevents_Event34_Act18(runtime, localVars)
 	{
 		window.Telegram.WebApp.offEvent(eventType, eventHandler)
 	},
 
-	async EsHomeevents_Event30_Act19(runtime, localVars)
+	async Homeevents_Event34_Act19(runtime, localVars)
 	{
 		window.Telegram.WebApp.sendData(data)
 	},
 
-	async EsHomeevents_Event30_Act20(runtime, localVars)
+	async Homeevents_Event34_Act20(runtime, localVars)
 	{
 		window.Telegram.WebApp.switchInlineQuery(query[ choose_chat_types])
 	},
 
-	async EsHomeevents_Event30_Act21(runtime, localVars)
+	async Homeevents_Event34_Act21(runtime, localVars)
 	{
 		window.Telegram.WebApp.openInvoice(url[ callback])
 	},
 
-	async EsHomeevents_Event30_Act22(runtime, localVars)
+	async Homeevents_Event34_Act22(runtime, localVars)
 	{
 		window.Telegram.WebApp.showPopup(params[ callback])
 	},
 
-	async EsHomeevents_Event30_Act23(runtime, localVars)
+	async Homeevents_Event34_Act23(runtime, localVars)
 	{
 		window.Telegram.WebApp.showScanQrPopup("test3"[ callback])
 	},
 
-	async EsHomeevents_Event30_Act24(runtime, localVars)
+	async Homeevents_Event34_Act24(runtime, localVars)
 	{
 		window.Telegram.WebApp.closeScanQrPopup()
 	},
 
-	async EsHomeevents_Event30_Act25(runtime, localVars)
+	async Homeevents_Event34_Act25(runtime, localVars)
 	{
 		window.Telegram.WebApp.readTextFromClipboard([callback])        
 	},
 
-	async EsHomeevents_Event30_Act26(runtime, localVars)
+	async Homeevents_Event34_Act26(runtime, localVars)
 	{
 		window.Telegram.WebApp.requestWriteAccess([callback])
 	},
 
-	async EsHomeevents_Event30_Act27(runtime, localVars)
+	async Homeevents_Event34_Act27(runtime, localVars)
 	{
 		window.Telegram.WebApp.PopupButton.type('OK')
 	},
 
-	async EsHomeevents_Event36(runtime, localVars)
+	async Homeevents_Event40(runtime, localVars)
 	{
 		window.Telegram.WebApp.onEvent('mainButtonClicked', function(){
 			window.Telegram.WebApp.sendData("yes1");});
 	},
 
-	async EsHomeevents_Event37(runtime, localVars)
+	async Homeevents_Event41(runtime, localVars)
 	{
 		window.Telegram.WebApp.onEvent('backButtonClicked', function(){
 			window.Telegram.WebApp.sendData("yes2");});
 	},
 
-	async EsHomeevents_Event38(runtime, localVars)
+	async Homeevents_Event42(runtime, localVars)
 	{
 		window.Telegram.WebApp.onEvent('settingsButtonClicked', function(){
 			window.Telegram.WebApp.sendData("yes3");});
 	},
 
-	async EsHomeevents_Event39(runtime, localVars)
+	async Homeevents_Event43(runtime, localVars)
 	{
 		window.Telegram.WebApp.onEvent('popupClosed', function(){
 			window.Telegram.WebApp.sendData("yes4");});
 	},
 
-	async EsHomeevents_Event44_Act1(runtime, localVars)
+	async Homeevents_Event74_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.ready()
 	},
 
-	async EsHomeevents_Event44_Act2(runtime, localVars)
+	async Homeevents_Event74_Act2(runtime, localVars)
 	{
 		window.Telegram.WebApp.expand()
 	},
 
-	async EsHomeevents_Event44_Act3(runtime, localVars)
+	async Homeevents_Event74_Act3(runtime, localVars)
 	{
 		window.Telegram.WebApp.enableClosingConfirmation()
 	},
 
-	async EsHomeevents_Event44_Act4(runtime, localVars)
+	async Homeevents_Event74_Act4(runtime, localVars)
 	{
 		window.Telegram.WebApp.disableVerticalSwipes()
 	},
 
-	async EsHomeevents_Event44_Act6(runtime, localVars)
+	async Homeevents_Event74_Act6(runtime, localVars)
 	{
 		  const search = new URLSearchParams(decodeURIComponent(window.Telegram.WebApp.initData));
 		  console.log(search);
@@ -367,14 +329,49 @@ const scriptsInEvents = {
 		console.log(runtime.globalVars.Start_param);
 	},
 
-	async EsHomeevents_Event87_Act7(runtime, localVars)
+	async Homeevents_Event122_Act7(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.TGINVITEURL)
 	},
 
-	async EsHomeevents_Event106_Act1(runtime, localVars)
+	async Homeevents_Event141_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink('https://t.me/gs_community')
+	},
+
+	async Homeevents_Event315_Act1(runtime, localVars)
+	{
+		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
+	},
+
+	async Homeevents_Event316_Act1(runtime, localVars)
+	{
+		async function readFromCloudStorage(key) {
+		  return new Promise((resolve, reject) => {
+		    Telegram.WebApp.CloudStorage.getItem(key, (err, data) => {
+		      if (err) {
+		        reject(err);
+		      } else {
+		        resolve(data);
+		      }
+		    });
+		  });
+		}
+		
+		async function retrieveData() {
+		  try {
+		    const gamePushID = await readFromCloudStorage('gamePushID');
+		
+		
+		    runtime.globalVars.gamePushID = String(gamePushID);
+			runtime.globalVars.loadComplite=true;
+		
+		  } catch (err) {
+		    console.error('Error retrieving data from CloudStorage:', err);
+		  }
+		}
+		
+		retrieveData();
 	}
 
 };

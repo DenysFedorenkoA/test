@@ -4091,21 +4091,6 @@ err)}}};
 
 {
 self["C3_Shaders"] = {};
-self["C3_Shaders"]["skymen_BetterOutline"] = {
-	glsl: "uniform lowp vec3 outlinecolor;\nuniform lowp float width;\nuniform lowp float precisionStep;\nuniform lowp float samples;\nvarying mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 srcOriginStart;\nuniform mediump vec2 srcOriginEnd;\nuniform mediump vec2 layoutStart;\nuniform mediump vec2 layoutEnd;\nuniform lowp sampler2D samplerBack;\nuniform mediump vec2 destStart;\nuniform mediump vec2 destEnd;\nuniform mediump float seconds;\nuniform mediump vec2 pixelSize;\nuniform mediump float layerScale;\nuniform mediump float layerAngle;\n#define PI 3.14159265359\n#define SAMPLES 96\n#define PASSES 64\nvoid main(void)\n{\nmediump float outlineAlpha = 0.0;\nmediump vec2 actualWidth;\nmediump float widthCopy = width;\nmediump vec4 color = vec4(outlinecolor.x, outlinecolor.y, outlinecolor.z, 1.0);\nmediump float angle;\nmediump vec2 layoutSize = abs(vec2(layoutEnd.x-layoutStart.x,(layoutEnd.y-layoutStart.y)));\nmediump vec2 texelSize = abs(srcOriginEnd-srcOriginStart)/layoutSize;\nmediump vec4 fragColor;\nmediump vec2 testPoint;\nmediump float sampledAlpha;\nint passes = int(clamp(width / precisionStep, 1.0, float(PASSES)));\nfor (int j=0; j<PASSES; j++) {\nif (j >= passes ) break;\nwidthCopy = mix(0.0, width, float(j)/float(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor( int i=0; i<SAMPLES; i++ ){\nif (i >= int(samples)) break;\nangle += 1.0/(clamp(samples, 0.0, float(SAMPLES))/2.0) * PI;\ntestPoint = vTex + actualWidth * vec2(cos(angle), sin(angle));\nsampledAlpha = texture2D( samplerFront,  testPoint ).a;\noutlineAlpha = max( outlineAlpha, sampledAlpha );\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nmediump vec4 tex0 = texture2D( samplerFront, vTex );\ngl_FragColor = mix(fragColor, tex0, tex0.a);\n}",
-	glslWebGL2: "#version 300 es\nin mediump vec2 vTex;\nout lowp vec4 outColor;\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define highmedp highp\n#else\n#define highmedp mediump\n#endif\nprecision lowp float;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 srcOriginStart;\nuniform mediump vec2 srcOriginEnd;\nuniform mediump vec2 layoutStart;\nuniform mediump vec2 layoutEnd;\nuniform lowp sampler2D samplerBack;\nuniform lowp sampler2D samplerDepth;\nuniform mediump vec2 destStart;\nuniform mediump vec2 destEnd;\nuniform highmedp float seconds;\nuniform mediump vec2 pixelSize;\nuniform mediump float layerScale;\nuniform mediump float layerAngle;\nuniform mediump float devicePixelRatio;\nuniform mediump float zNear;\nuniform mediump float zFar;\nuniform lowp vec3 outlinecolor;\nuniform lowp float width;\nuniform lowp float precisionStep;\nuniform lowp float samples;\n#define PI 3.14159265359\n#define SAMPLES 96\n#define PASSES 64\nvoid main(void)\n{\nmediump float outlineAlpha = 0.0;\nmediump vec2 actualWidth;\nmediump float widthCopy = width;\nmediump vec4 color = vec4(outlinecolor.x, outlinecolor.y, outlinecolor.z, 1.0);\nmediump float angle;\nmediump vec2 layoutSize = abs(vec2(layoutEnd.x-layoutStart.x,(layoutEnd.y-layoutStart.y)));\nmediump vec2 texelSize = abs(srcOriginEnd-srcOriginStart)/layoutSize;\nmediump vec4 fragColor;\nmediump vec2 testPoint;\nmediump float sampledAlpha;\nint passes = int(clamp(width / precisionStep, 1.0, float(PASSES)));\nint sampleCount = int(clamp(samples, 0.0, float(SAMPLES)));\nfor (int j = 0; j <= passes; j++) {\nwidthCopy = mix(0.0, width, float(j)/float(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor( int i = 0; i < sampleCount; i++ ) {\nangle += 1.0/(float(sampleCount)/2.0) * PI;\ntestPoint = vTex + actualWidth * vec2(cos(angle), sin(angle));\nsampledAlpha = texture( samplerFront,  testPoint ).a;\noutlineAlpha = max( outlineAlpha, sampledAlpha );\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nmediump vec4 tex0 = texture( samplerFront, vTex );\noutColor = mix(fragColor, tex0, tex0.a);\n}",
-	wgsl: "%%FRAGMENTINPUT_STRUCT%%\n/* input struct contains the following fields:\nfragUV : vec2<f32>\nfragPos : vec4<f32>\nfn c3_getBackUV(fragPos : vec2<f32>, texBack : texture_2d<f32>) -> vec2<f32>\nfn c3_getDepthUV(fragPos : vec2<f32>, texDepth : texture_depth_2d) -> vec2<f32>\n*/\n%%FRAGMENTOUTPUT_STRUCT%%\n%%SAMPLERFRONT_BINDING%% var samplerFront : sampler;\n%%TEXTUREFRONT_BINDING%% var textureFront : texture_2d<f32>;\nstruct ShaderParams {\noutlinecolor : vec3<f32>,\nwidth : f32,\nprecisionStep : f32,\nsamples : f32\n};\n%%SHADERPARAMS_BINDING%% var<uniform> shaderParams : ShaderParams;\n%%C3PARAMS_STRUCT%%\n/* c3Params struct contains the following fields:\nsrcStart : vec2<f32>,\nsrcEnd : vec2<f32>,\nsrcOriginStart : vec2<f32>,\nsrcOriginEnd : vec2<f32>,\nlayoutStart : vec2<f32>,\nlayoutEnd : vec2<f32>,\ndestStart : vec2<f32>,\ndestEnd : vec2<f32>,\ndevicePixelRatio : f32,\nlayerScale : f32,\nlayerAngle : f32,\nseconds : f32,\nzNear : f32,\nzFar : f32,\nisSrcTexRotated : u32\nfn c3_srcToNorm(p : vec2<f32>) -> vec2<f32>\nfn c3_normToSrc(p : vec2<f32>) -> vec2<f32>\nfn c3_srcOriginToNorm(p : vec2<f32>) -> vec2<f32>\nfn c3_normToSrcOrigin(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToSrc(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToSrcOrigin(p : vec2<f32>) -> vec2<f32>\nfn c3_getLayoutPos(p : vec2<f32>) -> vec2<f32>\nfn c3_srcToDest(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToDest(p : vec2<f32>) -> vec2<f32>\nfn c3_linearizeDepth(depthSample : f32) -> f32\n*/\n/*\nfn c3_premultiply(c : vec4<f32>) -> vec4<f32>\nfn c3_unpremultiply(c : vec4<f32>) -> vec4<f32>\nfn c3_grayscale(rgb : vec3<f32>) -> f32\nfn c3_getPixelSize(t : texture_2d<f32>) -> vec2<f32>\nfn c3_RGBtoHSL(color : vec3<f32>) -> vec3<f32>\nfn c3_HSLtoRGB(hsl : vec3<f32>) -> vec3<f32>\n*/\nconst PI:f32 = 3.14159265359;\nconst SAMPLES:i32 = 96;\nconst PASSES:i32 = 64;\n@fragment\nfn main(input : FragmentInput) -> FragmentOutput\n{\nvar outlineAlpha: f32 = 0.0;\nvar actualWidth: vec2<f32>;\nvar widthCopy: f32 = shaderParams.width;\nvar color: vec4<f32> = vec4<f32>(shaderParams.outlinecolor.x, shaderParams.outlinecolor.y, shaderParams.outlinecolor.z, 1.0);\nvar angle: f32;\nlet layoutSize: vec2<f32> = abs(vec2<f32>(c3Params.layoutEnd.x - c3Params.layoutStart.x, c3Params.layoutEnd.y - c3Params.layoutStart.y));\nlet texelSize: vec2<f32> = abs(c3Params.srcOriginEnd - c3Params.srcOriginStart) / layoutSize;\nvar fragColor: vec4<f32>;\nvar testPoint: vec2<f32>;\nvar sampledAlpha: f32;\nlet passes: u32 = u32(clamp(shaderParams.width / shaderParams.precisionStep, 1.0, f32(SAMPLES)));\nlet sampleCount: u32 = u32(clamp(shaderParams.samples, 0.0, f32(SAMPLES)));\nfor (var j: u32 = 0u; j <= passes; j = j + 1u) {\nwidthCopy = mix(0.0, shaderParams.width, f32(j) / f32(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor (var i: u32 = 0u; i < sampleCount; i = i + 1u) {\nangle = angle + 1.0 / (f32(sampleCount) / 2.0) * PI;\ntestPoint = input.fragUV + actualWidth * vec2<f32>(cos(angle), sin(angle));\nsampledAlpha = textureSample(textureFront, samplerFront, testPoint).a; // Assuming 'samplerFrontSampler' is the sampler associated with 'samplerFront'\noutlineAlpha = max(outlineAlpha, sampledAlpha);\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nvar tex0 : vec4<f32> = textureSample(textureFront, samplerFront, input.fragUV );\nvar output : FragmentOutput;\noutput.color = mix(fragColor, tex0, tex0.a);\nreturn output;\n}",
-	blendsBackground: false,
-	usesDepth: false,
-	extendBoxHorizontal: 50,
-	extendBoxVertical: 50,
-	crossSampling: true,
-	mustPreDraw: true,
-	preservesOpaqueness: false,
-	supports3dDirectRendering: false,
-	animated: false,
-	parameters: [["outlinecolor",0,"color"],["width",0,"float"],["precisionStep",0,"float"],["samples",0,"float"]]
-};
 
 }
 
@@ -4695,6 +4680,48 @@ null}}GetSpacingData(){return this._spacingData}SetSpaceWidth(w){if(w<0)w=-1;if(
 }
 
 {
+"use strict";C3.Plugins.Eponesh_GameScore=class extends C3.SDKPluginBase{constructor(e){super(e,"Eponesh_GameScore")}Release(){super.Release()}};
+}
+
+{
+"use strict";C3.Plugins.Eponesh_GameScore.Type=class extends C3.SDKTypeBase{constructor(e){super(e)}Release(){super.Release()}OnCreate(){}};
+}
+
+{
+"use strict";{const a="https://gs.eponesh.com/sdk";C3.Plugins.Eponesh_GameScore.Instance=class extends C3.SDKInstanceBase{constructor(e,t){if(super(e),this.mappers={language:["en","ru","fr","it","de","es","zh","pt","ko","ja","tr","ar","hi","id"],avatarGenerator:["dicebear_retro","dicebear_identicon","dicebear_human","dicebear_micah","dicebear_bottts","icotar","robohash_robots","robohash_cats"],order:["default","DESC","ASC"],withMe:["none","first","last"],platform:["YANDEX","VK","NONE","OK","GAME_MONETIZE","CRAZY_GAMES","GAME_DISTRIBUTION","SMARTMARKET","GAMEPIX","POKI","VK_PLAY","WG_PLAYGROUND","KONGREGATE","GOOGLE_PLAY","PLAYDECK"],deviceTypes:["Desktop","IOS","Android","TV"],documentTypes:["PLAYER_PRIVACY_POLICY"],documentFormat:["HTML","TXT","RAW"],bonusType:["REWARD","ACHIEVEMENT","PRODUCT"],schedulerType:["ACTIVE_DAYS","ACTIVE_DAYS_CONSECUTIVE"],variablesTypes:["stats","data","flag","image","file","doc_html"],compare:[(e,t)=>e===t,(e,t)=>e!==t,(e,t)=>e<t,(e,t)=>e<=t,(e,t)=>t<e,(e,t)=>t<=e]},this.etos=function(e){return"string"==typeof e?e:"message"in e?e.message:String(e)},this.getIdOrTag=e=>{var t=parseInt(e,10)||0;return 0<t?{id:t}:{tag:e}},this.conditions=C3.Plugins.Eponesh_GameScore.Cnds,this.actions=C3.Plugins.Eponesh_GameScore.Acts,this.handleResult=(e,t)=>{this.isLastActionSuccess=!!e,t&&(this.lastError=this.etos(t),console.warn(t))},this.awaiters={player:{},gp:{}},this.awaiters.gp.ready=new Promise((e,t)=>{this.awaiters.gp.done=e,this.awaiters.gp.abort=t}),this.awaiters.player.ready=new Promise((e,t)=>{this.awaiters.player.done=e,this.awaiters.player.abort=t}),this.leaderboard=[],this.leaderboardInfo={},this.leaderboardRecords={},this.leaderboardResult={abovePlayers:[],belowPlayers:[],topPlayers:[]},this.currentLeaderboardIndex=0,this.currentLeaderboardPlayer={},this.lastLeaderboardTag="",this.lastLeaderboardVariant="",this.lastLeaderboardPlayerRatingTag="",this.leaderboardPlayerPosition=0,this.platformVariables={},this.currentPlayerFieldKey="",this.currentPlayerFieldType="",this.currentPlayerFieldName="",this.currentPlayerFieldValue="",this.currentPlayerFieldVariantValue="",this.currentPlayerFieldVariantName="",this.currentPlayerFieldVariantIndex=0,this.achievements=[],this.achievementsGroups=[],this.playerAchievements=[],this.currentAchievementIndex=0,this.currentAchievement={},this.currentAchievementsGroupIndex=0,this.currentAchievementsGroupId=0,this.currentAchievementsGroupTag="",this.currentAchievementsGroupName="",this.currentAchievementsGroupDescription="",this.currentPlayerAchievementIndex=0,this.currentPlayerAchievementId=0,this.currentPlayerAchievementUnlockDate="",this.isUnlockAchievementSuccess=!1,this.unlockAchievementError="",this.isSetProgressAchievementSuccess=!1,this.setProgressAchievementError="",this.products=[],this.playerPurchases=[],this.currentProductIndex=0,this.currentProduct={id:0,tag:"",name:"",description:"",icon:"",iconSmall:"",price:0,currency:"",currencySymbol:""},this.currentProductPurchases=0,this.currentPurchaseIndex=0,this.currentPurchase={id:0,tag:"",createdAt:"",expiredAt:"",subscribed:!1},this.isSubscribeProductSuccess=!1,this.isUnsubscribeProductSuccess=!1,this.isPurchaseProductSuccess=!1,this.purchaseProductError="",this.purchasedProductId=0,this.purchasedProductTag="",this.isConsumeProductSuccess=!1,this.consumeProductError="",this.consumedProductId=0,this.consumedProductTag="",this.isLastAdSuccess=!1,this.isLastShareSuccess=!1,this.isLastCommunityJoinSuccess=!1,this.isLastAddShortcutSuccess=!1,this.isReady=!1,this.isPlayerReady=!1,this.gamesCollection={id:0,tag:"",name:"",description:"",games:[]},this.currentGameIndex=0,this.currentGameId=0,this.currentGameName="",this.currentGameDescription="",this.currentGameIcon="",this.currentGameUrl="",this.gamesCollectionFetchError="",this.lastGamesCollectionIdOrTag="",this.document={type:"",content:""},this.lastDocumentType="",this.documentFetchError="",this.lastError="",this.isLastActionSuccess=!1,this.shareLink="",this.shareParams={},this.images=[],this.canLoadMoreImages=!1,this.currentImageIndex=0,this.currentImageTagIndex=0,this.currentImageTag="",this.lastImageTempUrl="",this.currentImage={id:"",playerId:0,width:0,height:0,src:"",tags:[]},this.files=[],this.lastFileContent="",this.canLoadMoreFiles=!1,this.currentFileIndex=0,this.currentFileTagIndex=0,this.currentFileTag="",this.lastFileTempUrl="",this.currentFile={id:"",playerId:0,name:"",size:0,src:"",tags:[]},this.currentVariableIndex=0,this.currentVariable={key:"",type:"",value:""},this.currentPlayersIndex=0,this.lastPlayersTag="",this.currentPlayersPlayer={state:{},achievements:[],purchases:[]},this.curRewardIndex=0,this.curReward={},this.curPlayerReward={},this.setReward=(e={},t=0)=>{this.curRewardIndex=t,this.curReward=e.reward||{},this.curPlayerReward=e.playerReward||{}},this.curTriggerIndex=0,this.curTriggerInfo={trigger:{}},this.setTriggerInfo=(e,t=0)=>{const r=this.gp.triggers.getTrigger(e);r.trigger||(r.trigger={}),this.curTriggerIndex=t,this.curTriggerInfo=r||{trigger:{}}},this.curBonusIndex=0,this.curBonus={},this.setBonus=(e,t=0)=>{this.curBonusIndex=t,this.curBonus=e||{}},this.curSchedulerIndex=0,this.curSchedulerInfo={scheduler:{}},this.curSchedulerDayInfo={scheduler:{}},this.setSchedulerInfo=(e,t=0)=>{const r=this.gp.schedulers.getScheduler(e);r.scheduler||(r.scheduler={}),this.curSchedulerIndex=t,this.curSchedulerInfo=r||{scheduler:{}},this.setSchedulerDayInfo(e,1,t)},this.setSchedulerDayInfo=(e,t,r=0)=>{const s=this.gp.schedulers.getSchedulerDay(e,t);s.scheduler||(s.scheduler={}),this.curSchedulerDayInfo=s||{scheduler:{}}},this.curEventIndex=0,this.curEventInfo={event:{}},this.setEventInfo=(e,t=0)=>{const r=this.gp.events.getEvent(e);r.event||(r.event={}),this.curEventIndex=t,this.curEventInfo=r||{event:{}}},this.lastIdOrTag={id:0,tag:""},this.lastPickedSchedulerDay=0,this.lastPickedSchedulerTriggerIdOrTag="",this.isPickedIdOrTag=e=>{e=this.getIdOrTag(e);return 0<e.id&&e.id===this.lastIdOrTag.id||""!=e.tag&&e.tag===this.lastIdOrTag.tag},this.isPickedSchedulerDayAndTrigger=(e,t,r)=>{e=!e||this.isPickedIdOrTag(e),t=!t||t===this.lastPickedSchedulerDay,r=!r||r===this.lastPickedSchedulerTriggerIdOrTag;return e&&t&&r},this.curSegment="",this.projectId=Number(t[0]||0),this.publicToken=t[1],this.showPreloaderOnStart=t[2],this.shouldWaitPlayerOnLoad=t[3],this.isEnabled=t[4],this.isAutoSendGameStart=t[5],this._runtime.AddLoadPromise(this.awaiters.gp.ready),this.shouldWaitPlayerOnLoad&&this._runtime.AddLoadPromise(this.awaiters.player.ready),!this.isEnabled)return this.onError("[GamePush] disabled"),this.awaiters.gp.done(),void this.awaiters.player.done();this._runtime.Dispatcher().addEventListener("afterfirstlayoutstart",()=>{const e=this._runtime.GetIRuntime();e&&(e.GameScore=this.gp,e.GamePush=this.gp),this.isReady&&this.Trigger(this.conditions.OnReady),this.isPlayerReady&&this.Trigger(this.conditions.OnPlayerReady),this.isAutoSendGameStart&&this.gp.gameStart()}),this.loadLib()}onError(e){console.warn(e);e=()=>Promise.resolve({});this.awaiters.gp.done(),this.awaiters.player.done(),this.gp={on(){},changeLanguage:e,changeAvatarGenerator:e,loadOverlay:e,pause:e,resume:e,gameStart:e,gameplayStart:e,gameplayStop:e,isDev:!1,isPaused:!1,isGameplay:!1,isPortrait:!1,language:"en",avatarGenerator:"dicebear_retro",app:{on(){},title:"",description:"",image:"",url:"",canAddShortcut:!1,addShortcut:e},device:{on(){},type:""},analytics:{on(){},hit(){},goal(){}},platform:{on(){},hasIntegratedAuth:!1,type:"NONE"},socials:{isSupportsNativeShare:!1,isSupportsNativePosts:!1,isSupportsNativeInvite:!1,share:e,post:e,invite:e,makeShareUrl:()=>""},leaderboard:{on(){},open:e,fetch:e,fetchScoped:e,fetchPlayerRating:e,fetchPlayerRatingScoped:e},achievements:{on(){},has(){},open:e,fetch:e,unlock:e,setProgress:e},gamesCollections:{on(){},open:e,fetch:e},documents:{on(){},open:e,fetch:e},variables:{list:[],on(){},fetch:e,get:e,has:e,type:e},images:{canUpload:!1,list:[],on(){},upload:e,uploadUrl:e,fetch:e,fetchMore:e,chooseFile:e,resize:e},files:{canUpload:!1,list:[],on(){},upload:e,uploadUrl:e,uploadContent:e,loadContent:e,fetch:e,fetchMore:e,chooseFile:e},payments:{isAvailable:!1,purchases:[],on(){},has(){},fetchProducts:e,purchase:e,consume:e},fullscreen:{isEnabled:!1,on(){},open(){},close(){},toggle(){}},ads:{isFullscreenAvailable:!1,isRewardedAvailable:!1,isPreloaderAvailable:!1,isStickyAvailable:!1,isAdblockEnabled:!1,on(){},showFullscreen:e,showRewardedVideo:e,showPreloader:e,showSticky:e,closeSticky:e,refreshSticky:e},player:{isStub:!0,isLoggedIn:!1,id:0,name:"",avatar:"",stats:{},on(){},sync:e,load:e,login:e,fetchFields:e,getField:e,getFieldName:e,getFieldVariantName:e,add:e,has:e,get:e,set:e,toggle:e,reset:e,remove:e,toJSON:()=>({}),fields:[]},players:{on(){},fetch:e},rewards:{on(){},list:[],givenList:[],accept:e,give:e,has:e,hasAccepted:e,hasUnaccepted:e,getReward:e},triggers:{on(){},list:[],activatedList:[],claim:e,isActivated:e,isClaimed:e,getTrigger:e},schedulers:{on(){},list:[],activeList:[],getSchedulersTriggers:e,getScheduler:e,isRegistered:e,isTodayRewardClaimed:e,canClaimDay:e,canClaimDayAdditional:e,canClaimAllDay:e,getSchedulerDay:e,getSchedulerCurrentDay:e,claimDay:e,claimDayAdditional:e,claimAllDay:e,claimAllDays:e},events:{on(){},list:[],activeList:[],getEvent:e,has:e,join:e,isJoined:e}},this.isReady=!0,this.Trigger(this.conditions.OnReady),this.isPlayerReady=!0,this.Trigger(this.conditions.OnPlayerReady)}loadLib(){try{window.onGPInit=e=>e.ready.then(()=>this.init(e)).catch(e=>this.onError(e)),e=document,t=e.getElementsByTagName("script")[0],(e=e.createElement("script")).src=`${a}/gamepush.js?projectId=${this.projectId}&publicToken=${this.publicToken}&callback=onGPInit`,e.async=!0,e.onerror=e=>this.onError(e),t.parentNode.insertBefore(e,t)}catch(e){console.error(e),this.onError(e)}var e,t}init(e){this.gp=e;const t=this._runtime.GetIRuntime();t&&(t.GameScore=this.gp,t.GamePush=this.gp),this.gp.player.on("ready",()=>{this.isPlayerReady=!0,this.awaiters.player.done(),this.Trigger(this.conditions.OnPlayerReady)}),this.gp.player.on("change",()=>this.Trigger(this.conditions.OnPlayerChange)),this.gp.player.on("sync",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerSyncComplete:this.conditions.OnPlayerSyncError)}),this.gp.player.on("load",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerLoadComplete:this.conditions.OnPlayerLoadError)}),this.gp.player.on("login",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerLoginComplete:this.conditions.OnPlayerLoginError)}),this.gp.player.on("fetchFields",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerFetchFieldsComplete:this.conditions.OnPlayerFetchFieldsError)}),this.gp.leaderboard.on("open",()=>this.Trigger(this.conditions.OnLeaderboardOpen)),this.gp.leaderboard.on("close",()=>this.Trigger(this.conditions.OnLeaderboardClose)),this.gp.achievements.on("open",()=>this.Trigger(this.conditions.OnAchievementsOpen)),this.gp.achievements.on("close",()=>this.Trigger(this.conditions.OnAchievementsClose)),this.gp.achievements.on("unlock",e=>{this.handleResult(!0),this.isUnlockAchievementSuccess=!0,this.unlockAchievementError="",this.currentAchievement=e||{},this.Trigger(this.conditions.OnAchievementsUnlock),this.Trigger(this.conditions.OnAchievementsAnyUnlock)}),this.gp.achievements.on("error:unlock",(e,t)=>{this.lastIdOrTag=t.input,this.isUnlockAchievementSuccess=!1,this.unlockAchievementError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsAnyUnlockError)}),this.gp.achievements.on("progress",e=>{this.handleResult(!0),this.currentAchievement=e||{},this.Trigger(this.conditions.OnAchievementsSetProgress),this.Trigger(this.conditions.OnAchievementsAnySetProgress)}),this.gp.achievements.on("error:progress",(e,t)=>{this.lastIdOrTag=t.input,this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsAnySetProgressError)}),this.gp.payments.on("purchase",e=>{this.isPurchaseProductSuccess=!0,this.purchaseProductError="",this.handleResult(!0);e=e.product||{};this.purchasedProductId=e.id||0,this.purchasedProductTag=e.tag||"",this.Trigger(this.conditions.OnPaymentsPurchase),this.Trigger(this.conditions.OnPaymentsAnyPurchase)}),this.gp.payments.on("error:purchase",(e,t)=>{this.lastIdOrTag=t.input,this.isPurchaseProductSuccess=!1,this.purchasedProductId=t.input.id||0,this.purchasedProductTag=t.input.tag||"",this.purchaseProductError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsPurchaseError),this.Trigger(this.conditions.OnPaymentsAnyPurchaseError)}),this.gp.payments.on("subscribe",e=>{this.isSubscribeProductSuccess=!0,this.handleResult(!0);var t=e.product||{},e=e.purchase||{};this.currentPurchase=e,this.currentProduct=t,this.currentProductPurchases=1,this.purchasedProductId=t.id||0,this.purchasedProductTag=t.tag||"",this.Trigger(this.conditions.OnPaymentsSubscribe),this.Trigger(this.conditions.OnPaymentsAnySubscribe)}),this.gp.payments.on("error:subscribe",(e,t)=>{this.lastIdOrTag=t.input,this.isSubscribeProductSuccess=!1,this.purchasedProductId=t.input.id||0,this.purchasedProductTag=t.input.tag||"",this.isSubscribeProductSuccess=!1,this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsSubscribeError),this.Trigger(this.conditions.OnPaymentsAnySubscribeError)}),this.gp.gamesCollections.on("open",()=>this.Trigger(this.conditions.OnGamesCollectionsOpen)),this.gp.gamesCollections.on("close",()=>this.Trigger(this.conditions.OnGamesCollectionsClose)),this.gp.documents.on("open",()=>this.Trigger(this.conditions.OnDocumentsOpen)),this.gp.documents.on("close",()=>this.Trigger(this.conditions.OnDocumentsClose)),this.gp.fullscreen.on("open",()=>this.Trigger(this.conditions.OnFullscreenOpen)),this.gp.fullscreen.on("close",()=>this.Trigger(this.conditions.OnFullscreenClose)),this.gp.fullscreen.on("change",()=>this.Trigger(this.conditions.OnFullscreenChange)),this.gp.ads.on("start",()=>this.Trigger(this.conditions.OnAdsStart)),this.gp.ads.on("close",e=>{this.handleResult(e),this.isLastAdSuccess=e,this.Trigger(this.conditions.OnAdsClose)}),this.gp.ads.on("fullscreen:start",()=>this.Trigger(this.conditions.OnAdsFullscreenStart)),this.gp.ads.on("fullscreen:close",()=>this.Trigger(this.conditions.OnAdsFullscreenClose)),this.gp.ads.on("preloader:start",()=>this.Trigger(this.conditions.OnAdsPreloaderStart)),this.gp.ads.on("preloader:close",()=>this.Trigger(this.conditions.OnAdsPreloaderClose)),this.gp.ads.on("rewarded:start",()=>this.Trigger(this.conditions.OnAdsRewardedStart)),this.gp.ads.on("rewarded:close",()=>this.Trigger(this.conditions.OnAdsRewardedClose)),this.gp.ads.on("rewarded:reward",()=>this.Trigger(this.conditions.OnAdsRewardedReward)),this.gp.ads.on("sticky:start",()=>this.Trigger(this.conditions.OnAdsStickyStart)),this.gp.ads.on("sticky:close",()=>this.Trigger(this.conditions.OnAdsStickyClose)),this.gp.ads.on("sticky:refresh",()=>this.Trigger(this.conditions.OnAdsStickyRefresh)),this.gp.ads.on("sticky:render",()=>this.Trigger(this.conditions.OnAdsStickyRender)),this.gp.socials.on("share",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsShare)}),this.gp.socials.on("post",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsPost)}),this.gp.socials.on("invite",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsInvite)}),this.gp.socials.on("joinCommunity",e=>{this.handleResult(e),this.isLastCommunityJoinSuccess=e,this.Trigger(this.conditions.OnSocialsJoinCommunity)}),this.gp.app.on("addShortcut",e=>{this.handleResult(e),this.isLastAddShortcutSuccess=e,this.Trigger(this.conditions.OnAppAddShortcut)}),this.gp.app.on("review",e=>{this.handleResult(!0),this.appLastReviewRating=e.rating||0,this.Trigger(this.conditions.OnAppReview)}),this.gp.app.on("error:review",e=>{this.handleResult(!1,e),this.appLastReviewRating=0,this.Trigger(this.conditions.OnAppReviewError)}),this.gp.on("change:language",()=>this.Trigger(this.conditions.OnChangeLanguage)),this.gp.on("change:avatarGenerator",()=>this.Trigger(this.conditions.OnChangeAvatarGenerator)),this.gp.on("change:orientation",()=>this.Trigger(this.conditions.OnChangeOrientation)),this.gp.on("overlay:ready",()=>this.Trigger(this.conditions.OnOverlayReady)),this.gp.on("pause",()=>this.Trigger(this.conditions.OnPause)),this.gp.on("resume",()=>this.Trigger(this.conditions.OnResume)),this.gp.on("gameplayStart",()=>this.Trigger(this.conditions.OnGameplayStart)),this.gp.on("gameplayStop",()=>this.Trigger(this.conditions.OnGameplayStop)),this.gp.channels.on("event",e=>{this.curEvent=e}),this.gp.on("event:connect",()=>{this.Trigger(this.conditions.OnEventConnect)}),this.gp.rewards.on("accept",e=>{this.setReward(e),this.handleResult(!0),this.lastIdOrTag={id:e.reward.id,tag:e.reward.tag},this.Trigger(this.conditions.OnRewardsAccept)}),this.gp.rewards.on("error:accept",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnRewardsAcceptError)}),this.gp.rewards.on("give",e=>{this.setReward(e),this.handleResult(!0),this.lastIdOrTag={id:e.reward.id,tag:e.reward.tag},this.Trigger(this.conditions.OnRewardsGive)}),this.gp.rewards.on("error:give",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnRewardsGiveError)}),this.gp.triggers.on("activate",e=>{this.setTriggerInfo(e.trigger.id),this.handleResult(!0),this.lastIdOrTag={id:e.trigger.id,tag:e.trigger.tag},this.Trigger(this.conditions.OnTriggersActivate)}),this.gp.triggers.on("claim",e=>{this.setTriggerInfo(e.trigger.id),this.handleResult(!0),this.lastIdOrTag={id:e.trigger.id,tag:e.trigger.tag},this.Trigger(this.conditions.OnTriggersClaim)}),this.gp.triggers.on("error:claim",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnTriggersClaimError)}),this.gp.schedulers.on("register",e=>{this.setSchedulerInfo(e.scheduler.id),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.Trigger(this.conditions.OnSchedulersRegister)}),this.gp.schedulers.on("error:register",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnSchedulersRegisterError)}),this.gp.schedulers.on("claimDay",e=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.Trigger(this.conditions.OnSchedulersClaimDay)}),this.gp.schedulers.on("error:claimDay",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.Trigger(this.conditions.OnSchedulersClaimDayError)}),this.gp.schedulers.on("claimDayAdditional",(e,t)=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.setTriggerInfo(t.input.triggerIdOrTag),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.lastPickedSchedulerTriggerIdOrTag=t.input.triggerIdOrTag,this.Trigger(this.conditions.OnSchedulersClaimDayAdditional)}),this.gp.schedulers.on("error:claimDayAdditional",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.lastPickedSchedulerTriggerIdOrTag=t.input.triggerIdOrTag,this.Trigger(this.conditions.OnSchedulersClaimDayAdditionalError)}),this.gp.schedulers.on("claimAllDay",e=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.Trigger(this.conditions.OnSchedulersClaimAllDay)}),this.gp.schedulers.on("error:claimAllDay",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.Trigger(this.conditions.OnSchedulersClaimAllDayError)}),this.gp.schedulers.on("claimAllDays",e=>{this.setSchedulerInfo(e.scheduler.id),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.Trigger(this.conditions.OnSchedulersClaimAllDays)}),this.gp.schedulers.on("error:claimAllDays",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnSchedulersClaimAllDaysError)}),this.gp.events.on("join",e=>{this.setEventInfo(e.event.id),this.handleResult(!0),this.lastIdOrTag={id:e.event.id,tag:e.event.tag},this.Trigger(this.conditions.OnEventsJoin)}),this.gp.events.on("error:join",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnEventsJoinError)}),this.gp.segments.on("enter",e=>{this.curSegment=e,this.Trigger(this.conditions.OnSegmentsEnter)}),this.gp.segments.on("leave",e=>{this.curSegment=e,this.Trigger(this.conditions.OnSegmentsLeave)}),this.isReady=!0,this.Trigger(this.conditions.OnReady),this.awaiters.gp.done(),this.showPreloaderOnStart&&this.gp.ads.showPreloader()}Release(){super.Release()}SaveToJson(){return{leaderboard:this.leaderboard,leaderboardInfo:this.leaderboardInfo,leaderboardRecords:this.leaderboardRecords,leaderboardResult:this.leaderboardResult,currentLeaderboardIndex:this.currentLeaderboardIndex,currentLeaderboardPlayer:this.currentLeaderboardPlayer,lastLeaderboardTag:this.lastLeaderboardTag,lastLeaderboardVariant:this.lastLeaderboardVariant,lastLeaderboardPlayerRatingTag:this.lastLeaderboardPlayerRatingTag,leaderboardPlayerPosition:this.leaderboardPlayerPosition,currentPlayerFieldKey:this.currentPlayerFieldKey,currentPlayerFieldType:this.currentPlayerFieldType,currentPlayerFieldName:this.currentPlayerFieldName,currentPlayerFieldValue:this.currentPlayerFieldValue,currentPlayerFieldVariantValue:this.currentPlayerFieldVariantValue,currentPlayerFieldVariantName:this.currentPlayerFieldVariantName,currentPlayerFieldVariantIndex:this.currentPlayerFieldVariantIndex,isLastAdSuccess:this.isLastAdSuccess,isLastShareSuccess:this.isLastShareSuccess,isLastCommunityJoinSuccess:this.isLastCommunityJoinSuccess,isLastAddShortcutSuccess:this.isLastAddShortcutSuccess,isReady:this.isReady,isPlayerReady:this.isPlayerReady,achievements:this.achievements,achievementsGroups:this.achievementsGroups,playerAchievements:this.playerAchievements,currentAchievementIndex:this.currentAchievementIndex,currentAchievement:this.currentAchievement,currentAchievementsGroupIndex:this.currentAchievementsGroupIndex,currentAchievementsGroupId:this.currentAchievementsGroupId,currentAchievementsGroupTag:this.currentAchievementsGroupTag,currentAchievementsGroupName:this.currentAchievementsGroupName,currentAchievementsGroupDescription:this.currentAchievementsGroupDescription,currentPlayerAchievementIndex:this.currentPlayerAchievementIndex,currentPlayerAchievementId:this.currentPlayerAchievementId,currentPlayerAchievementUnlockDate:this.currentPlayerAchievementUnlockDate,isUnlockAchievementSuccess:this.isUnlockAchievementSuccess,unlockAchievementError:this.unlockAchievementError,products:this.products,playerPurchases:this.playerPurchases,currentProductIndex:this.currentProductIndex,currentProduct:this.currentProduct,currentProductPurchases:this.currentProductPurchases,currentPurchaseIndex:this.currentPurchaseIndex,currentPurchase:this.currentPurchase,lastPlayersTag:this.lastPlayersTag,currentPlayersIndex:this.currentPlayersIndex,currentPlayersPlayer:this.currentPlayersPlayer,isSubscribeProductSuccess:this.isSubscribeProductSuccess,isUnsubscribeProductSuccess:this.isUnsubscribeProductSuccess,isPurchaseProductSuccess:this.isPurchaseProductSuccess,purchaseProductError:this.purchaseProductError,purchasedProductId:this.purchasedProductId,purchasedProductTag:this.purchasedProductTag,isConsumeProductSuccess:this.isConsumeProductSuccess,consumeProductError:this.consumeProductError,consumedProductId:this.consumedProductId,consumedProductTag:this.consumedProductTag,gamesCollection:this.gamesCollection,currentGameIndex:this.currentGameIndex,currentGameId:this.currentGameId,currentGameName:this.currentGameName,currentGameDescription:this.currentGameDescription,currentGameIcon:this.currentGameIcon,currentGameUrl:this.currentGameUrl,gamesCollectionFetchError:this.gamesCollectionFetchError,lastGamesCollectionIdOrTag:this.lastGamesCollectionIdOrTag,document:this.document,lastDocumentType:this.lastDocumentType,documentFetchError:this.documentFetchError,lastError:this.lastError,isLastActionSuccess:this.isLastActionSuccess,images:this.images,canLoadMoreImages:this.canLoadMoreImages,currentImage:this.currentImage,lastImageTempUrl:this.lastImageTempUrl,currentImageIndex:this.currentImageIndex,currentImageTagIndex:this.currentImageTagIndex,currentImageTag:this.currentImageTag,files:this.files,lastFileContent:this.lastFileContent,canLoadMoreFiles:this.canLoadMoreFiles,currentFile:this.currentFile,lastFileTempUrl:this.lastFileTempUrl,currentFileIndex:this.currentFileIndex,currentFileTagIndex:this.currentFileTagIndex,currentFileTag:this.currentFileTag,curRewardIndex:this.curRewardIndex,curReward:this.curReward,curPlayerReward:this.curPlayerReward,curTriggerIndex:this.curTriggerIndex,curTriggerInfo:this.curTriggerInfo,curBonusIndex:this.curBonusIndex,curBonus:this.curBonus,curSchedulerIndex:this.curSchedulerIndex,curSchedulerInfo:this.curSchedulerInfo,curSchedulerDayInfo:this.curSchedulerDayInfo,curEventIndex:this.curEventIndex,curEventInfo:this.curEventInfo,currentVariableIndex:this.currentVariableIndex,currentVariable:this.currentVariable,curSegment:this.curSegment}}LoadFromJson(e){this.leaderboard=e.leaderboard,this.leaderboardInfo=e.leaderboardInfo||{},this.leaderboardRecords=e.leaderboardRecords||{},this.leaderboardResult=e.leaderboardResult||{abovePlayers:[],belowPlayers:[],topPlayers:[]},this.currentLeaderboardIndex=e.currentLeaderboardIndex,this.currentLeaderboardPlayer=e.currentLeaderboardPlayer||{},this.lastLeaderboardTag=e.lastLeaderboardTag,this.lastLeaderboardVariant=e.lastLeaderboardVariant,this.lastLeaderboardPlayerRatingTag=e.lastLeaderboardPlayerRatingTag,this.leaderboardPlayerPosition=e.leaderboardPlayerPosition||0,this.currentPlayerFieldKey=e.currentPlayerFieldKey,this.currentPlayerFieldType=e.currentPlayerFieldType,this.currentPlayerFieldName=e.currentPlayerFieldName,this.currentPlayerFieldValue=e.currentPlayerFieldValue,this.currentPlayerFieldVariantValue=e.currentPlayerFieldVariantValue,this.currentPlayerFieldVariantName=e.currentPlayerFieldVariantName,this.currentPlayerFieldVariantIndex=e.currentPlayerFieldVariantIndex,this.isLastAdSuccess=e.isLastAdSuccess,this.isLastShareSuccess=e.isLastShareSuccess,this.isLastCommunityJoinSuccess=e.isLastCommunityJoinSuccess,this.isLastAddShortcutSuccess=e.isLastAddShortcutSuccess,this.isReady=e.isReady,this.isPlayerReady=e.isPlayerReady,this.achievements=e.achievements||[],this.achievementsGroups=e.achievementsGroups||[],this.playerAchievements=e.playerAchievements||[],this.currentAchievementIndex=e.currentAchievementIndex||0,this.currentAchievement=e.currentAchievement||{},this.currentAchievementsGroupIndex=e.currentAchievementsGroupIndex||0,this.currentAchievementsGroupId=e.currentAchievementsGroupId||0,this.currentAchievementsGroupTag=e.currentAchievementsGroupTag||"",this.currentAchievementsGroupName=e.currentAchievementsGroupName||"",this.currentAchievementsGroupDescription=e.currentAchievementsGroupDescription||"",this.currentPlayerAchievementIndex=e.currentPlayerAchievementIndex||0,this.currentPlayerAchievementId=e.currentPlayerAchievementId||0,this.currentPlayerAchievementUnlockDate=e.currentPlayerAchievementUnlockDate||"",this.isUnlockAchievementSuccess=e.isUnlockAchievementSuccess||!1,this.unlockAchievementError=e.unlockAchievementError||"",this.products=e.products||[],this.playerPurchases=e.playerPurchases||[],this.currentProductIndex=e.currentProductIndex||0,this.currentProduct=e.currentProduct||{id:0,tag:"",name:"",description:"",icon:"",iconSmall:"",price:0,currency:"",currencySymbol:""},this.currentProductPurchases=e.currentProductPurchases||0,this.currentPurchaseIndex=e.currentPurchaseIndex||0,this.currentPurchase=e.currentPurchase||{id:0,tag:"",createdAt:""},this.lastPlayersTag=e.lastPlayersTag,this.currentPlayersIndex=e.currenPlayersIndex||0,this.currentPlayersPlayer=e.currentPlayersPlayer||{state:{},achievements:[],purchases:[]},this.isSubscribeProductSuccess=e.isSubscribeProductSuccess||!1,this.isUnsubscribeProductSuccess=e.isUnsubscribeProductSuccess||!1,this.isPurchaseProductSuccess=e.isPurchaseProductSuccess||!1,this.purchaseProductError=e.purchaseProductError||"",this.purchasedProductId=e.purchasedProductId||0,this.purchasedProductTag=e.purchasedProductTag||"",this.isConsumeProductSuccess=e.isConsumeProductSuccess||!1,this.consumeProductError=e.consumeProductError||"",this.consumedProductId=e.consumedProductId||0,this.consumedProductTag=e.consumedProductTag||"",this.gamesCollection=e.gamesCollection||{id:0,tag:"",name:"",description:"",games:[]},this.currentGameIndex=e.currentGameIndex||0,this.currentGameId=e.currentGameId||0,this.currentGameName=e.currentGameName||"",this.currentGameDescription=e.currentGameDescription||"",this.currentGameIcon=e.currentGameIcon||"",this.currentGameUrl=e.currentGameUrl||"",this.gamesCollectionFetchError=e.gamesCollectionFetchError||"",this.lastGamesCollectionIdOrTag=e.lastGamesCollectionIdOrTag||"",this.document=e.document||{type:"",content:""},this.lastDocumentType=e.lastDocumentType||"",this.documentFetchError=e.documentFetchError||"",this.lastError=e.lastError||"",this.isLastActionSuccess=e.isLastActionSuccess||!1,this.images=e.images||[],this.canLoadMoreImages=e.canLoadMoreImages||!1,this.currentImageIndex=e.currentImageIndex||0,this.currentImageTagIndex=e.currentImageTagIndex||0,this.currentImageTag=e.currentImageTag||"",this.currentImage=e.currentImage||{id:"",playerId:0,width:0,height:0,src:"",tags:[]},this.files=e.files||[],this.lastFileContent=e.lastFileContent||"",this.canLoadMoreFiles=e.canLoadMoreFiles||!1,this.currentFileIndex=e.currentFileIndex||0,this.currentFileTagIndex=e.currentFileTagIndex||0,this.currentFileTag=e.currentFileTag||"",this.currentFile=e.currentFile||{id:"",playerId:0,name:"",size:0,src:"",tags:[]},this.currentVariableIndex=e.currentVariableIndex||0,this.currentVariable=e.currentVariable||{key:"",type:"",value:""},this.curRewardIndex=e.curRewardIndex||0,this.curReward=e.curReward||{},this.curPlayerReward=e.curPlayerReward||{},this.curTriggerIndex=e.curTriggerIndex||0,this.curTriggerInfo=e.curTriggerInfo||{trigger:{}},this.curSchedulerIndex=e.curSchedulerIndex||0,this.curSchedulerInfo=e.curSchedulerInfo||{scheduler:{}},this.curSchedulerDayInfo=e.curSchedulerDayInfo||{scheduler:{}},this.curEventIndex=e.curEventIndex||0,this.curEventInfo=e.curEventInfo||{event:{}},this.curBonusIndex=e.curBonusIndex||0,this.curBonus=e.curBonus||{},this.curSegment=e.curSegment||""}GetDebuggerProperties(){return this.isPlayerReady?[{title:"GS - Base",properties:[{name:"Language",value:this.gp.language},{name:"Avatar Generator",value:this.gp.avatarGenerator},{name:"Platform",value:this.gp.platform.type},{name:"Last Error",value:this.lastError},{name:"Is Last Action Success",value:this.isLastActionSuccess},{name:"Is Mobile",value:this.gp.isMobile},{name:"Is Dev",value:this.gp.isDev},{name:"Is Paused",value:this.gp.isPaused},{name:"Is Gameplay",value:this.gp.isGameplay},{name:"Is Allowed Origin",value:this.gp.isAllowedOrigin}]},{title:"GS - Ads",properties:[{name:"Last Ad Success",value:this.isLastAdSuccess},{name:"Adblock Enabled",value:this.gp.ads.isAdblockEnabled}]},{title:"GS - Leaderboards",properties:[{name:"Player Position",value:this.leaderboardPlayerPosition}]},{title:"GS - Player",properties:[{name:"ID",value:this.gp.player.id},{name:"Logged In By Platform",value:this.gp.player.isLoggedInByPlatform},{name:"Is Stub",value:this.gp.player.isStub},...this.gp.player.fields.map(t=>({name:this.gp.player.getFieldName(t.key),value:this.gp.player.get(t.key),onedit:e=>this.CallAction(this.actions.PlayerSet,t.key,e)}))]},{title:"GS - Achievements - Current",properties:[{name:"Index",value:this.currentAchievementIndex},{name:"ID",value:this.currentAchievement.id},{name:"Tag",value:this.currentAchievement.tag},{name:"Name",value:this.currentAchievement.name},{name:"Description",value:this.currentAchievement.description},{name:"Rare",value:this.currentAchievement.rare},{name:"Unlocked",value:this.currentAchievement.unlocked},{name:"Icon",value:this.currentAchievement.icon},{name:"Icon Small",value:this.currentAchievement.iconSmall},{name:"Locked Icon",value:this.currentAchievement.lockedIcon},{name:"Locked Icon Small",value:this.currentAchievement.lockedIconSmall},{name:"Progress",value:this.currentAchievement.progress},{name:"Max Progress",value:this.currentAchievement.maxProgress},{name:"Progress Step",value:this.currentAchievement.progressStep},{name:"Locked Visible",value:this.currentAchievement.lockedVisible},{name:"Locked Description Visible",value:this.currentAchievement.lockedDescriptionVisible}]},{title:"GS - Achievements Groups Loop",properties:[{name:"Current Achievements Group Index",value:this.currentAchievementsGroupIndex},{name:"Current Achievements Group ID",value:this.currentAchievementsGroupId},{name:"Current Achievements Group Tag",value:this.currentAchievementsGroupTag},{name:"Current Achievements Group Name",value:this.currentAchievementsGroupName},{name:"Current Achievements Group Description",value:this.currentAchievementsGroupDescription}]},{title:"GS - Player Achievements Loop",properties:[{name:"Current Player Achievement Index",value:this.currentPlayerAchievementIndex},{name:"Current Player Achievement ID",value:this.currentPlayerAchievementId},{name:"Current Player Achievement Unlock Date",value:this.currentPlayerAchievementUnlockDate}]},{title:"GS - Products Loop",properties:[{name:"Current Product Index",value:this.currentProductIndex},{name:"Current Product ID",value:this.currentProduct.id},{name:"Current Product Tag",value:this.currentProduct.tag},{name:"Current Product Name",value:this.currentProduct.name},{name:"Current Product Description",value:this.currentProduct.description},{name:"Current Product Icon",value:this.currentProduct.icon},{name:"Current Product Icon Small",value:this.currentProduct.iconSmall},{name:"Current Product Icon",value:this.currentProduct.icon},{name:"Current Product Price",value:this.currentProduct.price},{name:"Current Product Currency",value:this.currentProduct.currency},{name:"Current Product CurrencySymbol",value:this.currentProduct.currencySymbol},{name:"Current Product Purchases",value:this.currentProductPurchases}]},{title:"GS - Purchased Product",properties:[{name:"Is purchase successful",value:this.isPurchaseProductSuccess},{name:"Purchase error",value:this.purchaseProductError},{name:"Purchased Product ID",value:this.purchasedProductId},{name:"Purchased Product Tag",value:this.purchasedProductTag}]},{title:"GS - Consumed Product",properties:[{name:"Is consume successful",value:this.isConsumeProductSuccess},{name:"Consume error",value:this.consumeProductError},{name:"Consumed Product ID",value:this.consumedProductId},{name:"Consumed Product Tag",value:this.consumedProductTag}]},{title:"GS - Last Games Collection",properties:[{name:"Collection ID",value:this.gamesCollection.id},{name:"Collection Tag",value:this.gamesCollection.tag},{name:"Collection Name",value:this.gamesCollection.name},{name:"Collection Description",value:this.gamesCollection.description},{name:"Fetch Error",value:this.gamesCollectionFetchError}]},{title:"GS - Games in Collection",properties:[{name:"Current Game Index",value:this.currentGameIndex},{name:"Current Game ID",value:this.currentGameId},{name:"Current Game Name",value:this.currentGameName},{name:"Current Game Description",value:this.currentGameDescription},{name:"Current Game Icon",value:this.currentGameIcon},{name:"Current Game Url",value:this.currentGameUrl}]},{title:"GS - Documents",properties:[{name:"Document Type",value:this.document.type},{name:"Document Content",value:this.document.content},{name:"Fetch Error",value:this.documentFetchError}]}]:[]}}}
+}
+
+{
+"use strict";function each(e,r,t){const s=e.GetEventSheetManager(),n=e.GetCurrentEvent(),i=n.GetSolModifiers(),a=e.GetEventStack(),u=a.GetCurrentStackFrame(),c=a.Push(n);r.forEach((e,r)=>{t(e,r),s.PushCopySol(i),n.Retrigger(u,c),s.PopSol(i)}),a.Pop()}function isExists(e){return e&&!!e.id}C3.Plugins.Eponesh_GameScore.Cnds={OnPlayerChange(){return!0},OnPlayerSyncComplete(){return!0},OnPlayerSyncError(){return!0},OnPlayerLoadComplete(){return!0},OnPlayerLoadError(){return!0},OnPlayerLoginComplete(){return!0},OnPlayerLoginError(){return!0},OnPlayerFetchFieldsComplete(){return!0},OnPlayerFetchFieldsError(){return!0},OnPlayerReady(){return!0},IsPlayerReady(){return this.isPlayerReady},IsPlayerStub(){return this.gp.player.isStub},IsPlayerLoggedIn(){return this.gp.player.isLoggedIn},PlayerHasKey(e){return this.gp.player.has(e)},PlayerFieldIsEnum(e){return this.gp.player.getField(e).variants.length},PlayerCompareScore(e,r){return this.mappers.compare[e](this.gp.player.score,r)},PlayerCompare(e,r,t){return this.mappers.compare[r](this.gp.player.get(e),t)},PlayerEachField(){return each(this._runtime,this.gp.player.fields,e=>{this.currentPlayerFieldKey=e.key,this.currentPlayerFieldType=e.type,this.currentPlayerFieldName=e.name,this.currentPlayerFieldValue=this.gp.player.get(e.key)}),!1},PlayerEachFieldVariant(e){return each(this._runtime,this.gp.player.getField(e).variants,(e,r)=>{this.currentPlayerFieldVariantValue=e.value,this.currentPlayerFieldVariantName=e.name,this.currentPlayerFieldVariantIndex=r}),!1},OnLeaderboardOpen(){return!0},OnLeaderboardClose(){return!0},OnLeaderboardFetch(e){return this.lastLeaderboardTag===e},OnLeaderboardAnyFetch(){return!0},OnLeaderboardFetchError(e){return this.lastLeaderboardTag===e},OnLeaderboardAnyFetchError(){return!0},OnLeaderboardFetchPlayer(e){return this.lastLeaderboardPlayerRatingTag===e},OnLeaderboardAnyFetchPlayer(){return!0},OnLeaderboardFetchPlayerError(e){return this.lastLeaderboardPlayerRatingTag===e},OnLeaderboardAnyFetchPlayerError(){return!0},OnLeaderboardPublishRecord(){return!0},OnLeaderboardPublishRecordError(){return!0},LeaderboardEachPlayer(){return each(this._runtime,this.leaderboard,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachTopPlayer(){return each(this._runtime,this.leaderboardResult.topPlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachAbovePlayer(){return each(this._runtime,this.leaderboardResult.abovePlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachBelowPlayer(){return each(this._runtime,this.leaderboardResult.belowPlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},OnAchievementsOpen(){return!0},OnAchievementsClose(){return!0},OnAchievementsFetch(){return!0},OnAchievementsFetchError(){return!0},OnAchievementsUnlock(e){var r=parseInt(e,10)||0;return this.currentAchievement.tag===e||this.currentAchievement.id===r},OnAchievementsAnyUnlock(){return!0},OnAchievementsAnyUnlockError(){return!0},OnAchievementsSetProgress(e){var r=parseInt(e,10)||0;return this.currentAchievement.tag===e||this.currentAchievement.id===r},OnAchievementsAnySetProgress(){return!0},OnAchievementsAnySetProgressError(){return!0},AchievementsPickAchievement(e){var{achievement:e,playerAchievement:r,achievementGroup:t}=this.gp.achievements.getAchievement(e);return!!e&&(this.currentAchievementIndex=0,this.currentAchievement=e,r&&(this.currentAchievement.unlocked=r.unlocked,this.currentAchievement.progress=r.progress),t&&(this.currentAchievementsGroupIndex=0,this.currentAchievementsGroupId=t.id,this.currentAchievementsGroupTag=t.tag,this.currentAchievementsGroupName=t.name,this.currentAchievementsGroupDescription=t.description),!0)},AchievementsEachAchievement(){return each(this._runtime,this.gp.achievements.list,(e,r)=>{var t=this.gp.achievements.getAchievement(e.id)["playerAchievement"];this.currentAchievementIndex=r,this.currentAchievement=e,t&&(this.currentAchievement.unlocked=t.unlocked,this.currentAchievement.progress=t.progress)}),!1},AchievementsEachAchievementInGroup(r){const t=parseInt(r,10)||0,e=this.gp.achievements.groupsList.find(e=>e.tag===r||e.id===t);var s=e?e.achievements.reduce((e,r)=>{var{achievement:r,playerAchievement:t}=this.gp.achievements.getAchievement(r);return r&&e.push({achievement:r,playerAchievement:t}),e},[]):[];return each(this._runtime,s,({achievement:e,playerAchievement:r},t)=>{this.currentAchievementIndex=t,this.currentAchievement=e,r&&(this.currentAchievement.unlocked=r.unlocked,this.currentAchievement.progress=r.progress)}),!1},AchievementsEachAchievementsGroup(){return each(this._runtime,this.gp.achievements.groupsList,(e,r)=>{this.currentAchievementsGroupIndex=r,this.currentAchievementsGroupId=e.id,this.currentAchievementsGroupTag=e.tag,this.currentAchievementsGroupName=e.name,this.currentAchievementsGroupDescription=e.description}),!1},AchievementsEachPlayerAchievements(){return each(this._runtime,this.gp.achievements.unlockedList,(e,r)=>{this.currentPlayerAchievementIndex=r,this.currentPlayerAchievementId=e.id,this.currentPlayerAchievementUnlockDate=e.createdAt}),!1},IsAchievementsCurAchievementUnlocked(){return this.currentAchievement.unlocked},IsAchievementsCurAchievementLockedVisible(){return!!this.currentAchievement.isLockedVisible},IsAchievementsCurAchievementLockedDescriptionVisible(){return!!this.currentAchievement.isLockedDescriptionVisible},IsAchievementsUnlockSuccessful(){return this.isUnlockAchievementSuccess},AchievementsIsUnlocked(e){return this.gp.achievements.has(e)},OnPaymentsFetchProducts(){return!0},OnPaymentsFetchProductsError(){return!0},OnEventConnect(){return!0},OnPaymentsPurchase(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsPurchaseError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnyPurchase(){return!0},OnPaymentsAnyPurchaseError(){return!0},OnPaymentsConsume(e){var r=parseInt(e,10)||0;return this.consumedProductTag===e||this.consumedProductId===r},OnPaymentsConsumeError(e){var r=parseInt(e,10)||0;return this.consumedProductTag===e||this.consumedProductId===r},OnPaymentsAnyConsume(){return!0},OnPaymentsAnyConsumeError(){return!0},OnPaymentsSubscribe(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsSubscribeError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnySubscribe(){return!0},OnPaymentsAnySubscribeError(){return!0},OnPaymentsUnsubscribe(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsUnsubscribeError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnyUnsubscribe(){return!0},OnPaymentsAnyUnsubscribeError(){return!0},PaymentsPickProduct(e){const r=this.gp.payments.getProduct(e);return!!r&&(this.currentProductIndex=0,this.currentProduct=r,this.currentProductPurchases=this.gp.payments.purchases.filter(e=>e.productId===r.id).length,!0)},PaymentsEachProduct(){return each(this._runtime,this.gp.payments.products,(r,e)=>{this.currentProductIndex=e,this.currentProduct=r,this.currentProductPurchases=this.gp.payments.purchases.filter(e=>e.productId===r.id).length}),!1},PaymentsEachPurchase(){return each(this._runtime,this.gp.payments.purchases,(e,r)=>{this.currentPurchaseIndex=r,this.currentPurchase=e}),!1},IsPaymentsCurProductPurchased(){return 0<this.currentProductPurchases},IsPaymentsPurchaseSuccessful(){return this.isPurchaseProductSuccess},IsPaymentsConsumeSuccessful(){return this.isConsumeProductSuccess},IsPaymentsSubscribeSuccessful(){return this.isSubscribeProductSuccess},IsPaymentsUnsubscribeSuccessful(){return this.isUnsubscribeProductSuccess},PaymentsIsPurchased(e){return this.gp.payments.has(e)},PaymentsIsSubscribed(e){e=this.gp.payments.getPurchase(e);return e&&e.subscribed||!1},IsPaymentsAvailable(){return this.gp.payments.isAvailable},IsSubscriptionsAvailable(){return this.gp.payments.isSubscriptionsAvailable},OnImagesFetch(){return!0},OnImagesFetchError(){return!0},OnImagesFetchMore(){return!0},OnImagesFetchMoreError(){return!0},OnImagesUpload(){return!0},OnImagesUploadError(){return!0},OnImagesChoose(){return!0},OnImagesChooseError(){return!0},ImagesEachImage(){return each(this._runtime,this.images,(e,r)=>{this.currentImageIndex=r,this.currentImage=e}),!1},ImagesEachTag(r){var e=this.images.find(e=>e.id===r),e=e?e.tags:[];return each(this._runtime,e||[],(e,r)=>{this.currentImageTagIndex=r,this.currentImageTag=e}),!1},ImagesCanLoadMore(){return this.canLoadMoreImages},ImagesCanUpload(){return this.gp.images.canUpload},OnFilesFetch(){return!0},OnFilesFetchError(){return!0},OnFilesFetchMore(){return!0},OnFilesFetchMoreError(){return!0},OnFilesUpload(){return!0},OnFilesUploadError(){return!0},OnFilesLoadContent(){return!0},OnFilesLoadContentError(){return!0},OnFilesChoose(){return!0},OnFilesChooseError(){return!0},FilesEachFile(){return each(this._runtime,this.files,(e,r)=>{this.currentFileIndex=r,this.currentFile=e}),!1},FilesEachTag(r){var e=this.files.find(e=>e.id===r),e=e?e.tags:[];return each(this._runtime,e||[],(e,r)=>{this.currentFileTagIndex=r,this.currentFileTag=e}),!1},FilesCanLoadMore(){return this.canLoadMoreFiles},FilesCanUpload(){return this.gp.files.canUpload},OnVariablesFetch(){return!0},OnVariablesFetchError(){return!0},OnPlatformVariablesFetch(){return!0},OnPlatformVariablesFetchError(){return!0},isPlatformVariablesAvailable(){return this.gp.variables.isPlatformVariablesAvailable},VariablesEachVariable(){return each(this._runtime,this.gp.variables.list,(e,r)=>{this.currentVariableIndex=r,this.currentVariable=e}),!1},VariablesCompare(e,r,t){return this.mappers.compare[r](this.gp.variables.get(e),t)},VariablesCompareType(e,r){return this.gp.variables.type(e)===this.mappers.variablesTypes[r]},VariablesHas(e){return this.gp.variables.has(e)},OnFullscreenOpen(){return!0},OnFullscreenClose(){return!0},OnFullscreenChange(){return!0},IsFullscreenMode(){return this.gp.fullscreen.isEnabled},OnAdsStart(){return!0},OnAdsClose(){return!0},OnAdsFullscreenStart(){return!0},OnAdsFullscreenClose(){return!0},OnAdsPreloaderStart(){return!0},OnAdsPreloaderClose(){return!0},OnAdsRewardedStart(){return!0},OnAdsRewardedClose(){return!0},OnAdsRewardedReward(){return!0},OnAdsStickyStart(){return!0},OnAdsStickyClose(){return!0},OnAdsStickyRefresh(){return!0},OnAdsStickyRender(){return!0},IsAdsFullscreenAvailable(){return this.gp.ads.isFullscreenAvailable},IsAdsRewardedAvailable(){return this.gp.ads.isRewardedAvailable},IsAdsPreloaderAvailable(){return this.gp.ads.isPreloaderAvailable},IsAdsStickyAvailable(){return this.gp.ads.isStickyAvailable},IsAdsFullscreenPlaying(){return this.gp.ads.isFullscreenPlaying},CanShowFullscreenBeforeGamePlay(){return this.gp.ads.canShowFullscreenBeforeGamePlay},IsAdsRewardedPlaying(){return this.gp.ads.isRewardedPlaying},IsAdsPreloaderPlaying(){return this.gp.ads.isPreloaderPlaying},IsAdsStickyPlaying(){return this.gp.ads.isStickyPlaying},IsAdsAdblockEnabled(){return this.gp.ads.isAdblockEnabled},IsAdsLastAdSuccess(){return Boolean(this.isLastAdSuccess)},OnChangeLanguage(){return!0},OnChangeAvatarGenerator(){return!0},OnChangeOrientation(){return!0},OnOverlayReady(){return!0},IsDev(){return this.gp.isDev},IsMobile(){return this.gp.isMobile},DeviceType(e){return this.gp.device.type===this.mappers.deviceTypes[e]},IsAllowedOrigin(){return this.gp.isAllowedOrigin},IsPortrait(){return this.gp.isPortrait},Language(e){return this.gp.language===this.mappers.language[e]},OnPause(){return!0},OnResume(){return!0},IsPaused(){return this.gp.isPaused},OnGameplayStart(){return!0},OnGameplayStop(){return!0},IsGameplay(){return this.gp.isGameplay},HasPlatformIntegratedAuth(){return this.gp.platform.hasIntegratedAuth},PlatformType(e){return this.gp.platform.type===this.mappers.platform[e]},IsExternalLinksAllowedOnPlatform(){return this.gp.platform.isExternalLinksAllowed},OnSocialsShare(){return!0},OnSocialsPost(){return!0},OnSocialsInvite(){return!0},OnSocialsJoinCommunity(){return!0},IsSocialsLastShareSuccess(){return this.isLastShareSuccess},IsSocialsLastCommunityJoinSuccess(){return this.isLastCommunityJoinSuccess},IsSocialsSupportsShare(){return this.gp.socials.isSupportsShare},IsSocialsSupportsNativeShare(){return this.gp.socials.isSupportsNativeShare},IsSocialsSupportsNativePosts(){return this.gp.socials.isSupportsNativePosts},IsSocialsSupportsNativeInvite(){return this.gp.socials.isSupportsNativeInvite},IsSocialsSupportsNativeCommunityJoin(){return this.gp.socials.isSupportsNativeCommunityJoin},SocialsCanJoinCommunity(){return this.gp.socials.canJoinCommunity},OnAppAddShortcut(){return!0},OnAppReview(){return!0},OnAppReviewError(){return!0},IsAppLastAddShortcutSuccess(){return this.isLastAddShortcutSuccess},AppCanAddShortcut(){return this.gp.app.canAddShortcut},AppCanRequestReview(){return this.gp.app.canRequestReview},AppIsAlreadyReviewed(){return this.gp.app.isAlreadyReviewed},OnGamesCollectionsOpen(){return!0},OnGamesCollectionsClose(){return!0},OnGamesCollectionsFetchAny(){return!0},OnGamesCollectionsFetchAnyError(){return!0},OnGamesCollectionsFetch(e){return this.lastGamesCollectionIdOrTag===e},OnGamesCollectionsFetchError(e){return this.lastGamesCollectionIdOrTag===e},GamesCollectionsEachGame(){return each(this._runtime,this.gamesCollection.games,(e,r)=>{this.currentGameIndex=r,this.currentGameId=e.id,this.currentGameName=e.name,this.currentGameDescription=e.description,this.currentGameIcon=e.icon,this.currentGameUrl=e.url}),!1},IsGamesCollectionsAvailable(){return this.gp.gamesCollections.isAvailable},OnDocumentsOpen(){return!0},OnDocumentsClose(){return!0},OnDocumentsFetchAny(){return!0},OnDocumentsFetchAnyError(){return!0},OnDocumentsFetch(e){return this.lastDocumentType===this.mappers.documentTypes[e]},OnDocumentsFetchError(e){return this.lastDocumentType===this.mappers.documentTypes[e]},OnPlayersFetch(e){return this.lastPlayersTag===e},OnPlayersAnyFetch(){return!0},OnPlayersFetchError(e){return this.lastPlayersTag===e},OnPlayersAnyFetchError(){return!0},PlayersEachPlayer(){return each(this._runtime,this.playersList,(e,r)=>{this.currentPlayersIndex=r,this.currentPlayersPlayer=e}),!1},PlayersEachPlayerAchievement(){return each(this._runtime,this.currentPlayersPlayer.achievements,(e,r)=>{this.currentPlayerAchievementIndex=r,this.currentPlayerAchievementId=e.id,this.currentPlayerAchievementUnlockDate=e.createdAt}),!1},PlayersEachPlayerPurchase(){return each(this._runtime,this.currentPlayersPlayer.purchases,(e,r)=>{this.currentPurchaseIndex=r,this.currentPurchase=e}),!1},OnRewardsAccept(e){return!e||this.isPickedIdOrTag(e)},OnRewardsAcceptError(e){return!e||this.isPickedIdOrTag(e)},OnRewardsGive(e){return!e||this.isPickedIdOrTag(e)},OnRewardsGiveError(e){return!e||this.isPickedIdOrTag(e)},RewardsPick(e){e=this.gp.rewards.getReward(e)||{};return this.setReward(e),isExists(e.reward)},RewardsEachReward(){return each(this._runtime,this.gp.rewards.list,(e,r)=>{e=this.gp.rewards.getReward(e.id);this.setReward(e,r)}),!1},IsRewardsCurAccepted(){return 0<this.curPlayerReward.countAccepted},IsRewardsCurGiven(){return 0<this.curPlayerReward.countTotal},IsRewardsCurHasAutoAccept(){return this.curReward.isAutoAccept},RewardsHas(e){return this.gp.rewards.has(e)},RewardsHasAccepted(e){return this.gp.rewards.hasAccepted(e)},RewardsHasUnaccepted(e){return this.gp.rewards.hasUnaccepted(e)},OnTriggersActivate(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},OnTriggersClaim(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},OnTriggersClaimError(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},TriggersPick(e){return this.setTriggerInfo(e),isExists(this.curTriggerInfo.trigger)},TriggersEachTrigger(){return each(this._runtime,this.gp.triggers.list,(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},TriggersEachBonus(){return each(this._runtime,this.curTriggerInfo.trigger.bonuses||[],(e,r)=>{this.setBonus(e,r)}),!1},IsTriggersCurActivated(){return!!this.curTriggerInfo.isActivated},IsTriggersCurClaimed(){return!!this.curTriggerInfo.isClaimed},IsTriggersCurHasAutoClaim(){return!!this.curTriggerInfo.trigger.isAutoClaim},TriggersIsActivated(e){return this.gp.triggers.isActivated(e)},TriggersIsClaimed(e){return this.gp.triggers.isClaimed(e)},BonusType(e){return this.curBonus.type===this.mappers.bonusType[e]},OnSchedulersRegister(e){return!e||this.isPickedIdOrTag(e)},OnSchedulersRegisterError(e){return!e||this.isPickedIdOrTag(e)},OnSchedulersClaimDay(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimDayError(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimDayAdditional(e,r,t){return this.isPickedSchedulerDayAndTrigger(e,r,t)},OnSchedulersClaimDayAdditionalError(e,r,t){return this.isPickedSchedulerDayAndTrigger(e,r,t)},OnSchedulersClaimAllDay(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimAllDayError(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimAllDays(e){return this.isPickedSchedulerDayAndTrigger(e)},OnSchedulersClaimAllDaysError(e){return this.isPickedSchedulerDayAndTrigger(e)},SchedulersPick(e){return this.setSchedulerInfo(e),isExists(this.curSchedulerInfo.scheduler)},SchedulersPickDay(e,r){return this.setSchedulerDayInfo(e,r),isExists(this.curSchedulerDayInfo.scheduler)&&this.curSchedulerDayInfo.day===r},SchedulersPickDayAdditional(e,r,t){this.setSchedulerDayInfo(e,r);e=this.curSchedulerDayInfo.triggers||[];return!!e[t]&&(this.setTriggerInfo(e[t].id),!!this.curTriggerInfo.trigger)},SchedulersEachScheduler(){return each(this._runtime,this.gp.schedulers.list,(e,r)=>{this.setSchedulerInfo(e.id,r)}),!1},SchedulersEachCurSchedulerDay(){var e=Array.from({length:this.curSchedulerInfo.scheduler.days||0});return each(this._runtime,e,(e,r)=>{this.setSchedulerDayInfo(this.curSchedulerInfo.scheduler.id,r+1)}),!1},SchedulersEachCurSchedulerDaysClaimed(){return each(this._runtime,this.curSchedulerInfo.daysClaimed,e=>{this.setSchedulerDayInfo(this.curSchedulerInfo.scheduler.id,e)}),!1},SchedulersEachCurSchedulerDayBonuses(){return each(this._runtime,this.curSchedulerDayInfo.bonuses||[],(e,r)=>{this.setBonus(e,r)}),!1},SchedulersEachCurSchedulerDayTriggers(){return each(this._runtime,this.curSchedulerDayInfo.triggers||[],(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},IsSchedulersCurRegistered(){return this.curSchedulerInfo.isRegistered},IsSchedulersCurAutoRegister(){return!!this.curSchedulerInfo.scheduler.isAutoRegister},IsSchedulersCurRepeatable(){return this.curSchedulerInfo.scheduler.isRepeat},IsSchedulersCurDayReached(){return this.curSchedulerDayInfo.isDayReached},IsSchedulersCurDayComplete(){return this.curSchedulerDayInfo.isDayComplete},IsSchedulersCurDayClaimed(){return this.curSchedulerDayInfo.isDayClaimed},IsSchedulersCurDayAllClaimed(){return this.curSchedulerDayInfo.isAllDayClaimed},IsSchedulersCurDayCanClaim(){return this.curSchedulerDayInfo.canClaimDay},IsSchedulersCurDayCanClaimAll(){return this.curSchedulerDayInfo.canClaimAllDay},SchedulersIsRegistered(e){return this.gp.schedulers.isRegistered(e)},SchedulersIsTodayRewardClaimed(e){return this.gp.schedulers.isTodayRewardClaimed(e)},SchedulersCanClaimDay(e,r){return this.gp.schedulers.canClaimDay(e,r)},SchedulersCanClaimDayAdditional(e,r,t){return this.gp.schedulers.canClaimDayAdditional(e,r,t)},SchedulersCanClaimAllDay(e,r){return this.gp.schedulers.canClaimAllDay(e,r)},SchedulersCurType(e){return this.curSchedulerInfo.scheduler.type===this.mappers.schedulerType[e]},OnEventsJoin(e){return!e||this.isPickedIdOrTag(e)},OnEventsJoinError(e){return!e||this.isPickedIdOrTag(e)},EventsPick(e){return this.setEventInfo(e),isExists(this.curEventInfo.event)},EventsEachEvent(){return each(this._runtime,this.gp.events.list,(e,r)=>{this.setEventInfo(e.id,r)}),!1},EventsEachCurEventTriggers(){return each(this._runtime,this.curEventInfo.event.triggers||[],(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},IsEventsCurJoined(){return this.curEventInfo.isJoined},IsEventsCurActive(){return this.curEventInfo.event.isActive},IsEventsCurAutoJoin(){return this.curEventInfo.event.isAutoJoin},EventsHas(e){return this.gp.events.has(e)},EventsIsJoined(e){return this.gp.events.isJoined(e)},ExperimentsHas(e,r){return this.gp.experiments.has(e,r)},OnSegmentsEnter(){return!0},OnSegmentsLeave(){return!0},SegmentsHas(e){return this.gp.segments.has(e)},SegmentsEachSegment(){return each(this._runtime,this.gp.segments.list||[],e=>{this.curSegment=e}),!1},IsLastActionSuccess(){return this.isLastActionSuccess},OnLoadJsonError(){return!0}};
+}
+
+{
+"use strict";function stoarr(e="",t=String){return String(e).split(",").map(e=>t(e.trim())).filter(e=>e)}C3.Plugins.Eponesh_GameScore.Acts={PlayerSetName(e){this.gp.player.name=e},PlayerSetAvatar(e){this.gp.player.avatar=e},PlayerSetScore(e){this.gp.player.score=e},PlayerAddScore(e){this.gp.player.score+=e},PlayerSet(e,t){this.gp.player.set(e,t)},PlayerSetFlag(e,t){this.gp.player.set(e,!t)},PlayerAdd(e,t){this.gp.player.add(e,t)},PlayerToggle(e){this.gp.player.toggle(e)},PlayerReset(){this.gp.player.reset()},PlayerRemove(){this.gp.player.remove()},PlayerSync(e=!1){return this.gp.player.sync({override:e})},PlayerLoad(){return this.gp.player.load()},PlayerLogin(){return this.gp.player.login()},PlayerFetchFields(){return this.gp.player.fetchFields()},PlayerWaitForReady(){return this.awaiters.player.ready},LeaderboardOpen(e,t,r,s,i,a,h){return this.gp.leaderboard.open({id:this.gp.player.id,orderBy:stoarr(e),order:0===t?"DESC":"ASC",limit:r,showNearest:h,withMe:this.mappers.withMe[s],includeFields:stoarr(i),displayFields:stoarr(a)}).catch(e=>{this.handleResult(!1,e)})},LeaderboardFetch(t,e,r,s,i,a,h){return this.gp.leaderboard.fetch({id:this.gp.player.id,orderBy:stoarr(e),order:0===r?"DESC":"ASC",limit:s,showNearest:h,withMe:this.mappers.withMe[i],includeFields:stoarr(a)}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.leaderboardInfo=e.leaderboard,this.leaderboard=e.players,this.leaderboardResult=e,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetch),this.Trigger(this.conditions.OnLeaderboardAnyFetch)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.Trigger(this.conditions.OnLeaderboardFetchError),this.Trigger(this.conditions.OnLeaderboardAnyFetchError)})},LeaderboardFetchPlayerRating(t,e,r,s){return this.gp.leaderboard.fetchPlayerRating({showNearest:s,id:this.gp.player.id,orderBy:stoarr(e),order:0===r?"DESC":"ASC"}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.lastLeaderboardPlayerRatingTag=t,this.currentLeaderboardPlayer=Object.assign(this.gp.player.toJSON(),e.player),this.leaderboardPlayerPosition=e.player.position,(this.leaderboardResult=e).topPlayers=[],this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetchPlayer),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayer)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.lastLeaderboardPlayerRatingTag=t,this.Trigger(this.conditions.OnLeaderboardFetchPlayerError),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayerError)})},LeaderboardOpenScoped(e,t,r,s,i,a,h,n){e={id:parseInt(e,10)||0,tag:e,variant:t,limit:s,showNearest:n,order:this.mappers.order[r],withMe:this.mappers.withMe[i],includeFields:stoarr(a),displayFields:stoarr(h)};return this.gp.leaderboard.openScoped(e).catch(console.warn)},LeaderboardFetchScoped(t,r,e,s,i,a,h){s={id:parseInt(t,10)||0,tag:t,variant:r,limit:s,showNearest:h,order:this.mappers.order[e],withMe:this.mappers.withMe[i],includeFields:stoarr(a)};return this.gp.leaderboard.fetchScoped(s).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.leaderboardInfo=e.leaderboard,this.leaderboard=e.players,this.leaderboardResult=e,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetch),this.Trigger(this.conditions.OnLeaderboardAnyFetch)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.Trigger(this.conditions.OnLeaderboardFetchError),this.Trigger(this.conditions.OnLeaderboardAnyFetchError)})},LeaderboardFetchPlayerRatingScoped(t,r,e,s){s={id:parseInt(t,10)||0,tag:t,variant:r,showNearest:s,order:this.mappers.order[e]};return this.gp.leaderboard.fetchPlayerRatingScoped(s).then(e=>{this.lastLeaderboardPlayerRatingTag=t,this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.currentLeaderboardPlayer=Object.assign(this.gp.player.toJSON(),e.player),this.leaderboardPlayerPosition=e.player.position,(this.leaderboardResult=e).topPlayers=[],this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetchPlayer),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayer)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardPlayerRatingTag=t,this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.Trigger(this.conditions.OnLeaderboardFetchPlayerError),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayerError)})},LeaderboardPublishRecord(t,r,e){var s=this.leaderboardRecords[t],s=s?s[r]:null,i=parseInt(t,10)||0;return this.gp.leaderboard.publishRecord({id:i,tag:t,variant:r,override:e,record:s}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.lastLeaderboardPlayerRatingTag=t,this.leaderboardRecords[t]||(this.leaderboardRecords[t]={}),this.leaderboardRecords[t][r]=e.record,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardPublishRecord)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.lastLeaderboardPlayerRatingTag=t,this.Trigger(this.conditions.OnLeaderboardPublishRecordError)})},LeaderboardSetRecord(e,t,r,s){this.leaderboardRecords[e]||(this.leaderboardRecords[e]={}),this.leaderboardRecords[e][t]||(this.leaderboardRecords[e][t]={}),this.leaderboardRecords[e][t][r]=s},AchievementsOpen(){return this.gp.achievements.open().catch(console.warn)},AchievementsFetch(){return this.gp.achievements.fetch().then(e=>{this.achievements=e.achievements,this.achievementsGroups=e.achievementsGroups,this.playerAchievements=e.playerAchievements,this.handleResult(!0),this.Trigger(this.conditions.OnAchievementsFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsFetchError)})},AchievementsUnlock(e){return this.gp.achievements.unlock(this.getIdOrTag(e))},AchievementsSetProgress(e,t){const r=this.getIdOrTag(e);return r.progress=Number(t),this.gp.achievements.setProgress(r)},PaymentsFetchProducts(){return this.gp.payments.fetchProducts().then(e=>{this.products=e.products,this.playerPurchases=e.playerPurchases,this.handleResult(!0),this.Trigger(this.conditions.OnPaymentsFetchProducts)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsFetchProductsError)})},PaymentsPurchase(e){return this.gp.payments.purchase(this.getIdOrTag(e))},PaymentsConsume(e){var t=parseInt(e,10)||0;return this.gp.payments.consume(0<t?{id:t}:{tag:e}).then(e=>{this.isConsumeProductSuccess=e.success,this.consumeProductError=e.error||"",this.handleResult(e.success,e.error);var t=e.product||{};if(this.consumedProductId=t.id||0,this.consumedProductTag=t.tag||"",e.success)return this.Trigger(this.conditions.OnPaymentsConsume),void this.Trigger(this.conditions.OnPaymentsAnyConsume);this.Trigger(this.conditions.OnPaymentsConsumeError),this.Trigger(this.conditions.OnPaymentsAnyConsumeError)}).catch(e=>{this.isConsumeProductSuccess=!1,this.consumeProductError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsConsumeError),this.Trigger(this.conditions.OnPaymentsAnyConsumeError)})},PaymentsSubscribe(e){return this.gp.payments.subscribe(this.getIdOrTag(e))},PaymentsUnsubscribe(e){var t=parseInt(e,10)||0;return this.gp.payments.unsubscribe(0<t?{id:t}:{tag:e}).then(e=>{this.isUnsubscribeProductSuccess=e.success,this.handleResult(e.success,e.error);var t=e.product||{},r=e.purchase||{};if(this.currentPurchase=r,this.currentProduct=t,this.currentProductPurchases=1,this.purchasedProductId=t.id||0,this.purchasedProductTag=t.tag||"",e.success)return this.Trigger(this.conditions.OnPaymentsUnsubscribe),void this.Trigger(this.conditions.OnPaymentsAnyUnsubscribe);this.Trigger(this.conditions.OnPaymentsUnsubscribeError),this.Trigger(this.conditions.OnPaymentsAnyUnsubscribeError)}).catch(e=>{this.isUnsubscribeProductSuccess=!1,this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsUnsubscribeError),this.Trigger(this.conditions.OnPaymentsAnySubscribeError)})},ImagesFetch(e,t,r,s){return this.gp.images.fetch({playerId:t,limit:r,offset:s,tags:stoarr(e)}).then(e=>{this.images=e.items,this.canLoadMoreImages=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnImagesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesFetchError)})},ImagesFetchMore(e,t,r){return this.gp.images.fetchMore({playerId:t,limit:r,tags:stoarr(e)}).then(e=>{this.images=e.items,this.canLoadMoreImages=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnImagesFetchMore)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesFetchMoreError)})},ImagesUpload(e){return this.gp.images.upload({tags:stoarr(e)}).then(e=>{this.currentImage=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnImagesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesUploadError)})},ImagesUploadUrl(e,t){return this.gp.images.uploadUrl({url:e,tags:stoarr(t)}).then(e=>{this.currentImage=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnImagesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesUploadError)})},ImagesChooseFile(){return this.gp.images.chooseFile().then(e=>{this.lastImageTempUrl=e.tempUrl,this.handleResult(!0),this.Trigger(this.conditions.OnImagesChoose)}).catch(e=>{this.handleResult(!1,e),this.lastImageTempUrl="",this.isLastActionSuccess=!1,this.Trigger(this.conditions.OnImagesChooseError)})},FilesFetch(e,t,r,s){return this.gp.files.fetch({playerId:t,limit:r,offset:s,tags:stoarr(e)}).then(e=>{this.files=e.items,this.canLoadMoreFiles=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnFilesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesFetchError)})},FilesFetchMore(e,t,r){return this.gp.files.fetchMore({playerId:t,limit:r,tags:stoarr(e)}).then(e=>{this.files=e.items,this.canLoadMoreFiles=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnFilesFetchMore)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesFetchMoreError)})},FilesUpload(e){return this.gp.files.upload({tags:stoarr(e)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesUploadUrl(e,t,r){return this.gp.files.uploadUrl({url:e,filename:t,tags:stoarr(r)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesUploadContent(e,t,r){return this.gp.files.uploadContent({content:e,filename:t,tags:stoarr(r)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesLoadContent(e){return this.gp.files.loadContent(e).then(e=>{this.lastFileContent=e,this.handleResult(!0),this.Trigger(this.conditions.OnFilesLoadContent)}).catch(e=>{this.lastFileContent="",this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesLoadContentError)})},FilesChooseFile(e){return this.gp.files.chooseFile(e).then(e=>{this.lastFileTempUrl=e.tempUrl,this.handleResult(!0),this.Trigger(this.conditions.OnFilesChoose)}).catch(e=>{this.handleResult(!1,e),this.lastFileTempUrl="",this.isLastActionSuccess=!1,this.Trigger(this.conditions.OnFilesChooseError)})},VariablesFetch(){return this.gp.variables.fetch().then(()=>{this.handleResult(!0),this.Trigger(this.conditions.OnVariablesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnVariablesFetchError)})},PlatformVariablesFetch(e=""){e=e.split(",").reduce((e,t)=>{const[r,s]=t.split("=");return r&&s&&(e[r.trim()]=s.trim()),e},{});return this.gp.variables.fetchPlatformVariables({clientParams:e}).then(e=>{this.handleResult(!0),this.platformVariables=e,this.Trigger(this.conditions.OnPlatformVariablesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnPlatformVariablesFetchError)})},FullscreenOpen(){return this.gp.fullscreen.open()},FullscreenClose(){return this.gp.fullscreen.close()},FullscreenToggle(){return this.gp.fullscreen.toggle()},AdsShowFullscreen(e=!1){return this.gp.ads.showFullscreen({showCountdownOverlay:e})},AdsShowRewarded(e=!1){return this.gp.ads.showRewardedVideo({showRewardedFailedOverlay:e})},AdsShowPreloader(){return this.gp.ads.showPreloader()},AdsShowSticky(){return this.gp.ads.showSticky()},AdsCloseSticky(){return this.gp.ads.closeSticky()},AdsRefreshSticky(){return this.gp.ads.refreshSticky()},AnalyticsHit(e){return this.gp.analytics.hit(e)},AnalyticsGoal(e,t){return this.gp.analytics.goal(e,t)},SocialsShare(e,t,r){return this.gp.socials.share({text:e,url:t,image:r})},SocialsPost(e,t,r){return this.gp.socials.post({text:e,url:t,image:r})},SocialsInvite(e,t,r){return this.gp.socials.invite({text:e,url:t,image:r})},SocialsJoinCommunity(){return this.gp.socials.joinCommunity()},GamesCollectionsOpen(e){var t=parseInt(e,10)||0;return this.gp.gamesCollections.open(0<t?{id:t}:{tag:e||"ANY"})},GamesCollectionsFetch(t){var e=parseInt(t,10)||0;return this.gp.gamesCollections.fetch(0<e?{id:e}:{tag:t}).then(e=>{this.lastGamesCollectionIdOrTag=t,this.gamesCollection=e,this.Trigger(this.conditions.OnGamesCollectionsFetch),this.Trigger(this.conditions.OnGamesCollectionsFetchAny)}).catch(e=>{this.handleResult(!1,e),this.lastGamesCollectionIdOrTag=t,this.gamesCollectionFetchError=e&&e.message||"",this.Trigger(this.conditions.OnGamesCollectionsFetchError),this.Trigger(this.conditions.OnGamesCollectionsFetchAnyError)})},DocumentsOpen(e){e=this.mappers.documentTypes[e];return this.gp.documents.open({type:e})},DocumentsFetch(e,t){const r=this.mappers.documentTypes[e];e=this.mappers.documentFormat[t];return this.gp.documents.fetch({type:r,format:e}).then(e=>{this.lastDocumentType=r,this.document=e,this.Trigger(this.conditions.OnDocumentsFetch),this.Trigger(this.conditions.OnDocumentsFetchAny)}).catch(e=>{this.handleResult(!1,e),this.documentFetchError=this.etos(e),this.lastDocumentType=r,this.Trigger(this.conditions.OnDocumentsFetchError),this.Trigger(this.conditions.OnDocumentsFetchAnyError)})},PlayersFetch(t,e){return this.gp.players.fetch({ids:stoarr(e,Number)}).then(e=>{this.lastPlayersTag=t,this.playersList=e.players,this.handleResult(!0),this.Trigger(this.conditions.OnPlayersFetch),this.Trigger(this.conditions.OnPlayersAnyFetch)}).catch(e=>{this.lastPlayersTag=t,this.handleResult(!1,e),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError)})},PlayersFetchOne(t,e){return this.gp.players.fetch({ids:[Number(e)]}).then(e=>{this.lastPlayersTag=t,e.players[0]?(this.playersList=e.players,this.currentPlayersIndex=0,this.currentPlayersPlayer=e.players[0],this.handleResult(!0),this.Trigger(this.conditions.OnPlayersFetch),this.Trigger(this.conditions.OnPlayersAnyFetch)):(this.handleResult(!1,new Error("player_not_found")),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError))}).catch(e=>{this.lastPlayersTag=t,this.handleResult(!1,e),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError)})},AppAddShortcut(){return this.gp.app.addShortcut()},AppRequestReview(){return this.gp.app.requestReview()},ChangeLanguage(e){return this.gp.changeLanguage(this.mappers.language[e])},ChangeLanguageByCode(e=""){return this.gp.changeLanguage(e.toLowerCase())},ChangeAvatarGenerator(e){return this.gp.changeAvatarGenerator(this.mappers.avatarGenerator[e])},SetBackground(e,t,r){return this.gp.setBackground({url:e,blur:t,fade:r})},LoadOverlay(){return this.gp.loadOverlay()},Pause(){return this.gp.pause()},Resume(){return this.gp.resume()},GameStart(){return this.gp.gameStart()},GameplayStart(){return this.gp.gameplayStart()},GameplayStop(){return this.gp.gameplayStop()},SocialsAddShareUrlParam(e,t){this.shareParams[e]=t},SocialsResetShareParams(){this.shareParams={}},RewardsAccept(e){return this.gp.rewards.accept(this.getIdOrTag(e))},RewardsGive(e,t){const r=this.getIdOrTag(e);return r.lazy=!!t,this.gp.rewards.give(r)},TriggersClaim(e){return this.gp.triggers.claim({id:e,tag:e})},SchedulersRegister(e){return this.gp.schedulers.register(this.getIdOrTag(e))},SchedulersClaimDay(e,t){return this.gp.schedulers.claimDay(e,t)},SchedulersClaimDayAdditional(e,t,r){return this.gp.schedulers.claimDayAdditional(e,t,r)},SchedulersClaimAllDay(e,t){return this.gp.schedulers.claimAllDay(e,t)},SchedulersClaimAllDays(e){return this.gp.schedulers.claimAllDays(e)},EventsJoin(e){return this.gp.events.join(this.getIdOrTag(e))},LoadFromJSON(e){try{var t=JSON.parse(e);if(!("isReady"in t))throw new Error("Data was corrupted");this.LoadFromJson(t)}catch(e){this.Trigger(this.conditions.OnLoadJsonError)}}};
+}
+
+{
+"use strict";C3.Plugins.Eponesh_GameScore.Exps={PlayerID(){return this.gp.player.id},PlayerScore(){return this.gp.player.score},PlayerName(){return this.gp.player.name},PlayerAvatar(){return this.gp.player.avatar},PlayerGet(e){return this.gp.player.get(e)},PlayerHas(e){return this.gp.player.is(e)},PlayerFieldName(e){return this.gp.player.getFieldName(e)},PlayerFieldVariantName(e,r){return this.gp.player.getFieldVariantName(e,r)},PlayerGetFieldVariantAt(e,r){e=this.gp.player.getField(e).variants[r];return e?e.value:""},PlayerGetFieldVariantIndex(e,r){return this.gp.player.getField(e).variants.findIndex(e=>e.value===r)},PlayerCurFieldKey(){return this.currentPlayerFieldKey||""},PlayerCurFieldType(){return this.currentPlayerFieldType||""},PlayerCurFieldName(){return this.currentPlayerFieldName||""},PlayerCurFieldValue(){return"string"==typeof this.currentPlayerFieldValue?this.currentPlayerFieldValue:Number(this.currentPlayerFieldValue||0)},PlayerCurFieldVariantValue(){return"string"==typeof this.currentPlayerFieldVariantValue?this.currentPlayerFieldVariantValue:Number(this.currentPlayerFieldVariantValue||0)},PlayerCurFieldVariantName(){return this.currentPlayerFieldVariantName||""},PlayerCurFieldVariantIndex(){return this.currentPlayerFieldVariantIndex||0},PlayerStatsPlaytimeAll(){return this.gp.player.stats.playtimeAll||0},PlayerStatsPlaytimeToday(){return this.gp.player.stats.playtimeToday||0},PlayerStatsActiveDays(){return this.gp.player.stats.activeDays||0},PlayerStatsActiveDaysConsecutive(){return this.gp.player.stats.activeDaysConsecutive||0},LeaderboardCurPlayerName(){return this.currentLeaderboardPlayer.name||""},LeaderboardCurPlayerAvatar(){return this.currentLeaderboardPlayer.avatar||""},LeaderboardCurPlayerID(){return this.currentLeaderboardPlayer.id||0},LeaderboardCurPlayerScore(){return this.currentLeaderboardPlayer.score||0},LeaderboardCurPlayerPosition(){return this.currentLeaderboardPlayer.position||0},LeaderboardCurPlayerIndex(){return this.currentLeaderboardIndex||0},LeaderboardCurPlayerField(e){return e in this.currentLeaderboardPlayer?this.currentLeaderboardPlayer[e]:0},LeaderboardPlayerFieldAt(e,r){e=this.leaderboard[e];return e&&r in e?e[r]:0},LeaderboardPlayerPosition(){return this.leaderboardPlayerPosition||0},LastLeaderboardTag(){return this.lastLeaderboardTag},LastLeaderboardVariant(){return this.lastLeaderboardVariant},IsFullscreenMode(){return Number(this.gp.fullscreen.isEnabled)},Language(){return this.gp.language},AvatarGenerator(){return this.gp.avatarGenerator},ServerTime(){return this.gp.serverTime},ServerTimeUnix(){return new Date(this.gp.serverTime).getTime()},IsPaused(){return this.gp.isPaused},IsGameplay(){return this.gp.isGameplay},DeviceType(){return this.gp.device.type},PlatformType(){return this.gp.platform.type},AppTitle(){return this.gp.app.title},AppDescription(){return this.gp.app.description},AppImage(){return this.gp.app.image},AppUrl(){return this.gp.app.url},AppLastReviewRating(){return Number(this.appLastReviewRating)||0},AchievementsTotalAchievements(){return this.gp.achievements.list.length},AchievementsTotalAchievementsGroups(){return this.gp.achievements.groupsList.length},AchievementsTotalPlayerAchievements(){return this.gp.achievements.unlockedList.length},AchievementsCurAchievementIndex(){return this.currentAchievementIndex},AchievementsCurAchievementID(){return this.currentAchievement.id},AchievementsCurAchievementTag(){return this.currentAchievement.tag},AchievementsCurAchievementName(){return this.currentAchievement.name},AchievementsCurAchievementDescription(){return this.currentAchievement.description},AchievementsCurAchievementIcon(){return this.currentAchievement.icon},AchievementsCurAchievementIconSmall(){return this.currentAchievement.iconSmall},AchievementsCurAchievementRare(){return this.currentAchievement.rare},AchievementsCurAchievementUnlocked(){return this.currentAchievement.unlocked},AchievementsCurAchievementLockedIcon(){return this.currentAchievement.lockedIcon},AchievementsCurAchievementLockedIconSmall(){return this.currentAchievement.lockedIconSmall},AchievementsCurAchievementProgress(){return this.currentAchievement.progress},AchievementsCurAchievementMaxProgress(){return this.currentAchievement.maxProgress},AchievementsCurAchievementProgressStep(){return this.currentAchievement.progressStep},AchievementsCurAchievementsGroupIndex(){return this.currentAchievementsGroupIndex},AchievementsCurAchievementsGroupID(){return this.currentAchievementsGroupID},AchievementsCurAchievementsGroupTag(){return this.currentAchievementsGroupTag},AchievementsCurAchievementsGroupName(){return this.currentAchievementsGroupName},AchievementsCurAchievementsGroupDescription(){return this.currentAchievementsGroupDescription},AchievementsCurPlayerAchievementIndex(){return this.currentPlayerAchievementIndex},AchievementsCurPlayerAchievementID(){return this.currentPlayerAchievementId},AchievementsCurPlayerAchievementUnlockDate(){return this.currentPlayerAchievementUnlockDate},AchievementsUnlockedAchievementSuccess(){return this.isUnlockAchievementSuccess},AchievementsUnlockedAchievementError(){return this.unlockAchievementError},AchievementsUnlockedAchievementID(){return this.currentAchievement.id},AchievementsUnlockedAchievementTag(){return this.currentAchievement.tag},AchievementsUnlockedAchievementName(){return this.currentAchievement.name},AchievementsUnlockedAchievementDescription(){return this.currentAchievement.description},AchievementsUnlockedAchievementIcon(){return this.currentAchievement.icon},AchievementsUnlockedAchievementIconSmall(){return this.currentAchievement.iconSmall},AchievementsUnlockedAchievementRare(){return this.currentAchievement.rare},AchievementsGetProgress(e){return this.gp.achievements.getProgress(e)},SocialsCommunityLink(){return this.gp.socials.communityLink},SocialsGetShareParam(e){return this.gp.socials.getShareParam(e)},SocialsShareLink(){return this.gp.socials.makeShareUrl(this.shareParams)},PaymentsCurProductIndex(){return this.currentProductIndex},PaymentsCurProductID(){return this.currentProduct.id},PaymentsCurProductTag(){return this.currentProduct.tag},PaymentsCurProductName(){return this.currentProduct.name},PaymentsCurProductDescription(){return this.currentProduct.description},PaymentsCurProductIcon(){return this.currentProduct.icon},PaymentsCurProductIconSmall(){return this.currentProduct.iconSmall},PaymentsCurProductPrice(){return this.currentProduct.price},PaymentsCurProductCurrency(){return this.currentProduct.currency},PaymentsCurProductCurrencySymbol(){return this.currentProduct.currencySymbol},PaymentsCurProductPurchases(){return this.currentProductPurchases},PaymentsCurPurchaseIndex(){return this.currentPurchaseIndex},PaymentsCurPurchaseID(){return this.currentPurchase.id||0},PaymentsCurPurchaseTag(){return this.currentPurchase.tag||""},PaymentsCurPurchaseDate(){return this.currentPurchase.createdAt||""},PaymentsCurPurchaseExpirationDate(){return this.currentPurchase.expiredAt||""},PaymentsCurPurchaseSubscribed(){return Number(this.currentPurchase.subscribed||!1)||0},PaymentsPurchasedProductSuccess(){return this.isPurchaseProductSuccess},PaymentsPurchasedProductError(){return this.purchaseProductError},PaymentsPurchasedProductID(){return this.purchasedProductId},PaymentsPurchasedProductTag(){return this.purchasedProductTag},PaymentsConsumedProductSuccess(){return this.isConsumeProductSuccess},PaymentsConsumedProductError(){return this.consumeProductError},PaymentsConsumedProductID(){return this.consumedProductId},PaymentsConsumedProductTag(){return this.consumedProductTag},PaymentsPurchaseDate(e){e=this.gp.payments.getPurchase(e);return e&&e.createdAt||""},PaymentsExpirationDate(e){e=this.gp.payments.getPurchase(e);return e&&e.expiredAt||""},ImagesCurImageIndex(){return this.currentImageIndex},ImagesCurImageID(){return this.currentImage.id||""},ImagesCurImageSrc(){return this.currentImage.src||""},ImagesCurImageWidth(){return this.currentImage.width||0},ImagesCurImageHeight(){return this.currentImage.height||0},ImagesCurImagePlayerID(){return this.currentImage.playerId||0},ImagesCurImageTagIndex(){return this.currentImageTagIndex},ImagesCurImageTag(){return this.currentImageTag||""},ImagesTempFileUrl(){return this.lastImageTempUrl||""},ImagesResize(e,r,t,n){return this.gp.images.resize(e,r,t,n)},FilesCurFileIndex(){return this.currentFileIndex},FilesCurFileID(){return this.currentFile.id||""},FilesCurFileSrc(){return this.currentFile.src||""},FilesCurFileName(){return this.currentFile.name||""},FilesCurFileSize(){return this.currentFile.size||0},FilesCurFilePlayerID(){return this.currentFile.playerId||0},FilesCurFileTagIndex(){return this.currentFileTagIndex},FilesCurFileTag(){return this.currentFileTag||""},FilesTempFileUrl(){return this.lastFileTempUrl||""},FilesLastFileContent(){return this.lastFileContent||""},GamesCollectionsCollectionID(){return this.gamesCollection.id},GamesCollectionsCollectionTag(){return this.gamesCollection.tag},GamesCollectionsCollectionName(){return this.gamesCollection.name},GamesCollectionsCollectionDescription(){return this.gamesCollection.description},GamesCollectionsCurGameIndex(){return this.currentGameIndex},GamesCollectionsCurGameID(){return this.currentGameId},GamesCollectionsCurGameTag(){return this.currentGameTag},GamesCollectionsCurGameName(){return this.currentGameName},GamesCollectionsCurGameDescription(){return this.currentGameDescription},GamesCollectionsCurGameIcon(){return this.currentGameIcon},GamesCollectionsCurGameUrl(){return this.currentGameUrl},GamesCollectionsFetchError(){return this.gamesCollectionFetchError},DocumentsDocumentType(){return this.document.type},DocumentsDocumentContent(){return this.document.content},DocumentsFetchError(){return this.documentFetchError},VariablesGet(e){return this.gp.variables.get(e)},VariablesGet(e){return this.gp.variables.get(e)},PlatformVariablesGet(e){return this.platformVariables[e]||""},VariablesHas(e){return Number(this.gp.variables.has(e))},VariablesType(e){return this.gp.variables.type(e)},VariablesCurIndex(){return this.currentVariableIndex||0},VariablesCurKey(){return this.currentVariable.key||""},VariablesCurType(){return this.currentVariable.type||""},VariablesCurValue(){return this.currentVariable.value||""},PlayersCurPlayerName(){return this.currentPlayersPlayer.state.name||""},PlayersCurPlayerAvatar(){return this.currentPlayersPlayer.state.avatar||""},PlayersCurPlayerID(){return this.currentPlayersPlayer.state.id||0},PlayersCurPlayerScore(){return this.currentPlayersPlayer.state.score||0},PlayersCurPlayerIndex(){return this.currentPlayersIndex||0},PlayersCurPlayerField(e){return this.currentPlayersPlayer&&e in this.currentPlayersPlayer.state?this.currentPlayersPlayer.state[e]:0},PlayersPlayerFieldAt(e,r){e=this.playersList[e];return e&&r in e.state?e.state[r]:0},LastPlayersTag(){return this.lastPlayersTag},RewardsCurIndex(){return this.curRewardIndex||0},RewardsCurID(){return this.curReward.id||0},RewardsCurTag(){return this.curReward.tag||""},RewardsCurName(){return this.curReward.name||""},RewardsCurDescription(){return this.curReward.description||""},RewardsCurIcon(){return this.curReward.icon||""},RewardsCurIconSmall(){return this.curReward.iconSmall||""},RewardsCurCountTotal(){return this.curPlayerReward.countTotal||0},RewardsCurCountAccepted(){return this.curPlayerReward.countAccepted||0},TriggersCurIndex(){return this.curTriggerIndex||0},TriggersCurID(){return this.curTriggerInfo.trigger.id||0},TriggersCurTag(){return this.curTriggerInfo.trigger.tag||""},TriggersCurDescription(){return this.curTriggerInfo.trigger.description||""},BonusCurIndex(){return this.curBonusIndex||0},BonusCurID(){return this.curBonus.id||0},BonusCurType(){return this.curBonus.type||""},SchedulersCurIndex(){return this.curSchedulerIndex||0},SchedulersCurID(){return this.curSchedulerInfo.scheduler.id||0},SchedulersCurTag(){return this.curSchedulerInfo.scheduler.tag||0},SchedulersCurType(){return this.curSchedulerInfo.scheduler.type||0},SchedulersCurDays(){return this.curSchedulerInfo.scheduler.days||0},SchedulersCurTodayDay(){return this.curSchedulerInfo.currentDay||0},SchedulersCurPlayerStatsActiveDays(){return(this.curSchedulerInfo.stats||{}).activeDays||0},SchedulersCurPlayerStatsActiveDaysConsecutive(){return(this.curSchedulerInfo.stats||{}).activeDaysConsecutive||0},SchedulersCurDayDayNumber(){return this.curSchedulerDayInfo.day||0},EventsCurIndex(){return this.curEventIndex||0},EventsCurID(){return this.curEventInfo.event.id||0},EventsCurTag(){return this.curEventInfo.event.tag||0},EventsCurName(){return this.curEventInfo.event.name||0},EventsCurDescription(){return this.curEventInfo.event.description||0},EventsCurIcon(){return this.curEventInfo.event.icon||0},EventsCurIconSmall(){return this.curEventInfo.event.iconSmall||0},EventsCurTimeLeft(){return this.curEventInfo.event.timeLeft||0},EventsCurPlayerStatsActiveDays(){return(this.curEventInfo.stats||{}).activeDays||0},EventsCurPlayerStatsActiveDaysConsecutive(){return(this.curEventInfo.stats||{}).activeDaysConsecutive||0},ExperimentsGet(e){return this.gp.experiments.map[e]||""},SegmentsCurSegment(){return this.curSegment||""},LastError(){return this.lastError},IsLastActionSuccess(){return Number(this.isLastActionSuccess)},AsJSON(){return JSON.stringify(this.SaveToJson())}};
+}
+
+{
+'use strict';{const C3=self.C3;C3.Plugins.Keyboard=class KeyboardPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}
+{const C3=self.C3;const C3X=self.C3X;C3.Plugins.Keyboard.Type=class KeyboardType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}GetScriptInterfaceClass(){return self.IKeyboardObjectType}};let keyboardObjectType=null;function GetKeyboardSdkInstance(){return keyboardObjectType.GetSingleGlobalInstance().GetSdkInstance()}self.IKeyboardObjectType=class IKeyboardObjectType extends self.IObjectClass{constructor(objectType){super(objectType);keyboardObjectType=
+objectType;objectType.GetRuntime()._GetCommonScriptInterfaces().keyboard=this}isKeyDown(keyOrCode){const keyboardInst=GetKeyboardSdkInstance();if(typeof keyOrCode==="string")return keyboardInst.IsKeyDown(keyOrCode);else if(typeof keyOrCode==="number")return keyboardInst.IsKeyCodeDown(keyOrCode);else throw new TypeError("expected string or number");}}}
+{const C3=self.C3;C3.Plugins.Keyboard.Instance=class KeyboardInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._keysDownByString=new Set;this._keysDownByWhich=new Set;this._triggerWhich=0;this._triggerString="";this._triggerTypedKey="";const rt=this.GetRuntime().Dispatcher();this._disposables=new C3.CompositeDisposable(C3.Disposable.From(rt,"keydown",e=>this._OnKeyDown(e.data)),C3.Disposable.From(rt,"keyup",e=>this._OnKeyUp(e.data)),C3.Disposable.From(rt,"window-blur",
+()=>this._OnWindowOrKeyboardBlur()),C3.Disposable.From(rt,"keyboard-blur",()=>this._OnWindowOrKeyboardBlur()))}Release(){super.Release()}_OnKeyDown(e){const which=e["which"];const keyString=e["code"]||which.toString();const typedKey=e["key"];if(this._keysDownByString.has(keyString))return;this._keysDownByString.add(keyString);this._keysDownByWhich.add(which);this._triggerString=keyString;this._triggerWhich=which;this._triggerTypedKey=typedKey;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKey);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKey);
+this.Trigger(C3.Plugins.Keyboard.Cnds.OnLeftRightKeyPressed);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCode)}_OnKeyUp(e){const which=e["which"];const keyString=e["code"]||which.toString();const typedKey=e["key"];this._keysDownByString.delete(keyString);this._keysDownByWhich.delete(which);this._triggerString=keyString;this._triggerWhich=which;this._triggerTypedKey=typedKey;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnLeftRightKeyReleased);
+this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCodeReleased)}_OnWindowOrKeyboardBlur(){for(const which of this._keysDownByWhich){this._keysDownByWhich.delete(which);this._triggerWhich=which;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCodeReleased)}this._keysDownByString.clear()}IsKeyDown(str){return this._keysDownByString.has(str)}IsKeyCodeDown(which){return this._keysDownByWhich.has(which)}SaveToJson(){return{"tk":this._triggerWhich,
+"tkk":this._triggerTypedKey}}LoadFromJson(o){this._triggerWhich=o["tk"];if(o.hasOwnProperty("tkk"))this._triggerTypedKey=o["tkk"]}GetDebuggerProperties(){const prefix="plugins.keyboard";return[{title:prefix+".name",properties:[{name:prefix+".debugger.last-key-code",value:this._triggerWhich},{name:prefix+".debugger.last-key-string",value:C3.Plugins.Keyboard.Exps.StringFromKeyCode(this._triggerWhich)},{name:prefix+".debugger.last-typed-key",value:this._triggerTypedKey}]}]}}}
+{const C3=self.C3;const LEFTRIGHT_KEY_STRINGS=["ShiftLeft","ShiftRight","ControlLeft","ControlRight","AltLeft","AltRight","MetaLeft","MetaRight"];C3.Plugins.Keyboard.Cnds={IsKeyDown(which){return this._keysDownByWhich.has(which)},OnKey(which){return this._triggerWhich===which},OnAnyKey(){return true},OnAnyKeyReleased(){return true},OnKeyReleased(which){return this._triggerWhich===which},IsKeyCodeDown(which){which=Math.floor(which);return this._keysDownByWhich.has(which)},OnKeyCode(which){return this._triggerWhich===
+which},OnKeyCodeReleased(which){return this._triggerWhich===which},OnLeftRightKeyPressed(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._triggerString===keyString},OnLeftRightKeyReleased(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._triggerString===keyString},IsLeftRightKeyDown(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._keysDownByString.has(keyString)}}}{const C3=self.C3;C3.Plugins.Keyboard.Acts={}}
+{const C3=self.C3;function StringFromCharCode(kc){kc=Math.floor(kc);switch(kc){case 8:return"backspace";case 9:return"tab";case 13:return"enter";case 16:return"shift";case 17:return"control";case 18:return"alt";case 19:return"pause";case 20:return"capslock";case 27:return"esc";case 33:return"pageup";case 34:return"pagedown";case 35:return"end";case 36:return"home";case 37:return"\u2190";case 38:return"\u2191";case 39:return"\u2192";case 40:return"\u2193";case 45:return"insert";case 46:return"del";
+case 91:return"left window key";case 92:return"right window key";case 93:return"select";case 96:return"numpad 0";case 97:return"numpad 1";case 98:return"numpad 2";case 99:return"numpad 3";case 100:return"numpad 4";case 101:return"numpad 5";case 102:return"numpad 6";case 103:return"numpad 7";case 104:return"numpad 8";case 105:return"numpad 9";case 106:return"numpad *";case 107:return"numpad +";case 109:return"numpad -";case 110:return"numpad .";case 111:return"numpad /";case 112:return"F1";case 113:return"F2";
+case 114:return"F3";case 115:return"F4";case 116:return"F5";case 117:return"F6";case 118:return"F7";case 119:return"F8";case 120:return"F9";case 121:return"F10";case 122:return"F11";case 123:return"F12";case 144:return"numlock";case 145:return"scroll lock";case 186:return";";case 187:return"=";case 188:return",";case 189:return"-";case 190:return".";case 191:return"/";case 192:return"'";case 219:return"[";case 220:return"\\";case 221:return"]";case 222:return"#";case 223:return"`";default:return String.fromCharCode(kc)}}
+C3.Plugins.Keyboard.Exps={LastKeyCode(){return this._triggerWhich},StringFromKeyCode(kc){return StringFromCharCode(kc)},TypedKey(){return this._triggerTypedKey}}};
+
+}
+
+{
 'use strict';{const C3=self.C3;C3.Plugins.Browser=class BrowserPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.Browser.Type=class BrowserType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
 {const C3=self.C3;const DOM_COMPONENT_ID="browser";C3.Plugins.Browser.Instance=class BrowserInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst,DOM_COMPONENT_ID);this._initLocationStr="";this._isOnline=false;this._referrer="";this._docTitle="";this._isCookieEnabled=false;this._screenWidth=0;this._screenHeight=0;this._windowOuterWidth=0;this._windowOuterHeight=0;this._isConstructArcade=false;this._cssStyleMap=new Map;this._isInstallAvailable=false;this._installResult="";this._isWarnOnCloseEnabled=
 false;this.AddDOMMessageHandlers([["online-state",e=>this._OnOnlineStateChanged(e)],["backbutton",()=>this._OnBackButton()],["sw-message",e=>this._OnSWMessage(e)],["hashchange",e=>this._OnHashChange(e)],["install-available",()=>this._OnInstallAvailable()],["app-installed",e=>this._OnAppInstalled(e)]]);const rt=this.GetRuntime().Dispatcher();this._disposables=new C3.CompositeDisposable(C3.Disposable.From(rt,"afterfirstlayoutstart",()=>this._OnAfterFirstLayoutStart()),C3.Disposable.From(rt,"window-resize",
@@ -4723,56 +4750,6 @@ ScreenWidth(){return this._screenWidth},ScreenHeight(){return this._screenHeight
 }
 
 {
-'use strict';{const C3=self.C3;C3.Plugins.Date=class DatePlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.Date.Type=class DateType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}{const C3=self.C3;C3.Plugins.Date.Instance=class DateInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst)}}}
-{const C3=self.C3;const getters=[];getters[0]=[ts=>C3.Plugins.Date.Exps.GetYear(ts),ts=>C3.Plugins.Date.Exps.GetMonth(ts),ts=>C3.Plugins.Date.Exps.GetDate(ts),ts=>C3.Plugins.Date.Exps.GetDay(ts),ts=>C3.Plugins.Date.Exps.GetHours(ts),ts=>C3.Plugins.Date.Exps.GetMinutes(ts),ts=>C3.Plugins.Date.Exps.GetSeconds(ts),ts=>C3.Plugins.Date.Exps.GetMilliseconds(ts)];getters[1]=[ts=>C3.Plugins.Date.Exps.GetUTCYear(ts),ts=>C3.Plugins.Date.Exps.GetUTCMonth(ts),ts=>C3.Plugins.Date.Exps.GetUTCDate(ts),ts=>C3.Plugins.Date.Exps.GetUTCDay(ts),
-ts=>C3.Plugins.Date.Exps.GetUTCHours(ts),ts=>C3.Plugins.Date.Exps.GetUTCMinutes(ts),ts=>C3.Plugins.Date.Exps.GetUTCSeconds(ts),ts=>C3.Plugins.Date.Exps.GetUTCMilliseconds(ts)];const parse=dateString=>C3.Plugins.Date.Exps.Parse(dateString);C3.Plugins.Date.Cnds={CompareTimeStamps(first,cmp,second){return C3.compare(first,cmp,second)},CompareDateStrings(first,cmp,second){return C3.compare(parse(first),cmp,parse(second))},CompareTimestampParts(first,cmp,second,part){return C3.compare(getters[1][part](first),
-cmp,getters[1][part](second))},CompareDateStringParts(first,cmp,second,part,mode){return C3.compare(getters[mode][part](parse(first)),cmp,getters[mode][part](parse(second)))}}}{const C3=self.C3;C3.Plugins.Date.Acts={}}
-{const C3=self.C3;const Intl=self.Intl;const getters=new Map;getters.set("local",new Map([["year",ts=>(new Date(ts)).getFullYear()],["month",ts=>(new Date(ts)).getMonth()],["date",ts=>(new Date(ts)).getDate()],["day",ts=>(new Date(ts)).getDay()],["hours",ts=>(new Date(ts)).getHours()],["minutes",ts=>(new Date(ts)).getMinutes()],["seconds",ts=>(new Date(ts)).getSeconds()],["milliseconds",ts=>(new Date(ts)).getMilliseconds()]]));getters.set("universal",new Map([["year",ts=>(new Date(ts)).getUTCFullYear()],
-["month",ts=>(new Date(ts)).getUTCMonth()],["date",ts=>(new Date(ts)).getUTCDate()],["day",ts=>(new Date(ts)).getUTCDay()],["hours",ts=>(new Date(ts)).getUTCHours()],["minutes",ts=>(new Date(ts)).getUTCMinutes()],["seconds",ts=>(new Date(ts)).getUTCSeconds()],["milliseconds",ts=>(new Date(ts)).getUTCMilliseconds()]]));const setters=new Map;setters.set("local",new Map([["year",(ts,year)=>(new Date(ts)).setFullYear(year)],["month",(ts,month)=>(new Date(ts)).setMonth(month)],["date",(ts,date)=>(new Date(ts)).setDate(date)],
-["hours",(ts,hours)=>(new Date(ts)).setHours(hours)],["minutes",(ts,minutes)=>(new Date(ts)).setMinutes(minutes)],["seconds",(ts,seconds)=>(new Date(ts)).setSeconds(seconds)],["milliseconds",(ts,milliseconds)=>(new Date(ts)).setMilliseconds(milliseconds)]]));setters.set("universal",new Map([["year",(ts,year)=>(new Date(ts)).setUTCFullYear(year)],["month",(ts,month)=>(new Date(ts)).setUTCMonth(month)],["date",(ts,date)=>(new Date(ts)).setUTCDate(date)],["hours",(ts,hours)=>(new Date(ts)).setUTCHours(hours)],
-["minutes",(ts,minutes)=>(new Date(ts)).setUTCMinutes(minutes)],["seconds",(ts,seconds)=>(new Date(ts)).setUTCSeconds(seconds)],["milliseconds",(ts,milliseconds)=>(new Date(ts)).setUTCMilliseconds(milliseconds)]]));const validate_date_format_option=function(chosenOption,optionName,validOptions,optionsObject){if(validOptions.includes(chosenOption))optionsObject[optionName]=chosenOption};const validate_hour_format_option=function(hourFormat,optionsObject){if(!hourFormat)return;if(hourFormat==="12")optionsObject["hour12"]=
-true;else if(hourFormat==="24")optionsObject["hour12"]=false};const validate_locale=function(locale){try{return Intl.getCanonicalLocales(locale)}catch(err){return self.navigator.language}};const DATE_STYLES=["full","long","medium","short"];const TIME_STYLES=["full","long","medium","short"];const WEEK_DAY_FORMATS=["long","short","narrow"];const YEAR_FORMATS=["numeric","2-digit"];const MONTH_FORMATS=["numeric","2-digit","long","short","narrow"];const DAY_FORMATS=["numeric","2-digit"];const HOUR_FORMATS=
-["numeric","2-digit"];const MINUTE_FORMATS=["numeric","2-digit"];const SECOND_FORMATS=["numeric","2-digit"];C3.Plugins.Date.Exps={ToString(timeStamp){return(new Date(timeStamp)).toString()},ToDateString(timeStamp){return(new Date(timeStamp)).toDateString()},ToTimeString(timeStamp){return(new Date(timeStamp)).toTimeString()},ToLocaleString(timeStamp){return(new Date(timeStamp)).toLocaleString()},ToLocaleDateString(timeStamp){return(new Date(timeStamp)).toLocaleDateString()},ToLocaleTimeString(timeStamp){return(new Date(timeStamp)).toLocaleTimeString()},
-ToUTCString(timeStamp){return(new Date(timeStamp)).toUTCString()},Parse(dateString){return Date.parse(dateString)},Get(year,month,day,hours,minutes,seconds,milliseconds){return Date.UTC(year,month,day,hours,minutes,seconds,milliseconds)},Now(){return Date.now()},TimezoneOffset(){return(new Date(Date.now())).getTimezoneOffset()},GetYear(timeStamp){return getters.get("local").get("year")(timeStamp)},GetUTCYear(timeStamp){return getters.get("universal").get("year")(timeStamp)},GetMonth(timeStamp){return getters.get("local").get("month")(timeStamp)},
-GetUTCMonth(timeStamp){return getters.get("universal").get("month")(timeStamp)},GetDate(timeStamp){return getters.get("local").get("date")(timeStamp)},GetUTCDate(timeStamp){return getters.get("universal").get("date")(timeStamp)},GetDay(timeStamp){return getters.get("local").get("day")(timeStamp)},GetUTCDay(timeStamp){return getters.get("universal").get("day")(timeStamp)},GetHours(timeStamp){return getters.get("local").get("hours")(timeStamp)},GetUTCHours(timeStamp){return getters.get("universal").get("hours")(timeStamp)},
-GetMinutes(timeStamp){return getters.get("local").get("minutes")(timeStamp)},GetUTCMinutes(timeStamp){return getters.get("universal").get("minutes")(timeStamp)},GetSeconds(timeStamp){return getters.get("local").get("seconds")(timeStamp)},GetUTCSeconds(timeStamp){return getters.get("universal").get("seconds")(timeStamp)},GetMilliseconds(timeStamp){return getters.get("local").get("milliseconds")(timeStamp)},GetUTCMilliseconds(timeStamp){return getters.get("universal").get("milliseconds")(timeStamp)},
-ChangeYear(timeStamp,year){return setters.get("local").get("year")(timeStamp,year)},ChangeUTCYear(timeStamp,year){return setters.get("universal").get("year")(timeStamp,year)},ChangeMonth(timeStamp,month){return setters.get("local").get("month")(timeStamp,month)},ChangeUTCMonth(timeStamp,month){return setters.get("universal").get("month")(timeStamp,month)},ChangeDate(timeStamp,date){return setters.get("local").get("date")(timeStamp,date)},ChangeUTCDate(timeStamp,date){return setters.get("universal").get("date")(timeStamp,
-date)},ChangeDay(timeStamp,targetDay){const year=C3.Plugins.Date.Exps.GetYear(timeStamp);const month=C3.Plugins.Date.Exps.GetMonth(timeStamp);const date=C3.Plugins.Date.Exps.GetDate(timeStamp);const hours=C3.Plugins.Date.Exps.GetHours(timeStamp);const minutes=C3.Plugins.Date.Exps.GetMinutes(timeStamp);const seconds=C3.Plugins.Date.Exps.GetSeconds(timeStamp);const milliseconds=C3.Plugins.Date.Exps.GetMilliseconds(timeStamp);const currentDay=C3.Plugins.Date.Exps.GetDay(timeStamp);const distance=targetDay-
-currentDay;return(new Date(year,month,date+distance,hours,minutes,seconds,milliseconds)).getTime()},ChangeUTCDay(timeStamp,targetDay){const year=C3.Plugins.Date.Exps.GetUTCYear(timeStamp);const month=C3.Plugins.Date.Exps.GetUTCMonth(timeStamp);const date=C3.Plugins.Date.Exps.GetUTCDate(timeStamp);const hours=C3.Plugins.Date.Exps.GetUTCHours(timeStamp);const minutes=C3.Plugins.Date.Exps.GetUTCMinutes(timeStamp);const seconds=C3.Plugins.Date.Exps.GetUTCSeconds(timeStamp);const milliseconds=C3.Plugins.Date.Exps.GetUTCMilliseconds(timeStamp);
-const currentDay=C3.Plugins.Date.Exps.GetUTCDay(timeStamp);const distance=targetDay-currentDay;return C3.Plugins.Date.Exps.Get(year,month,date+distance,hours,minutes,seconds,milliseconds)},ChangeHours(timeStamp,hours){return setters.get("local").get("hours")(timeStamp,hours)},ChangeUTCHours(timeStamp,hours){return setters.get("universal").get("hours")(timeStamp,hours)},ChangeMinutes(timeStamp,minutes){return setters.get("local").get("minutes")(timeStamp,minutes)},ChangeUTCMinutes(timeStamp,minutes){return setters.get("universal").get("minutes")(timeStamp,
-minutes)},ChangeSeconds(timeStamp,seconds){return setters.get("local").get("seconds")(timeStamp,seconds)},ChangeUTCSeconds(timeStamp,seconds){return setters.get("universal").get("seconds")(timeStamp,seconds)},ChangeMilliseconds(timeStamp,milliseconds){return setters.get("local").get("milliseconds")(timeStamp,milliseconds)},ChangeUTCMilliseconds(timeStamp,milliseconds){return setters.get("universal").get("milliseconds")(timeStamp,milliseconds)},Difference(firstTimeStamp,secondTimeStamp){return secondTimeStamp-
-firstTimeStamp},ToTimerHours(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalHours(milliseconds))},ToTimerMinutes(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalMinutes(milliseconds))%60},ToTimerSeconds(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalSeconds(milliseconds))%60},ToTimerMilliseconds(milliseconds){return milliseconds%1E3},ToTotalHours(milliseconds){return milliseconds/(1E3*60*60)},ToTotalMinutes(milliseconds){return milliseconds/(1E3*60)},ToTotalSeconds(milliseconds){return milliseconds/
-1E3},FormatDateWithStyles(locale,timestamp,dateStyle,timeStyle,hourFormat){const l=validate_locale(locale);if(!l)return;let options={};validate_date_format_option.call(this,dateStyle,"dateStyle",DATE_STYLES,options);validate_date_format_option.call(this,timeStyle,"timeStyle",TIME_STYLES,options);validate_hour_format_option.call(this,hourFormat,options);return(new Intl.DateTimeFormat(l,options)).format(timestamp)},FormatDateWithComponents(locale,timestamp,weekday,year,month,day,hour,minute,second,
-hourFormat){const l=validate_locale(locale);if(!l)return;const options={};validate_date_format_option.call(this,weekday,"weekday",WEEK_DAY_FORMATS,options);validate_date_format_option.call(this,year,"year",YEAR_FORMATS,options);validate_date_format_option.call(this,month,"month",MONTH_FORMATS,options);validate_date_format_option.call(this,day,"day",DAY_FORMATS,options);validate_date_format_option.call(this,hour,"hour",HOUR_FORMATS,options);validate_date_format_option.call(this,minute,"minute",MINUTE_FORMATS,
-options);validate_date_format_option.call(this,second,"second",SECOND_FORMATS,options);validate_hour_format_option.call(this,hourFormat,options);return(new Intl.DateTimeFormat(l,options)).format(timestamp)}}};
-
-}
-
-{
-"use strict";C3.Plugins.Eponesh_GameScore=class extends C3.SDKPluginBase{constructor(e){super(e,"Eponesh_GameScore")}Release(){super.Release()}};
-}
-
-{
-"use strict";C3.Plugins.Eponesh_GameScore.Type=class extends C3.SDKTypeBase{constructor(e){super(e)}Release(){super.Release()}OnCreate(){}};
-}
-
-{
-"use strict";{const a="https://gs.eponesh.com/sdk";C3.Plugins.Eponesh_GameScore.Instance=class extends C3.SDKInstanceBase{constructor(e,t){if(super(e),this.mappers={language:["en","ru","fr","it","de","es","zh","pt","ko","ja","tr","ar","hi","id"],avatarGenerator:["dicebear_retro","dicebear_identicon","dicebear_human","dicebear_micah","dicebear_bottts","icotar","robohash_robots","robohash_cats"],order:["default","DESC","ASC"],withMe:["none","first","last"],platform:["YANDEX","VK","NONE","OK","GAME_MONETIZE","CRAZY_GAMES","GAME_DISTRIBUTION","SMARTMARKET","GAMEPIX","POKI","VK_PLAY","WG_PLAYGROUND","KONGREGATE","GOOGLE_PLAY","PLAYDECK"],deviceTypes:["Desktop","IOS","Android","TV"],documentTypes:["PLAYER_PRIVACY_POLICY"],documentFormat:["HTML","TXT","RAW"],bonusType:["REWARD","ACHIEVEMENT","PRODUCT"],schedulerType:["ACTIVE_DAYS","ACTIVE_DAYS_CONSECUTIVE"],variablesTypes:["stats","data","flag","image","file","doc_html"],compare:[(e,t)=>e===t,(e,t)=>e!==t,(e,t)=>e<t,(e,t)=>e<=t,(e,t)=>t<e,(e,t)=>t<=e]},this.etos=function(e){return"string"==typeof e?e:"message"in e?e.message:String(e)},this.getIdOrTag=e=>{var t=parseInt(e,10)||0;return 0<t?{id:t}:{tag:e}},this.conditions=C3.Plugins.Eponesh_GameScore.Cnds,this.actions=C3.Plugins.Eponesh_GameScore.Acts,this.handleResult=(e,t)=>{this.isLastActionSuccess=!!e,t&&(this.lastError=this.etos(t),console.warn(t))},this.awaiters={player:{},gp:{}},this.awaiters.gp.ready=new Promise((e,t)=>{this.awaiters.gp.done=e,this.awaiters.gp.abort=t}),this.awaiters.player.ready=new Promise((e,t)=>{this.awaiters.player.done=e,this.awaiters.player.abort=t}),this.leaderboard=[],this.leaderboardInfo={},this.leaderboardRecords={},this.leaderboardResult={abovePlayers:[],belowPlayers:[],topPlayers:[]},this.currentLeaderboardIndex=0,this.currentLeaderboardPlayer={},this.lastLeaderboardTag="",this.lastLeaderboardVariant="",this.lastLeaderboardPlayerRatingTag="",this.leaderboardPlayerPosition=0,this.platformVariables={},this.currentPlayerFieldKey="",this.currentPlayerFieldType="",this.currentPlayerFieldName="",this.currentPlayerFieldValue="",this.currentPlayerFieldVariantValue="",this.currentPlayerFieldVariantName="",this.currentPlayerFieldVariantIndex=0,this.achievements=[],this.achievementsGroups=[],this.playerAchievements=[],this.currentAchievementIndex=0,this.currentAchievement={},this.currentAchievementsGroupIndex=0,this.currentAchievementsGroupId=0,this.currentAchievementsGroupTag="",this.currentAchievementsGroupName="",this.currentAchievementsGroupDescription="",this.currentPlayerAchievementIndex=0,this.currentPlayerAchievementId=0,this.currentPlayerAchievementUnlockDate="",this.isUnlockAchievementSuccess=!1,this.unlockAchievementError="",this.isSetProgressAchievementSuccess=!1,this.setProgressAchievementError="",this.products=[],this.playerPurchases=[],this.currentProductIndex=0,this.currentProduct={id:0,tag:"",name:"",description:"",icon:"",iconSmall:"",price:0,currency:"",currencySymbol:""},this.currentProductPurchases=0,this.currentPurchaseIndex=0,this.currentPurchase={id:0,tag:"",createdAt:"",expiredAt:"",subscribed:!1},this.isSubscribeProductSuccess=!1,this.isUnsubscribeProductSuccess=!1,this.isPurchaseProductSuccess=!1,this.purchaseProductError="",this.purchasedProductId=0,this.purchasedProductTag="",this.isConsumeProductSuccess=!1,this.consumeProductError="",this.consumedProductId=0,this.consumedProductTag="",this.isLastAdSuccess=!1,this.isLastShareSuccess=!1,this.isLastCommunityJoinSuccess=!1,this.isLastAddShortcutSuccess=!1,this.isReady=!1,this.isPlayerReady=!1,this.gamesCollection={id:0,tag:"",name:"",description:"",games:[]},this.currentGameIndex=0,this.currentGameId=0,this.currentGameName="",this.currentGameDescription="",this.currentGameIcon="",this.currentGameUrl="",this.gamesCollectionFetchError="",this.lastGamesCollectionIdOrTag="",this.document={type:"",content:""},this.lastDocumentType="",this.documentFetchError="",this.lastError="",this.isLastActionSuccess=!1,this.shareLink="",this.shareParams={},this.images=[],this.canLoadMoreImages=!1,this.currentImageIndex=0,this.currentImageTagIndex=0,this.currentImageTag="",this.lastImageTempUrl="",this.currentImage={id:"",playerId:0,width:0,height:0,src:"",tags:[]},this.files=[],this.lastFileContent="",this.canLoadMoreFiles=!1,this.currentFileIndex=0,this.currentFileTagIndex=0,this.currentFileTag="",this.lastFileTempUrl="",this.currentFile={id:"",playerId:0,name:"",size:0,src:"",tags:[]},this.currentVariableIndex=0,this.currentVariable={key:"",type:"",value:""},this.currentPlayersIndex=0,this.lastPlayersTag="",this.currentPlayersPlayer={state:{},achievements:[],purchases:[]},this.curRewardIndex=0,this.curReward={},this.curPlayerReward={},this.setReward=(e={},t=0)=>{this.curRewardIndex=t,this.curReward=e.reward||{},this.curPlayerReward=e.playerReward||{}},this.curTriggerIndex=0,this.curTriggerInfo={trigger:{}},this.setTriggerInfo=(e,t=0)=>{const r=this.gp.triggers.getTrigger(e);r.trigger||(r.trigger={}),this.curTriggerIndex=t,this.curTriggerInfo=r||{trigger:{}}},this.curBonusIndex=0,this.curBonus={},this.setBonus=(e,t=0)=>{this.curBonusIndex=t,this.curBonus=e||{}},this.curSchedulerIndex=0,this.curSchedulerInfo={scheduler:{}},this.curSchedulerDayInfo={scheduler:{}},this.setSchedulerInfo=(e,t=0)=>{const r=this.gp.schedulers.getScheduler(e);r.scheduler||(r.scheduler={}),this.curSchedulerIndex=t,this.curSchedulerInfo=r||{scheduler:{}},this.setSchedulerDayInfo(e,1,t)},this.setSchedulerDayInfo=(e,t,r=0)=>{const s=this.gp.schedulers.getSchedulerDay(e,t);s.scheduler||(s.scheduler={}),this.curSchedulerDayInfo=s||{scheduler:{}}},this.curEventIndex=0,this.curEventInfo={event:{}},this.setEventInfo=(e,t=0)=>{const r=this.gp.events.getEvent(e);r.event||(r.event={}),this.curEventIndex=t,this.curEventInfo=r||{event:{}}},this.lastIdOrTag={id:0,tag:""},this.lastPickedSchedulerDay=0,this.lastPickedSchedulerTriggerIdOrTag="",this.isPickedIdOrTag=e=>{e=this.getIdOrTag(e);return 0<e.id&&e.id===this.lastIdOrTag.id||""!=e.tag&&e.tag===this.lastIdOrTag.tag},this.isPickedSchedulerDayAndTrigger=(e,t,r)=>{e=!e||this.isPickedIdOrTag(e),t=!t||t===this.lastPickedSchedulerDay,r=!r||r===this.lastPickedSchedulerTriggerIdOrTag;return e&&t&&r},this.curSegment="",this.projectId=Number(t[0]||0),this.publicToken=t[1],this.showPreloaderOnStart=t[2],this.shouldWaitPlayerOnLoad=t[3],this.isEnabled=t[4],this.isAutoSendGameStart=t[5],this._runtime.AddLoadPromise(this.awaiters.gp.ready),this.shouldWaitPlayerOnLoad&&this._runtime.AddLoadPromise(this.awaiters.player.ready),!this.isEnabled)return this.onError("[GamePush] disabled"),this.awaiters.gp.done(),void this.awaiters.player.done();this._runtime.Dispatcher().addEventListener("afterfirstlayoutstart",()=>{const e=this._runtime.GetIRuntime();e&&(e.GameScore=this.gp,e.GamePush=this.gp),this.isReady&&this.Trigger(this.conditions.OnReady),this.isPlayerReady&&this.Trigger(this.conditions.OnPlayerReady),this.isAutoSendGameStart&&this.gp.gameStart()}),this.loadLib()}onError(e){console.warn(e);e=()=>Promise.resolve({});this.awaiters.gp.done(),this.awaiters.player.done(),this.gp={on(){},changeLanguage:e,changeAvatarGenerator:e,loadOverlay:e,pause:e,resume:e,gameStart:e,gameplayStart:e,gameplayStop:e,isDev:!1,isPaused:!1,isGameplay:!1,isPortrait:!1,language:"en",avatarGenerator:"dicebear_retro",app:{on(){},title:"",description:"",image:"",url:"",canAddShortcut:!1,addShortcut:e},device:{on(){},type:""},analytics:{on(){},hit(){},goal(){}},platform:{on(){},hasIntegratedAuth:!1,type:"NONE"},socials:{isSupportsNativeShare:!1,isSupportsNativePosts:!1,isSupportsNativeInvite:!1,share:e,post:e,invite:e,makeShareUrl:()=>""},leaderboard:{on(){},open:e,fetch:e,fetchScoped:e,fetchPlayerRating:e,fetchPlayerRatingScoped:e},achievements:{on(){},has(){},open:e,fetch:e,unlock:e,setProgress:e},gamesCollections:{on(){},open:e,fetch:e},documents:{on(){},open:e,fetch:e},variables:{list:[],on(){},fetch:e,get:e,has:e,type:e},images:{canUpload:!1,list:[],on(){},upload:e,uploadUrl:e,fetch:e,fetchMore:e,chooseFile:e,resize:e},files:{canUpload:!1,list:[],on(){},upload:e,uploadUrl:e,uploadContent:e,loadContent:e,fetch:e,fetchMore:e,chooseFile:e},payments:{isAvailable:!1,purchases:[],on(){},has(){},fetchProducts:e,purchase:e,consume:e},fullscreen:{isEnabled:!1,on(){},open(){},close(){},toggle(){}},ads:{isFullscreenAvailable:!1,isRewardedAvailable:!1,isPreloaderAvailable:!1,isStickyAvailable:!1,isAdblockEnabled:!1,on(){},showFullscreen:e,showRewardedVideo:e,showPreloader:e,showSticky:e,closeSticky:e,refreshSticky:e},player:{isStub:!0,isLoggedIn:!1,id:0,name:"",avatar:"",stats:{},on(){},sync:e,load:e,login:e,fetchFields:e,getField:e,getFieldName:e,getFieldVariantName:e,add:e,has:e,get:e,set:e,toggle:e,reset:e,remove:e,toJSON:()=>({}),fields:[]},players:{on(){},fetch:e},rewards:{on(){},list:[],givenList:[],accept:e,give:e,has:e,hasAccepted:e,hasUnaccepted:e,getReward:e},triggers:{on(){},list:[],activatedList:[],claim:e,isActivated:e,isClaimed:e,getTrigger:e},schedulers:{on(){},list:[],activeList:[],getSchedulersTriggers:e,getScheduler:e,isRegistered:e,isTodayRewardClaimed:e,canClaimDay:e,canClaimDayAdditional:e,canClaimAllDay:e,getSchedulerDay:e,getSchedulerCurrentDay:e,claimDay:e,claimDayAdditional:e,claimAllDay:e,claimAllDays:e},events:{on(){},list:[],activeList:[],getEvent:e,has:e,join:e,isJoined:e}},this.isReady=!0,this.Trigger(this.conditions.OnReady),this.isPlayerReady=!0,this.Trigger(this.conditions.OnPlayerReady)}loadLib(){try{window.onGPInit=e=>e.ready.then(()=>this.init(e)).catch(e=>this.onError(e)),e=document,t=e.getElementsByTagName("script")[0],(e=e.createElement("script")).src=`${a}/gamepush.js?projectId=${this.projectId}&publicToken=${this.publicToken}&callback=onGPInit`,e.async=!0,e.onerror=e=>this.onError(e),t.parentNode.insertBefore(e,t)}catch(e){console.error(e),this.onError(e)}var e,t}init(e){this.gp=e;const t=this._runtime.GetIRuntime();t&&(t.GameScore=this.gp,t.GamePush=this.gp),this.gp.player.on("ready",()=>{this.isPlayerReady=!0,this.awaiters.player.done(),this.Trigger(this.conditions.OnPlayerReady)}),this.gp.player.on("change",()=>this.Trigger(this.conditions.OnPlayerChange)),this.gp.player.on("sync",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerSyncComplete:this.conditions.OnPlayerSyncError)}),this.gp.player.on("load",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerLoadComplete:this.conditions.OnPlayerLoadError)}),this.gp.player.on("login",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerLoginComplete:this.conditions.OnPlayerLoginError)}),this.gp.player.on("fetchFields",e=>{this.handleResult(e),this.Trigger(e?this.conditions.OnPlayerFetchFieldsComplete:this.conditions.OnPlayerFetchFieldsError)}),this.gp.leaderboard.on("open",()=>this.Trigger(this.conditions.OnLeaderboardOpen)),this.gp.leaderboard.on("close",()=>this.Trigger(this.conditions.OnLeaderboardClose)),this.gp.achievements.on("open",()=>this.Trigger(this.conditions.OnAchievementsOpen)),this.gp.achievements.on("close",()=>this.Trigger(this.conditions.OnAchievementsClose)),this.gp.achievements.on("unlock",e=>{this.handleResult(!0),this.isUnlockAchievementSuccess=!0,this.unlockAchievementError="",this.currentAchievement=e||{},this.Trigger(this.conditions.OnAchievementsUnlock),this.Trigger(this.conditions.OnAchievementsAnyUnlock)}),this.gp.achievements.on("error:unlock",(e,t)=>{this.lastIdOrTag=t.input,this.isUnlockAchievementSuccess=!1,this.unlockAchievementError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsAnyUnlockError)}),this.gp.achievements.on("progress",e=>{this.handleResult(!0),this.currentAchievement=e||{},this.Trigger(this.conditions.OnAchievementsSetProgress),this.Trigger(this.conditions.OnAchievementsAnySetProgress)}),this.gp.achievements.on("error:progress",(e,t)=>{this.lastIdOrTag=t.input,this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsAnySetProgressError)}),this.gp.payments.on("purchase",e=>{this.isPurchaseProductSuccess=!0,this.purchaseProductError="",this.handleResult(!0);e=e.product||{};this.purchasedProductId=e.id||0,this.purchasedProductTag=e.tag||"",this.Trigger(this.conditions.OnPaymentsPurchase),this.Trigger(this.conditions.OnPaymentsAnyPurchase)}),this.gp.payments.on("error:purchase",(e,t)=>{this.lastIdOrTag=t.input,this.isPurchaseProductSuccess=!1,this.purchasedProductId=t.input.id||0,this.purchasedProductTag=t.input.tag||"",this.purchaseProductError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsPurchaseError),this.Trigger(this.conditions.OnPaymentsAnyPurchaseError)}),this.gp.payments.on("subscribe",e=>{this.isSubscribeProductSuccess=!0,this.handleResult(!0);var t=e.product||{},e=e.purchase||{};this.currentPurchase=e,this.currentProduct=t,this.currentProductPurchases=1,this.purchasedProductId=t.id||0,this.purchasedProductTag=t.tag||"",this.Trigger(this.conditions.OnPaymentsSubscribe),this.Trigger(this.conditions.OnPaymentsAnySubscribe)}),this.gp.payments.on("error:subscribe",(e,t)=>{this.lastIdOrTag=t.input,this.isSubscribeProductSuccess=!1,this.purchasedProductId=t.input.id||0,this.purchasedProductTag=t.input.tag||"",this.isSubscribeProductSuccess=!1,this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsSubscribeError),this.Trigger(this.conditions.OnPaymentsAnySubscribeError)}),this.gp.gamesCollections.on("open",()=>this.Trigger(this.conditions.OnGamesCollectionsOpen)),this.gp.gamesCollections.on("close",()=>this.Trigger(this.conditions.OnGamesCollectionsClose)),this.gp.documents.on("open",()=>this.Trigger(this.conditions.OnDocumentsOpen)),this.gp.documents.on("close",()=>this.Trigger(this.conditions.OnDocumentsClose)),this.gp.fullscreen.on("open",()=>this.Trigger(this.conditions.OnFullscreenOpen)),this.gp.fullscreen.on("close",()=>this.Trigger(this.conditions.OnFullscreenClose)),this.gp.fullscreen.on("change",()=>this.Trigger(this.conditions.OnFullscreenChange)),this.gp.ads.on("start",()=>this.Trigger(this.conditions.OnAdsStart)),this.gp.ads.on("close",e=>{this.handleResult(e),this.isLastAdSuccess=e,this.Trigger(this.conditions.OnAdsClose)}),this.gp.ads.on("fullscreen:start",()=>this.Trigger(this.conditions.OnAdsFullscreenStart)),this.gp.ads.on("fullscreen:close",()=>this.Trigger(this.conditions.OnAdsFullscreenClose)),this.gp.ads.on("preloader:start",()=>this.Trigger(this.conditions.OnAdsPreloaderStart)),this.gp.ads.on("preloader:close",()=>this.Trigger(this.conditions.OnAdsPreloaderClose)),this.gp.ads.on("rewarded:start",()=>this.Trigger(this.conditions.OnAdsRewardedStart)),this.gp.ads.on("rewarded:close",()=>this.Trigger(this.conditions.OnAdsRewardedClose)),this.gp.ads.on("rewarded:reward",()=>this.Trigger(this.conditions.OnAdsRewardedReward)),this.gp.ads.on("sticky:start",()=>this.Trigger(this.conditions.OnAdsStickyStart)),this.gp.ads.on("sticky:close",()=>this.Trigger(this.conditions.OnAdsStickyClose)),this.gp.ads.on("sticky:refresh",()=>this.Trigger(this.conditions.OnAdsStickyRefresh)),this.gp.ads.on("sticky:render",()=>this.Trigger(this.conditions.OnAdsStickyRender)),this.gp.socials.on("share",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsShare)}),this.gp.socials.on("post",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsPost)}),this.gp.socials.on("invite",e=>{this.handleResult(e),this.isLastShareSuccess=e,this.Trigger(this.conditions.OnSocialsInvite)}),this.gp.socials.on("joinCommunity",e=>{this.handleResult(e),this.isLastCommunityJoinSuccess=e,this.Trigger(this.conditions.OnSocialsJoinCommunity)}),this.gp.app.on("addShortcut",e=>{this.handleResult(e),this.isLastAddShortcutSuccess=e,this.Trigger(this.conditions.OnAppAddShortcut)}),this.gp.app.on("review",e=>{this.handleResult(!0),this.appLastReviewRating=e.rating||0,this.Trigger(this.conditions.OnAppReview)}),this.gp.app.on("error:review",e=>{this.handleResult(!1,e),this.appLastReviewRating=0,this.Trigger(this.conditions.OnAppReviewError)}),this.gp.on("change:language",()=>this.Trigger(this.conditions.OnChangeLanguage)),this.gp.on("change:avatarGenerator",()=>this.Trigger(this.conditions.OnChangeAvatarGenerator)),this.gp.on("change:orientation",()=>this.Trigger(this.conditions.OnChangeOrientation)),this.gp.on("overlay:ready",()=>this.Trigger(this.conditions.OnOverlayReady)),this.gp.on("pause",()=>this.Trigger(this.conditions.OnPause)),this.gp.on("resume",()=>this.Trigger(this.conditions.OnResume)),this.gp.on("gameplayStart",()=>this.Trigger(this.conditions.OnGameplayStart)),this.gp.on("gameplayStop",()=>this.Trigger(this.conditions.OnGameplayStop)),this.gp.channels.on("event",e=>{this.curEvent=e}),this.gp.on("event:connect",()=>{this.Trigger(this.conditions.OnEventConnect)}),this.gp.rewards.on("accept",e=>{this.setReward(e),this.handleResult(!0),this.lastIdOrTag={id:e.reward.id,tag:e.reward.tag},this.Trigger(this.conditions.OnRewardsAccept)}),this.gp.rewards.on("error:accept",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnRewardsAcceptError)}),this.gp.rewards.on("give",e=>{this.setReward(e),this.handleResult(!0),this.lastIdOrTag={id:e.reward.id,tag:e.reward.tag},this.Trigger(this.conditions.OnRewardsGive)}),this.gp.rewards.on("error:give",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnRewardsGiveError)}),this.gp.triggers.on("activate",e=>{this.setTriggerInfo(e.trigger.id),this.handleResult(!0),this.lastIdOrTag={id:e.trigger.id,tag:e.trigger.tag},this.Trigger(this.conditions.OnTriggersActivate)}),this.gp.triggers.on("claim",e=>{this.setTriggerInfo(e.trigger.id),this.handleResult(!0),this.lastIdOrTag={id:e.trigger.id,tag:e.trigger.tag},this.Trigger(this.conditions.OnTriggersClaim)}),this.gp.triggers.on("error:claim",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnTriggersClaimError)}),this.gp.schedulers.on("register",e=>{this.setSchedulerInfo(e.scheduler.id),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.Trigger(this.conditions.OnSchedulersRegister)}),this.gp.schedulers.on("error:register",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnSchedulersRegisterError)}),this.gp.schedulers.on("claimDay",e=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.Trigger(this.conditions.OnSchedulersClaimDay)}),this.gp.schedulers.on("error:claimDay",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.Trigger(this.conditions.OnSchedulersClaimDayError)}),this.gp.schedulers.on("claimDayAdditional",(e,t)=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.setTriggerInfo(t.input.triggerIdOrTag),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.lastPickedSchedulerTriggerIdOrTag=t.input.triggerIdOrTag,this.Trigger(this.conditions.OnSchedulersClaimDayAdditional)}),this.gp.schedulers.on("error:claimDayAdditional",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.lastPickedSchedulerTriggerIdOrTag=t.input.triggerIdOrTag,this.Trigger(this.conditions.OnSchedulersClaimDayAdditionalError)}),this.gp.schedulers.on("claimAllDay",e=>{this.setSchedulerInfo(e.scheduler.id),this.setSchedulerDayInfo(e.scheduler.id,e.day),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.lastPickedSchedulerDay=e.day,this.Trigger(this.conditions.OnSchedulersClaimAllDay)}),this.gp.schedulers.on("error:claimAllDay",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.lastPickedSchedulerDay=t.input.day,this.Trigger(this.conditions.OnSchedulersClaimAllDayError)}),this.gp.schedulers.on("claimAllDays",e=>{this.setSchedulerInfo(e.scheduler.id),this.handleResult(!0),this.lastIdOrTag={id:e.scheduler.id,tag:e.scheduler.tag},this.Trigger(this.conditions.OnSchedulersClaimAllDays)}),this.gp.schedulers.on("error:claimAllDays",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnSchedulersClaimAllDaysError)}),this.gp.events.on("join",e=>{this.setEventInfo(e.event.id),this.handleResult(!0),this.lastIdOrTag={id:e.event.id,tag:e.event.tag},this.Trigger(this.conditions.OnEventsJoin)}),this.gp.events.on("error:join",(e,t)=>{this.handleResult(!1,e),this.lastIdOrTag=t.input,this.Trigger(this.conditions.OnEventsJoinError)}),this.gp.segments.on("enter",e=>{this.curSegment=e,this.Trigger(this.conditions.OnSegmentsEnter)}),this.gp.segments.on("leave",e=>{this.curSegment=e,this.Trigger(this.conditions.OnSegmentsLeave)}),this.isReady=!0,this.Trigger(this.conditions.OnReady),this.awaiters.gp.done(),this.showPreloaderOnStart&&this.gp.ads.showPreloader()}Release(){super.Release()}SaveToJson(){return{leaderboard:this.leaderboard,leaderboardInfo:this.leaderboardInfo,leaderboardRecords:this.leaderboardRecords,leaderboardResult:this.leaderboardResult,currentLeaderboardIndex:this.currentLeaderboardIndex,currentLeaderboardPlayer:this.currentLeaderboardPlayer,lastLeaderboardTag:this.lastLeaderboardTag,lastLeaderboardVariant:this.lastLeaderboardVariant,lastLeaderboardPlayerRatingTag:this.lastLeaderboardPlayerRatingTag,leaderboardPlayerPosition:this.leaderboardPlayerPosition,currentPlayerFieldKey:this.currentPlayerFieldKey,currentPlayerFieldType:this.currentPlayerFieldType,currentPlayerFieldName:this.currentPlayerFieldName,currentPlayerFieldValue:this.currentPlayerFieldValue,currentPlayerFieldVariantValue:this.currentPlayerFieldVariantValue,currentPlayerFieldVariantName:this.currentPlayerFieldVariantName,currentPlayerFieldVariantIndex:this.currentPlayerFieldVariantIndex,isLastAdSuccess:this.isLastAdSuccess,isLastShareSuccess:this.isLastShareSuccess,isLastCommunityJoinSuccess:this.isLastCommunityJoinSuccess,isLastAddShortcutSuccess:this.isLastAddShortcutSuccess,isReady:this.isReady,isPlayerReady:this.isPlayerReady,achievements:this.achievements,achievementsGroups:this.achievementsGroups,playerAchievements:this.playerAchievements,currentAchievementIndex:this.currentAchievementIndex,currentAchievement:this.currentAchievement,currentAchievementsGroupIndex:this.currentAchievementsGroupIndex,currentAchievementsGroupId:this.currentAchievementsGroupId,currentAchievementsGroupTag:this.currentAchievementsGroupTag,currentAchievementsGroupName:this.currentAchievementsGroupName,currentAchievementsGroupDescription:this.currentAchievementsGroupDescription,currentPlayerAchievementIndex:this.currentPlayerAchievementIndex,currentPlayerAchievementId:this.currentPlayerAchievementId,currentPlayerAchievementUnlockDate:this.currentPlayerAchievementUnlockDate,isUnlockAchievementSuccess:this.isUnlockAchievementSuccess,unlockAchievementError:this.unlockAchievementError,products:this.products,playerPurchases:this.playerPurchases,currentProductIndex:this.currentProductIndex,currentProduct:this.currentProduct,currentProductPurchases:this.currentProductPurchases,currentPurchaseIndex:this.currentPurchaseIndex,currentPurchase:this.currentPurchase,lastPlayersTag:this.lastPlayersTag,currentPlayersIndex:this.currentPlayersIndex,currentPlayersPlayer:this.currentPlayersPlayer,isSubscribeProductSuccess:this.isSubscribeProductSuccess,isUnsubscribeProductSuccess:this.isUnsubscribeProductSuccess,isPurchaseProductSuccess:this.isPurchaseProductSuccess,purchaseProductError:this.purchaseProductError,purchasedProductId:this.purchasedProductId,purchasedProductTag:this.purchasedProductTag,isConsumeProductSuccess:this.isConsumeProductSuccess,consumeProductError:this.consumeProductError,consumedProductId:this.consumedProductId,consumedProductTag:this.consumedProductTag,gamesCollection:this.gamesCollection,currentGameIndex:this.currentGameIndex,currentGameId:this.currentGameId,currentGameName:this.currentGameName,currentGameDescription:this.currentGameDescription,currentGameIcon:this.currentGameIcon,currentGameUrl:this.currentGameUrl,gamesCollectionFetchError:this.gamesCollectionFetchError,lastGamesCollectionIdOrTag:this.lastGamesCollectionIdOrTag,document:this.document,lastDocumentType:this.lastDocumentType,documentFetchError:this.documentFetchError,lastError:this.lastError,isLastActionSuccess:this.isLastActionSuccess,images:this.images,canLoadMoreImages:this.canLoadMoreImages,currentImage:this.currentImage,lastImageTempUrl:this.lastImageTempUrl,currentImageIndex:this.currentImageIndex,currentImageTagIndex:this.currentImageTagIndex,currentImageTag:this.currentImageTag,files:this.files,lastFileContent:this.lastFileContent,canLoadMoreFiles:this.canLoadMoreFiles,currentFile:this.currentFile,lastFileTempUrl:this.lastFileTempUrl,currentFileIndex:this.currentFileIndex,currentFileTagIndex:this.currentFileTagIndex,currentFileTag:this.currentFileTag,curRewardIndex:this.curRewardIndex,curReward:this.curReward,curPlayerReward:this.curPlayerReward,curTriggerIndex:this.curTriggerIndex,curTriggerInfo:this.curTriggerInfo,curBonusIndex:this.curBonusIndex,curBonus:this.curBonus,curSchedulerIndex:this.curSchedulerIndex,curSchedulerInfo:this.curSchedulerInfo,curSchedulerDayInfo:this.curSchedulerDayInfo,curEventIndex:this.curEventIndex,curEventInfo:this.curEventInfo,currentVariableIndex:this.currentVariableIndex,currentVariable:this.currentVariable,curSegment:this.curSegment}}LoadFromJson(e){this.leaderboard=e.leaderboard,this.leaderboardInfo=e.leaderboardInfo||{},this.leaderboardRecords=e.leaderboardRecords||{},this.leaderboardResult=e.leaderboardResult||{abovePlayers:[],belowPlayers:[],topPlayers:[]},this.currentLeaderboardIndex=e.currentLeaderboardIndex,this.currentLeaderboardPlayer=e.currentLeaderboardPlayer||{},this.lastLeaderboardTag=e.lastLeaderboardTag,this.lastLeaderboardVariant=e.lastLeaderboardVariant,this.lastLeaderboardPlayerRatingTag=e.lastLeaderboardPlayerRatingTag,this.leaderboardPlayerPosition=e.leaderboardPlayerPosition||0,this.currentPlayerFieldKey=e.currentPlayerFieldKey,this.currentPlayerFieldType=e.currentPlayerFieldType,this.currentPlayerFieldName=e.currentPlayerFieldName,this.currentPlayerFieldValue=e.currentPlayerFieldValue,this.currentPlayerFieldVariantValue=e.currentPlayerFieldVariantValue,this.currentPlayerFieldVariantName=e.currentPlayerFieldVariantName,this.currentPlayerFieldVariantIndex=e.currentPlayerFieldVariantIndex,this.isLastAdSuccess=e.isLastAdSuccess,this.isLastShareSuccess=e.isLastShareSuccess,this.isLastCommunityJoinSuccess=e.isLastCommunityJoinSuccess,this.isLastAddShortcutSuccess=e.isLastAddShortcutSuccess,this.isReady=e.isReady,this.isPlayerReady=e.isPlayerReady,this.achievements=e.achievements||[],this.achievementsGroups=e.achievementsGroups||[],this.playerAchievements=e.playerAchievements||[],this.currentAchievementIndex=e.currentAchievementIndex||0,this.currentAchievement=e.currentAchievement||{},this.currentAchievementsGroupIndex=e.currentAchievementsGroupIndex||0,this.currentAchievementsGroupId=e.currentAchievementsGroupId||0,this.currentAchievementsGroupTag=e.currentAchievementsGroupTag||"",this.currentAchievementsGroupName=e.currentAchievementsGroupName||"",this.currentAchievementsGroupDescription=e.currentAchievementsGroupDescription||"",this.currentPlayerAchievementIndex=e.currentPlayerAchievementIndex||0,this.currentPlayerAchievementId=e.currentPlayerAchievementId||0,this.currentPlayerAchievementUnlockDate=e.currentPlayerAchievementUnlockDate||"",this.isUnlockAchievementSuccess=e.isUnlockAchievementSuccess||!1,this.unlockAchievementError=e.unlockAchievementError||"",this.products=e.products||[],this.playerPurchases=e.playerPurchases||[],this.currentProductIndex=e.currentProductIndex||0,this.currentProduct=e.currentProduct||{id:0,tag:"",name:"",description:"",icon:"",iconSmall:"",price:0,currency:"",currencySymbol:""},this.currentProductPurchases=e.currentProductPurchases||0,this.currentPurchaseIndex=e.currentPurchaseIndex||0,this.currentPurchase=e.currentPurchase||{id:0,tag:"",createdAt:""},this.lastPlayersTag=e.lastPlayersTag,this.currentPlayersIndex=e.currenPlayersIndex||0,this.currentPlayersPlayer=e.currentPlayersPlayer||{state:{},achievements:[],purchases:[]},this.isSubscribeProductSuccess=e.isSubscribeProductSuccess||!1,this.isUnsubscribeProductSuccess=e.isUnsubscribeProductSuccess||!1,this.isPurchaseProductSuccess=e.isPurchaseProductSuccess||!1,this.purchaseProductError=e.purchaseProductError||"",this.purchasedProductId=e.purchasedProductId||0,this.purchasedProductTag=e.purchasedProductTag||"",this.isConsumeProductSuccess=e.isConsumeProductSuccess||!1,this.consumeProductError=e.consumeProductError||"",this.consumedProductId=e.consumedProductId||0,this.consumedProductTag=e.consumedProductTag||"",this.gamesCollection=e.gamesCollection||{id:0,tag:"",name:"",description:"",games:[]},this.currentGameIndex=e.currentGameIndex||0,this.currentGameId=e.currentGameId||0,this.currentGameName=e.currentGameName||"",this.currentGameDescription=e.currentGameDescription||"",this.currentGameIcon=e.currentGameIcon||"",this.currentGameUrl=e.currentGameUrl||"",this.gamesCollectionFetchError=e.gamesCollectionFetchError||"",this.lastGamesCollectionIdOrTag=e.lastGamesCollectionIdOrTag||"",this.document=e.document||{type:"",content:""},this.lastDocumentType=e.lastDocumentType||"",this.documentFetchError=e.documentFetchError||"",this.lastError=e.lastError||"",this.isLastActionSuccess=e.isLastActionSuccess||!1,this.images=e.images||[],this.canLoadMoreImages=e.canLoadMoreImages||!1,this.currentImageIndex=e.currentImageIndex||0,this.currentImageTagIndex=e.currentImageTagIndex||0,this.currentImageTag=e.currentImageTag||"",this.currentImage=e.currentImage||{id:"",playerId:0,width:0,height:0,src:"",tags:[]},this.files=e.files||[],this.lastFileContent=e.lastFileContent||"",this.canLoadMoreFiles=e.canLoadMoreFiles||!1,this.currentFileIndex=e.currentFileIndex||0,this.currentFileTagIndex=e.currentFileTagIndex||0,this.currentFileTag=e.currentFileTag||"",this.currentFile=e.currentFile||{id:"",playerId:0,name:"",size:0,src:"",tags:[]},this.currentVariableIndex=e.currentVariableIndex||0,this.currentVariable=e.currentVariable||{key:"",type:"",value:""},this.curRewardIndex=e.curRewardIndex||0,this.curReward=e.curReward||{},this.curPlayerReward=e.curPlayerReward||{},this.curTriggerIndex=e.curTriggerIndex||0,this.curTriggerInfo=e.curTriggerInfo||{trigger:{}},this.curSchedulerIndex=e.curSchedulerIndex||0,this.curSchedulerInfo=e.curSchedulerInfo||{scheduler:{}},this.curSchedulerDayInfo=e.curSchedulerDayInfo||{scheduler:{}},this.curEventIndex=e.curEventIndex||0,this.curEventInfo=e.curEventInfo||{event:{}},this.curBonusIndex=e.curBonusIndex||0,this.curBonus=e.curBonus||{},this.curSegment=e.curSegment||""}GetDebuggerProperties(){return this.isPlayerReady?[{title:"GS - Base",properties:[{name:"Language",value:this.gp.language},{name:"Avatar Generator",value:this.gp.avatarGenerator},{name:"Platform",value:this.gp.platform.type},{name:"Last Error",value:this.lastError},{name:"Is Last Action Success",value:this.isLastActionSuccess},{name:"Is Mobile",value:this.gp.isMobile},{name:"Is Dev",value:this.gp.isDev},{name:"Is Paused",value:this.gp.isPaused},{name:"Is Gameplay",value:this.gp.isGameplay},{name:"Is Allowed Origin",value:this.gp.isAllowedOrigin}]},{title:"GS - Ads",properties:[{name:"Last Ad Success",value:this.isLastAdSuccess},{name:"Adblock Enabled",value:this.gp.ads.isAdblockEnabled}]},{title:"GS - Leaderboards",properties:[{name:"Player Position",value:this.leaderboardPlayerPosition}]},{title:"GS - Player",properties:[{name:"ID",value:this.gp.player.id},{name:"Logged In By Platform",value:this.gp.player.isLoggedInByPlatform},{name:"Is Stub",value:this.gp.player.isStub},...this.gp.player.fields.map(t=>({name:this.gp.player.getFieldName(t.key),value:this.gp.player.get(t.key),onedit:e=>this.CallAction(this.actions.PlayerSet,t.key,e)}))]},{title:"GS - Achievements - Current",properties:[{name:"Index",value:this.currentAchievementIndex},{name:"ID",value:this.currentAchievement.id},{name:"Tag",value:this.currentAchievement.tag},{name:"Name",value:this.currentAchievement.name},{name:"Description",value:this.currentAchievement.description},{name:"Rare",value:this.currentAchievement.rare},{name:"Unlocked",value:this.currentAchievement.unlocked},{name:"Icon",value:this.currentAchievement.icon},{name:"Icon Small",value:this.currentAchievement.iconSmall},{name:"Locked Icon",value:this.currentAchievement.lockedIcon},{name:"Locked Icon Small",value:this.currentAchievement.lockedIconSmall},{name:"Progress",value:this.currentAchievement.progress},{name:"Max Progress",value:this.currentAchievement.maxProgress},{name:"Progress Step",value:this.currentAchievement.progressStep},{name:"Locked Visible",value:this.currentAchievement.lockedVisible},{name:"Locked Description Visible",value:this.currentAchievement.lockedDescriptionVisible}]},{title:"GS - Achievements Groups Loop",properties:[{name:"Current Achievements Group Index",value:this.currentAchievementsGroupIndex},{name:"Current Achievements Group ID",value:this.currentAchievementsGroupId},{name:"Current Achievements Group Tag",value:this.currentAchievementsGroupTag},{name:"Current Achievements Group Name",value:this.currentAchievementsGroupName},{name:"Current Achievements Group Description",value:this.currentAchievementsGroupDescription}]},{title:"GS - Player Achievements Loop",properties:[{name:"Current Player Achievement Index",value:this.currentPlayerAchievementIndex},{name:"Current Player Achievement ID",value:this.currentPlayerAchievementId},{name:"Current Player Achievement Unlock Date",value:this.currentPlayerAchievementUnlockDate}]},{title:"GS - Products Loop",properties:[{name:"Current Product Index",value:this.currentProductIndex},{name:"Current Product ID",value:this.currentProduct.id},{name:"Current Product Tag",value:this.currentProduct.tag},{name:"Current Product Name",value:this.currentProduct.name},{name:"Current Product Description",value:this.currentProduct.description},{name:"Current Product Icon",value:this.currentProduct.icon},{name:"Current Product Icon Small",value:this.currentProduct.iconSmall},{name:"Current Product Icon",value:this.currentProduct.icon},{name:"Current Product Price",value:this.currentProduct.price},{name:"Current Product Currency",value:this.currentProduct.currency},{name:"Current Product CurrencySymbol",value:this.currentProduct.currencySymbol},{name:"Current Product Purchases",value:this.currentProductPurchases}]},{title:"GS - Purchased Product",properties:[{name:"Is purchase successful",value:this.isPurchaseProductSuccess},{name:"Purchase error",value:this.purchaseProductError},{name:"Purchased Product ID",value:this.purchasedProductId},{name:"Purchased Product Tag",value:this.purchasedProductTag}]},{title:"GS - Consumed Product",properties:[{name:"Is consume successful",value:this.isConsumeProductSuccess},{name:"Consume error",value:this.consumeProductError},{name:"Consumed Product ID",value:this.consumedProductId},{name:"Consumed Product Tag",value:this.consumedProductTag}]},{title:"GS - Last Games Collection",properties:[{name:"Collection ID",value:this.gamesCollection.id},{name:"Collection Tag",value:this.gamesCollection.tag},{name:"Collection Name",value:this.gamesCollection.name},{name:"Collection Description",value:this.gamesCollection.description},{name:"Fetch Error",value:this.gamesCollectionFetchError}]},{title:"GS - Games in Collection",properties:[{name:"Current Game Index",value:this.currentGameIndex},{name:"Current Game ID",value:this.currentGameId},{name:"Current Game Name",value:this.currentGameName},{name:"Current Game Description",value:this.currentGameDescription},{name:"Current Game Icon",value:this.currentGameIcon},{name:"Current Game Url",value:this.currentGameUrl}]},{title:"GS - Documents",properties:[{name:"Document Type",value:this.document.type},{name:"Document Content",value:this.document.content},{name:"Fetch Error",value:this.documentFetchError}]}]:[]}}}
-}
-
-{
-"use strict";function each(e,r,t){const s=e.GetEventSheetManager(),n=e.GetCurrentEvent(),i=n.GetSolModifiers(),a=e.GetEventStack(),u=a.GetCurrentStackFrame(),c=a.Push(n);r.forEach((e,r)=>{t(e,r),s.PushCopySol(i),n.Retrigger(u,c),s.PopSol(i)}),a.Pop()}function isExists(e){return e&&!!e.id}C3.Plugins.Eponesh_GameScore.Cnds={OnPlayerChange(){return!0},OnPlayerSyncComplete(){return!0},OnPlayerSyncError(){return!0},OnPlayerLoadComplete(){return!0},OnPlayerLoadError(){return!0},OnPlayerLoginComplete(){return!0},OnPlayerLoginError(){return!0},OnPlayerFetchFieldsComplete(){return!0},OnPlayerFetchFieldsError(){return!0},OnPlayerReady(){return!0},IsPlayerReady(){return this.isPlayerReady},IsPlayerStub(){return this.gp.player.isStub},IsPlayerLoggedIn(){return this.gp.player.isLoggedIn},PlayerHasKey(e){return this.gp.player.has(e)},PlayerFieldIsEnum(e){return this.gp.player.getField(e).variants.length},PlayerCompareScore(e,r){return this.mappers.compare[e](this.gp.player.score,r)},PlayerCompare(e,r,t){return this.mappers.compare[r](this.gp.player.get(e),t)},PlayerEachField(){return each(this._runtime,this.gp.player.fields,e=>{this.currentPlayerFieldKey=e.key,this.currentPlayerFieldType=e.type,this.currentPlayerFieldName=e.name,this.currentPlayerFieldValue=this.gp.player.get(e.key)}),!1},PlayerEachFieldVariant(e){return each(this._runtime,this.gp.player.getField(e).variants,(e,r)=>{this.currentPlayerFieldVariantValue=e.value,this.currentPlayerFieldVariantName=e.name,this.currentPlayerFieldVariantIndex=r}),!1},OnLeaderboardOpen(){return!0},OnLeaderboardClose(){return!0},OnLeaderboardFetch(e){return this.lastLeaderboardTag===e},OnLeaderboardAnyFetch(){return!0},OnLeaderboardFetchError(e){return this.lastLeaderboardTag===e},OnLeaderboardAnyFetchError(){return!0},OnLeaderboardFetchPlayer(e){return this.lastLeaderboardPlayerRatingTag===e},OnLeaderboardAnyFetchPlayer(){return!0},OnLeaderboardFetchPlayerError(e){return this.lastLeaderboardPlayerRatingTag===e},OnLeaderboardAnyFetchPlayerError(){return!0},OnLeaderboardPublishRecord(){return!0},OnLeaderboardPublishRecordError(){return!0},LeaderboardEachPlayer(){return each(this._runtime,this.leaderboard,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachTopPlayer(){return each(this._runtime,this.leaderboardResult.topPlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachAbovePlayer(){return each(this._runtime,this.leaderboardResult.abovePlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},LeaderboardEachBelowPlayer(){return each(this._runtime,this.leaderboardResult.belowPlayers,(e,r)=>{this.currentLeaderboardIndex=r,this.currentLeaderboardPlayer=e}),!1},OnAchievementsOpen(){return!0},OnAchievementsClose(){return!0},OnAchievementsFetch(){return!0},OnAchievementsFetchError(){return!0},OnAchievementsUnlock(e){var r=parseInt(e,10)||0;return this.currentAchievement.tag===e||this.currentAchievement.id===r},OnAchievementsAnyUnlock(){return!0},OnAchievementsAnyUnlockError(){return!0},OnAchievementsSetProgress(e){var r=parseInt(e,10)||0;return this.currentAchievement.tag===e||this.currentAchievement.id===r},OnAchievementsAnySetProgress(){return!0},OnAchievementsAnySetProgressError(){return!0},AchievementsPickAchievement(e){var{achievement:e,playerAchievement:r,achievementGroup:t}=this.gp.achievements.getAchievement(e);return!!e&&(this.currentAchievementIndex=0,this.currentAchievement=e,r&&(this.currentAchievement.unlocked=r.unlocked,this.currentAchievement.progress=r.progress),t&&(this.currentAchievementsGroupIndex=0,this.currentAchievementsGroupId=t.id,this.currentAchievementsGroupTag=t.tag,this.currentAchievementsGroupName=t.name,this.currentAchievementsGroupDescription=t.description),!0)},AchievementsEachAchievement(){return each(this._runtime,this.gp.achievements.list,(e,r)=>{var t=this.gp.achievements.getAchievement(e.id)["playerAchievement"];this.currentAchievementIndex=r,this.currentAchievement=e,t&&(this.currentAchievement.unlocked=t.unlocked,this.currentAchievement.progress=t.progress)}),!1},AchievementsEachAchievementInGroup(r){const t=parseInt(r,10)||0,e=this.gp.achievements.groupsList.find(e=>e.tag===r||e.id===t);var s=e?e.achievements.reduce((e,r)=>{var{achievement:r,playerAchievement:t}=this.gp.achievements.getAchievement(r);return r&&e.push({achievement:r,playerAchievement:t}),e},[]):[];return each(this._runtime,s,({achievement:e,playerAchievement:r},t)=>{this.currentAchievementIndex=t,this.currentAchievement=e,r&&(this.currentAchievement.unlocked=r.unlocked,this.currentAchievement.progress=r.progress)}),!1},AchievementsEachAchievementsGroup(){return each(this._runtime,this.gp.achievements.groupsList,(e,r)=>{this.currentAchievementsGroupIndex=r,this.currentAchievementsGroupId=e.id,this.currentAchievementsGroupTag=e.tag,this.currentAchievementsGroupName=e.name,this.currentAchievementsGroupDescription=e.description}),!1},AchievementsEachPlayerAchievements(){return each(this._runtime,this.gp.achievements.unlockedList,(e,r)=>{this.currentPlayerAchievementIndex=r,this.currentPlayerAchievementId=e.id,this.currentPlayerAchievementUnlockDate=e.createdAt}),!1},IsAchievementsCurAchievementUnlocked(){return this.currentAchievement.unlocked},IsAchievementsCurAchievementLockedVisible(){return!!this.currentAchievement.isLockedVisible},IsAchievementsCurAchievementLockedDescriptionVisible(){return!!this.currentAchievement.isLockedDescriptionVisible},IsAchievementsUnlockSuccessful(){return this.isUnlockAchievementSuccess},AchievementsIsUnlocked(e){return this.gp.achievements.has(e)},OnPaymentsFetchProducts(){return!0},OnPaymentsFetchProductsError(){return!0},OnEventConnect(){return!0},OnPaymentsPurchase(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsPurchaseError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnyPurchase(){return!0},OnPaymentsAnyPurchaseError(){return!0},OnPaymentsConsume(e){var r=parseInt(e,10)||0;return this.consumedProductTag===e||this.consumedProductId===r},OnPaymentsConsumeError(e){var r=parseInt(e,10)||0;return this.consumedProductTag===e||this.consumedProductId===r},OnPaymentsAnyConsume(){return!0},OnPaymentsAnyConsumeError(){return!0},OnPaymentsSubscribe(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsSubscribeError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnySubscribe(){return!0},OnPaymentsAnySubscribeError(){return!0},OnPaymentsUnsubscribe(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsUnsubscribeError(e){var r=parseInt(e,10)||0;return this.purchasedProductTag===e||this.purchasedProductId===r},OnPaymentsAnyUnsubscribe(){return!0},OnPaymentsAnyUnsubscribeError(){return!0},PaymentsPickProduct(e){const r=this.gp.payments.getProduct(e);return!!r&&(this.currentProductIndex=0,this.currentProduct=r,this.currentProductPurchases=this.gp.payments.purchases.filter(e=>e.productId===r.id).length,!0)},PaymentsEachProduct(){return each(this._runtime,this.gp.payments.products,(r,e)=>{this.currentProductIndex=e,this.currentProduct=r,this.currentProductPurchases=this.gp.payments.purchases.filter(e=>e.productId===r.id).length}),!1},PaymentsEachPurchase(){return each(this._runtime,this.gp.payments.purchases,(e,r)=>{this.currentPurchaseIndex=r,this.currentPurchase=e}),!1},IsPaymentsCurProductPurchased(){return 0<this.currentProductPurchases},IsPaymentsPurchaseSuccessful(){return this.isPurchaseProductSuccess},IsPaymentsConsumeSuccessful(){return this.isConsumeProductSuccess},IsPaymentsSubscribeSuccessful(){return this.isSubscribeProductSuccess},IsPaymentsUnsubscribeSuccessful(){return this.isUnsubscribeProductSuccess},PaymentsIsPurchased(e){return this.gp.payments.has(e)},PaymentsIsSubscribed(e){e=this.gp.payments.getPurchase(e);return e&&e.subscribed||!1},IsPaymentsAvailable(){return this.gp.payments.isAvailable},IsSubscriptionsAvailable(){return this.gp.payments.isSubscriptionsAvailable},OnImagesFetch(){return!0},OnImagesFetchError(){return!0},OnImagesFetchMore(){return!0},OnImagesFetchMoreError(){return!0},OnImagesUpload(){return!0},OnImagesUploadError(){return!0},OnImagesChoose(){return!0},OnImagesChooseError(){return!0},ImagesEachImage(){return each(this._runtime,this.images,(e,r)=>{this.currentImageIndex=r,this.currentImage=e}),!1},ImagesEachTag(r){var e=this.images.find(e=>e.id===r),e=e?e.tags:[];return each(this._runtime,e||[],(e,r)=>{this.currentImageTagIndex=r,this.currentImageTag=e}),!1},ImagesCanLoadMore(){return this.canLoadMoreImages},ImagesCanUpload(){return this.gp.images.canUpload},OnFilesFetch(){return!0},OnFilesFetchError(){return!0},OnFilesFetchMore(){return!0},OnFilesFetchMoreError(){return!0},OnFilesUpload(){return!0},OnFilesUploadError(){return!0},OnFilesLoadContent(){return!0},OnFilesLoadContentError(){return!0},OnFilesChoose(){return!0},OnFilesChooseError(){return!0},FilesEachFile(){return each(this._runtime,this.files,(e,r)=>{this.currentFileIndex=r,this.currentFile=e}),!1},FilesEachTag(r){var e=this.files.find(e=>e.id===r),e=e?e.tags:[];return each(this._runtime,e||[],(e,r)=>{this.currentFileTagIndex=r,this.currentFileTag=e}),!1},FilesCanLoadMore(){return this.canLoadMoreFiles},FilesCanUpload(){return this.gp.files.canUpload},OnVariablesFetch(){return!0},OnVariablesFetchError(){return!0},OnPlatformVariablesFetch(){return!0},OnPlatformVariablesFetchError(){return!0},isPlatformVariablesAvailable(){return this.gp.variables.isPlatformVariablesAvailable},VariablesEachVariable(){return each(this._runtime,this.gp.variables.list,(e,r)=>{this.currentVariableIndex=r,this.currentVariable=e}),!1},VariablesCompare(e,r,t){return this.mappers.compare[r](this.gp.variables.get(e),t)},VariablesCompareType(e,r){return this.gp.variables.type(e)===this.mappers.variablesTypes[r]},VariablesHas(e){return this.gp.variables.has(e)},OnFullscreenOpen(){return!0},OnFullscreenClose(){return!0},OnFullscreenChange(){return!0},IsFullscreenMode(){return this.gp.fullscreen.isEnabled},OnAdsStart(){return!0},OnAdsClose(){return!0},OnAdsFullscreenStart(){return!0},OnAdsFullscreenClose(){return!0},OnAdsPreloaderStart(){return!0},OnAdsPreloaderClose(){return!0},OnAdsRewardedStart(){return!0},OnAdsRewardedClose(){return!0},OnAdsRewardedReward(){return!0},OnAdsStickyStart(){return!0},OnAdsStickyClose(){return!0},OnAdsStickyRefresh(){return!0},OnAdsStickyRender(){return!0},IsAdsFullscreenAvailable(){return this.gp.ads.isFullscreenAvailable},IsAdsRewardedAvailable(){return this.gp.ads.isRewardedAvailable},IsAdsPreloaderAvailable(){return this.gp.ads.isPreloaderAvailable},IsAdsStickyAvailable(){return this.gp.ads.isStickyAvailable},IsAdsFullscreenPlaying(){return this.gp.ads.isFullscreenPlaying},CanShowFullscreenBeforeGamePlay(){return this.gp.ads.canShowFullscreenBeforeGamePlay},IsAdsRewardedPlaying(){return this.gp.ads.isRewardedPlaying},IsAdsPreloaderPlaying(){return this.gp.ads.isPreloaderPlaying},IsAdsStickyPlaying(){return this.gp.ads.isStickyPlaying},IsAdsAdblockEnabled(){return this.gp.ads.isAdblockEnabled},IsAdsLastAdSuccess(){return Boolean(this.isLastAdSuccess)},OnChangeLanguage(){return!0},OnChangeAvatarGenerator(){return!0},OnChangeOrientation(){return!0},OnOverlayReady(){return!0},IsDev(){return this.gp.isDev},IsMobile(){return this.gp.isMobile},DeviceType(e){return this.gp.device.type===this.mappers.deviceTypes[e]},IsAllowedOrigin(){return this.gp.isAllowedOrigin},IsPortrait(){return this.gp.isPortrait},Language(e){return this.gp.language===this.mappers.language[e]},OnPause(){return!0},OnResume(){return!0},IsPaused(){return this.gp.isPaused},OnGameplayStart(){return!0},OnGameplayStop(){return!0},IsGameplay(){return this.gp.isGameplay},HasPlatformIntegratedAuth(){return this.gp.platform.hasIntegratedAuth},PlatformType(e){return this.gp.platform.type===this.mappers.platform[e]},IsExternalLinksAllowedOnPlatform(){return this.gp.platform.isExternalLinksAllowed},OnSocialsShare(){return!0},OnSocialsPost(){return!0},OnSocialsInvite(){return!0},OnSocialsJoinCommunity(){return!0},IsSocialsLastShareSuccess(){return this.isLastShareSuccess},IsSocialsLastCommunityJoinSuccess(){return this.isLastCommunityJoinSuccess},IsSocialsSupportsShare(){return this.gp.socials.isSupportsShare},IsSocialsSupportsNativeShare(){return this.gp.socials.isSupportsNativeShare},IsSocialsSupportsNativePosts(){return this.gp.socials.isSupportsNativePosts},IsSocialsSupportsNativeInvite(){return this.gp.socials.isSupportsNativeInvite},IsSocialsSupportsNativeCommunityJoin(){return this.gp.socials.isSupportsNativeCommunityJoin},SocialsCanJoinCommunity(){return this.gp.socials.canJoinCommunity},OnAppAddShortcut(){return!0},OnAppReview(){return!0},OnAppReviewError(){return!0},IsAppLastAddShortcutSuccess(){return this.isLastAddShortcutSuccess},AppCanAddShortcut(){return this.gp.app.canAddShortcut},AppCanRequestReview(){return this.gp.app.canRequestReview},AppIsAlreadyReviewed(){return this.gp.app.isAlreadyReviewed},OnGamesCollectionsOpen(){return!0},OnGamesCollectionsClose(){return!0},OnGamesCollectionsFetchAny(){return!0},OnGamesCollectionsFetchAnyError(){return!0},OnGamesCollectionsFetch(e){return this.lastGamesCollectionIdOrTag===e},OnGamesCollectionsFetchError(e){return this.lastGamesCollectionIdOrTag===e},GamesCollectionsEachGame(){return each(this._runtime,this.gamesCollection.games,(e,r)=>{this.currentGameIndex=r,this.currentGameId=e.id,this.currentGameName=e.name,this.currentGameDescription=e.description,this.currentGameIcon=e.icon,this.currentGameUrl=e.url}),!1},IsGamesCollectionsAvailable(){return this.gp.gamesCollections.isAvailable},OnDocumentsOpen(){return!0},OnDocumentsClose(){return!0},OnDocumentsFetchAny(){return!0},OnDocumentsFetchAnyError(){return!0},OnDocumentsFetch(e){return this.lastDocumentType===this.mappers.documentTypes[e]},OnDocumentsFetchError(e){return this.lastDocumentType===this.mappers.documentTypes[e]},OnPlayersFetch(e){return this.lastPlayersTag===e},OnPlayersAnyFetch(){return!0},OnPlayersFetchError(e){return this.lastPlayersTag===e},OnPlayersAnyFetchError(){return!0},PlayersEachPlayer(){return each(this._runtime,this.playersList,(e,r)=>{this.currentPlayersIndex=r,this.currentPlayersPlayer=e}),!1},PlayersEachPlayerAchievement(){return each(this._runtime,this.currentPlayersPlayer.achievements,(e,r)=>{this.currentPlayerAchievementIndex=r,this.currentPlayerAchievementId=e.id,this.currentPlayerAchievementUnlockDate=e.createdAt}),!1},PlayersEachPlayerPurchase(){return each(this._runtime,this.currentPlayersPlayer.purchases,(e,r)=>{this.currentPurchaseIndex=r,this.currentPurchase=e}),!1},OnRewardsAccept(e){return!e||this.isPickedIdOrTag(e)},OnRewardsAcceptError(e){return!e||this.isPickedIdOrTag(e)},OnRewardsGive(e){return!e||this.isPickedIdOrTag(e)},OnRewardsGiveError(e){return!e||this.isPickedIdOrTag(e)},RewardsPick(e){e=this.gp.rewards.getReward(e)||{};return this.setReward(e),isExists(e.reward)},RewardsEachReward(){return each(this._runtime,this.gp.rewards.list,(e,r)=>{e=this.gp.rewards.getReward(e.id);this.setReward(e,r)}),!1},IsRewardsCurAccepted(){return 0<this.curPlayerReward.countAccepted},IsRewardsCurGiven(){return 0<this.curPlayerReward.countTotal},IsRewardsCurHasAutoAccept(){return this.curReward.isAutoAccept},RewardsHas(e){return this.gp.rewards.has(e)},RewardsHasAccepted(e){return this.gp.rewards.hasAccepted(e)},RewardsHasUnaccepted(e){return this.gp.rewards.hasUnaccepted(e)},OnTriggersActivate(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},OnTriggersClaim(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},OnTriggersClaimError(e){return!e||this.lastIdOrTag.id===e||this.lastIdOrTag.tag===e},TriggersPick(e){return this.setTriggerInfo(e),isExists(this.curTriggerInfo.trigger)},TriggersEachTrigger(){return each(this._runtime,this.gp.triggers.list,(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},TriggersEachBonus(){return each(this._runtime,this.curTriggerInfo.trigger.bonuses||[],(e,r)=>{this.setBonus(e,r)}),!1},IsTriggersCurActivated(){return!!this.curTriggerInfo.isActivated},IsTriggersCurClaimed(){return!!this.curTriggerInfo.isClaimed},IsTriggersCurHasAutoClaim(){return!!this.curTriggerInfo.trigger.isAutoClaim},TriggersIsActivated(e){return this.gp.triggers.isActivated(e)},TriggersIsClaimed(e){return this.gp.triggers.isClaimed(e)},BonusType(e){return this.curBonus.type===this.mappers.bonusType[e]},OnSchedulersRegister(e){return!e||this.isPickedIdOrTag(e)},OnSchedulersRegisterError(e){return!e||this.isPickedIdOrTag(e)},OnSchedulersClaimDay(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimDayError(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimDayAdditional(e,r,t){return this.isPickedSchedulerDayAndTrigger(e,r,t)},OnSchedulersClaimDayAdditionalError(e,r,t){return this.isPickedSchedulerDayAndTrigger(e,r,t)},OnSchedulersClaimAllDay(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimAllDayError(e,r){return this.isPickedSchedulerDayAndTrigger(e,r)},OnSchedulersClaimAllDays(e){return this.isPickedSchedulerDayAndTrigger(e)},OnSchedulersClaimAllDaysError(e){return this.isPickedSchedulerDayAndTrigger(e)},SchedulersPick(e){return this.setSchedulerInfo(e),isExists(this.curSchedulerInfo.scheduler)},SchedulersPickDay(e,r){return this.setSchedulerDayInfo(e,r),isExists(this.curSchedulerDayInfo.scheduler)&&this.curSchedulerDayInfo.day===r},SchedulersPickDayAdditional(e,r,t){this.setSchedulerDayInfo(e,r);e=this.curSchedulerDayInfo.triggers||[];return!!e[t]&&(this.setTriggerInfo(e[t].id),!!this.curTriggerInfo.trigger)},SchedulersEachScheduler(){return each(this._runtime,this.gp.schedulers.list,(e,r)=>{this.setSchedulerInfo(e.id,r)}),!1},SchedulersEachCurSchedulerDay(){var e=Array.from({length:this.curSchedulerInfo.scheduler.days||0});return each(this._runtime,e,(e,r)=>{this.setSchedulerDayInfo(this.curSchedulerInfo.scheduler.id,r+1)}),!1},SchedulersEachCurSchedulerDaysClaimed(){return each(this._runtime,this.curSchedulerInfo.daysClaimed,e=>{this.setSchedulerDayInfo(this.curSchedulerInfo.scheduler.id,e)}),!1},SchedulersEachCurSchedulerDayBonuses(){return each(this._runtime,this.curSchedulerDayInfo.bonuses||[],(e,r)=>{this.setBonus(e,r)}),!1},SchedulersEachCurSchedulerDayTriggers(){return each(this._runtime,this.curSchedulerDayInfo.triggers||[],(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},IsSchedulersCurRegistered(){return this.curSchedulerInfo.isRegistered},IsSchedulersCurAutoRegister(){return!!this.curSchedulerInfo.scheduler.isAutoRegister},IsSchedulersCurRepeatable(){return this.curSchedulerInfo.scheduler.isRepeat},IsSchedulersCurDayReached(){return this.curSchedulerDayInfo.isDayReached},IsSchedulersCurDayComplete(){return this.curSchedulerDayInfo.isDayComplete},IsSchedulersCurDayClaimed(){return this.curSchedulerDayInfo.isDayClaimed},IsSchedulersCurDayAllClaimed(){return this.curSchedulerDayInfo.isAllDayClaimed},IsSchedulersCurDayCanClaim(){return this.curSchedulerDayInfo.canClaimDay},IsSchedulersCurDayCanClaimAll(){return this.curSchedulerDayInfo.canClaimAllDay},SchedulersIsRegistered(e){return this.gp.schedulers.isRegistered(e)},SchedulersIsTodayRewardClaimed(e){return this.gp.schedulers.isTodayRewardClaimed(e)},SchedulersCanClaimDay(e,r){return this.gp.schedulers.canClaimDay(e,r)},SchedulersCanClaimDayAdditional(e,r,t){return this.gp.schedulers.canClaimDayAdditional(e,r,t)},SchedulersCanClaimAllDay(e,r){return this.gp.schedulers.canClaimAllDay(e,r)},SchedulersCurType(e){return this.curSchedulerInfo.scheduler.type===this.mappers.schedulerType[e]},OnEventsJoin(e){return!e||this.isPickedIdOrTag(e)},OnEventsJoinError(e){return!e||this.isPickedIdOrTag(e)},EventsPick(e){return this.setEventInfo(e),isExists(this.curEventInfo.event)},EventsEachEvent(){return each(this._runtime,this.gp.events.list,(e,r)=>{this.setEventInfo(e.id,r)}),!1},EventsEachCurEventTriggers(){return each(this._runtime,this.curEventInfo.event.triggers||[],(e,r)=>{this.setTriggerInfo(e.id,r)}),!1},IsEventsCurJoined(){return this.curEventInfo.isJoined},IsEventsCurActive(){return this.curEventInfo.event.isActive},IsEventsCurAutoJoin(){return this.curEventInfo.event.isAutoJoin},EventsHas(e){return this.gp.events.has(e)},EventsIsJoined(e){return this.gp.events.isJoined(e)},ExperimentsHas(e,r){return this.gp.experiments.has(e,r)},OnSegmentsEnter(){return!0},OnSegmentsLeave(){return!0},SegmentsHas(e){return this.gp.segments.has(e)},SegmentsEachSegment(){return each(this._runtime,this.gp.segments.list||[],e=>{this.curSegment=e}),!1},IsLastActionSuccess(){return this.isLastActionSuccess},OnLoadJsonError(){return!0}};
-}
-
-{
-"use strict";function stoarr(e="",t=String){return String(e).split(",").map(e=>t(e.trim())).filter(e=>e)}C3.Plugins.Eponesh_GameScore.Acts={PlayerSetName(e){this.gp.player.name=e},PlayerSetAvatar(e){this.gp.player.avatar=e},PlayerSetScore(e){this.gp.player.score=e},PlayerAddScore(e){this.gp.player.score+=e},PlayerSet(e,t){this.gp.player.set(e,t)},PlayerSetFlag(e,t){this.gp.player.set(e,!t)},PlayerAdd(e,t){this.gp.player.add(e,t)},PlayerToggle(e){this.gp.player.toggle(e)},PlayerReset(){this.gp.player.reset()},PlayerRemove(){this.gp.player.remove()},PlayerSync(e=!1){return this.gp.player.sync({override:e})},PlayerLoad(){return this.gp.player.load()},PlayerLogin(){return this.gp.player.login()},PlayerFetchFields(){return this.gp.player.fetchFields()},PlayerWaitForReady(){return this.awaiters.player.ready},LeaderboardOpen(e,t,r,s,i,a,h){return this.gp.leaderboard.open({id:this.gp.player.id,orderBy:stoarr(e),order:0===t?"DESC":"ASC",limit:r,showNearest:h,withMe:this.mappers.withMe[s],includeFields:stoarr(i),displayFields:stoarr(a)}).catch(e=>{this.handleResult(!1,e)})},LeaderboardFetch(t,e,r,s,i,a,h){return this.gp.leaderboard.fetch({id:this.gp.player.id,orderBy:stoarr(e),order:0===r?"DESC":"ASC",limit:s,showNearest:h,withMe:this.mappers.withMe[i],includeFields:stoarr(a)}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.leaderboardInfo=e.leaderboard,this.leaderboard=e.players,this.leaderboardResult=e,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetch),this.Trigger(this.conditions.OnLeaderboardAnyFetch)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.Trigger(this.conditions.OnLeaderboardFetchError),this.Trigger(this.conditions.OnLeaderboardAnyFetchError)})},LeaderboardFetchPlayerRating(t,e,r,s){return this.gp.leaderboard.fetchPlayerRating({showNearest:s,id:this.gp.player.id,orderBy:stoarr(e),order:0===r?"DESC":"ASC"}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.lastLeaderboardPlayerRatingTag=t,this.currentLeaderboardPlayer=Object.assign(this.gp.player.toJSON(),e.player),this.leaderboardPlayerPosition=e.player.position,(this.leaderboardResult=e).topPlayers=[],this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetchPlayer),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayer)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant="default",this.lastLeaderboardPlayerRatingTag=t,this.Trigger(this.conditions.OnLeaderboardFetchPlayerError),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayerError)})},LeaderboardOpenScoped(e,t,r,s,i,a,h,n){e={id:parseInt(e,10)||0,tag:e,variant:t,limit:s,showNearest:n,order:this.mappers.order[r],withMe:this.mappers.withMe[i],includeFields:stoarr(a),displayFields:stoarr(h)};return this.gp.leaderboard.openScoped(e).catch(console.warn)},LeaderboardFetchScoped(t,r,e,s,i,a,h){s={id:parseInt(t,10)||0,tag:t,variant:r,limit:s,showNearest:h,order:this.mappers.order[e],withMe:this.mappers.withMe[i],includeFields:stoarr(a)};return this.gp.leaderboard.fetchScoped(s).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.leaderboardInfo=e.leaderboard,this.leaderboard=e.players,this.leaderboardResult=e,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetch),this.Trigger(this.conditions.OnLeaderboardAnyFetch)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.Trigger(this.conditions.OnLeaderboardFetchError),this.Trigger(this.conditions.OnLeaderboardAnyFetchError)})},LeaderboardFetchPlayerRatingScoped(t,r,e,s){s={id:parseInt(t,10)||0,tag:t,variant:r,showNearest:s,order:this.mappers.order[e]};return this.gp.leaderboard.fetchPlayerRatingScoped(s).then(e=>{this.lastLeaderboardPlayerRatingTag=t,this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.currentLeaderboardPlayer=Object.assign(this.gp.player.toJSON(),e.player),this.leaderboardPlayerPosition=e.player.position,(this.leaderboardResult=e).topPlayers=[],this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardFetchPlayer),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayer)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardPlayerRatingTag=t,this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.Trigger(this.conditions.OnLeaderboardFetchPlayerError),this.Trigger(this.conditions.OnLeaderboardAnyFetchPlayerError)})},LeaderboardPublishRecord(t,r,e){var s=this.leaderboardRecords[t],s=s?s[r]:null,i=parseInt(t,10)||0;return this.gp.leaderboard.publishRecord({id:i,tag:t,variant:r,override:e,record:s}).then(e=>{this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.lastLeaderboardPlayerRatingTag=t,this.leaderboardRecords[t]||(this.leaderboardRecords[t]={}),this.leaderboardRecords[t][r]=e.record,this.handleResult(!0),this.Trigger(this.conditions.OnLeaderboardPublishRecord)}).catch(e=>{this.handleResult(!1,e),this.lastLeaderboardTag=t,this.lastLeaderboardVariant=r,this.lastLeaderboardPlayerRatingTag=t,this.Trigger(this.conditions.OnLeaderboardPublishRecordError)})},LeaderboardSetRecord(e,t,r,s){this.leaderboardRecords[e]||(this.leaderboardRecords[e]={}),this.leaderboardRecords[e][t]||(this.leaderboardRecords[e][t]={}),this.leaderboardRecords[e][t][r]=s},AchievementsOpen(){return this.gp.achievements.open().catch(console.warn)},AchievementsFetch(){return this.gp.achievements.fetch().then(e=>{this.achievements=e.achievements,this.achievementsGroups=e.achievementsGroups,this.playerAchievements=e.playerAchievements,this.handleResult(!0),this.Trigger(this.conditions.OnAchievementsFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnAchievementsFetchError)})},AchievementsUnlock(e){return this.gp.achievements.unlock(this.getIdOrTag(e))},AchievementsSetProgress(e,t){const r=this.getIdOrTag(e);return r.progress=Number(t),this.gp.achievements.setProgress(r)},PaymentsFetchProducts(){return this.gp.payments.fetchProducts().then(e=>{this.products=e.products,this.playerPurchases=e.playerPurchases,this.handleResult(!0),this.Trigger(this.conditions.OnPaymentsFetchProducts)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsFetchProductsError)})},PaymentsPurchase(e){return this.gp.payments.purchase(this.getIdOrTag(e))},PaymentsConsume(e){var t=parseInt(e,10)||0;return this.gp.payments.consume(0<t?{id:t}:{tag:e}).then(e=>{this.isConsumeProductSuccess=e.success,this.consumeProductError=e.error||"",this.handleResult(e.success,e.error);var t=e.product||{};if(this.consumedProductId=t.id||0,this.consumedProductTag=t.tag||"",e.success)return this.Trigger(this.conditions.OnPaymentsConsume),void this.Trigger(this.conditions.OnPaymentsAnyConsume);this.Trigger(this.conditions.OnPaymentsConsumeError),this.Trigger(this.conditions.OnPaymentsAnyConsumeError)}).catch(e=>{this.isConsumeProductSuccess=!1,this.consumeProductError=this.etos(e),this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsConsumeError),this.Trigger(this.conditions.OnPaymentsAnyConsumeError)})},PaymentsSubscribe(e){return this.gp.payments.subscribe(this.getIdOrTag(e))},PaymentsUnsubscribe(e){var t=parseInt(e,10)||0;return this.gp.payments.unsubscribe(0<t?{id:t}:{tag:e}).then(e=>{this.isUnsubscribeProductSuccess=e.success,this.handleResult(e.success,e.error);var t=e.product||{},r=e.purchase||{};if(this.currentPurchase=r,this.currentProduct=t,this.currentProductPurchases=1,this.purchasedProductId=t.id||0,this.purchasedProductTag=t.tag||"",e.success)return this.Trigger(this.conditions.OnPaymentsUnsubscribe),void this.Trigger(this.conditions.OnPaymentsAnyUnsubscribe);this.Trigger(this.conditions.OnPaymentsUnsubscribeError),this.Trigger(this.conditions.OnPaymentsAnyUnsubscribeError)}).catch(e=>{this.isUnsubscribeProductSuccess=!1,this.handleResult(!1,e),this.Trigger(this.conditions.OnPaymentsUnsubscribeError),this.Trigger(this.conditions.OnPaymentsAnySubscribeError)})},ImagesFetch(e,t,r,s){return this.gp.images.fetch({playerId:t,limit:r,offset:s,tags:stoarr(e)}).then(e=>{this.images=e.items,this.canLoadMoreImages=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnImagesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesFetchError)})},ImagesFetchMore(e,t,r){return this.gp.images.fetchMore({playerId:t,limit:r,tags:stoarr(e)}).then(e=>{this.images=e.items,this.canLoadMoreImages=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnImagesFetchMore)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesFetchMoreError)})},ImagesUpload(e){return this.gp.images.upload({tags:stoarr(e)}).then(e=>{this.currentImage=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnImagesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesUploadError)})},ImagesUploadUrl(e,t){return this.gp.images.uploadUrl({url:e,tags:stoarr(t)}).then(e=>{this.currentImage=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnImagesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnImagesUploadError)})},ImagesChooseFile(){return this.gp.images.chooseFile().then(e=>{this.lastImageTempUrl=e.tempUrl,this.handleResult(!0),this.Trigger(this.conditions.OnImagesChoose)}).catch(e=>{this.handleResult(!1,e),this.lastImageTempUrl="",this.isLastActionSuccess=!1,this.Trigger(this.conditions.OnImagesChooseError)})},FilesFetch(e,t,r,s){return this.gp.files.fetch({playerId:t,limit:r,offset:s,tags:stoarr(e)}).then(e=>{this.files=e.items,this.canLoadMoreFiles=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnFilesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesFetchError)})},FilesFetchMore(e,t,r){return this.gp.files.fetchMore({playerId:t,limit:r,tags:stoarr(e)}).then(e=>{this.files=e.items,this.canLoadMoreFiles=e.canLoadMore,this.handleResult(!0),this.Trigger(this.conditions.OnFilesFetchMore)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesFetchMoreError)})},FilesUpload(e){return this.gp.files.upload({tags:stoarr(e)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesUploadUrl(e,t,r){return this.gp.files.uploadUrl({url:e,filename:t,tags:stoarr(r)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesUploadContent(e,t,r){return this.gp.files.uploadContent({content:e,filename:t,tags:stoarr(r)}).then(e=>{this.currentFile=e||{},this.handleResult(!0),this.Trigger(this.conditions.OnFilesUpload)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesUploadError)})},FilesLoadContent(e){return this.gp.files.loadContent(e).then(e=>{this.lastFileContent=e,this.handleResult(!0),this.Trigger(this.conditions.OnFilesLoadContent)}).catch(e=>{this.lastFileContent="",this.handleResult(!1,e),this.Trigger(this.conditions.OnFilesLoadContentError)})},FilesChooseFile(e){return this.gp.files.chooseFile(e).then(e=>{this.lastFileTempUrl=e.tempUrl,this.handleResult(!0),this.Trigger(this.conditions.OnFilesChoose)}).catch(e=>{this.handleResult(!1,e),this.lastFileTempUrl="",this.isLastActionSuccess=!1,this.Trigger(this.conditions.OnFilesChooseError)})},VariablesFetch(){return this.gp.variables.fetch().then(()=>{this.handleResult(!0),this.Trigger(this.conditions.OnVariablesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnVariablesFetchError)})},PlatformVariablesFetch(e=""){e=e.split(",").reduce((e,t)=>{const[r,s]=t.split("=");return r&&s&&(e[r.trim()]=s.trim()),e},{});return this.gp.variables.fetchPlatformVariables({clientParams:e}).then(e=>{this.handleResult(!0),this.platformVariables=e,this.Trigger(this.conditions.OnPlatformVariablesFetch)}).catch(e=>{this.handleResult(!1,e),this.Trigger(this.conditions.OnPlatformVariablesFetchError)})},FullscreenOpen(){return this.gp.fullscreen.open()},FullscreenClose(){return this.gp.fullscreen.close()},FullscreenToggle(){return this.gp.fullscreen.toggle()},AdsShowFullscreen(e=!1){return this.gp.ads.showFullscreen({showCountdownOverlay:e})},AdsShowRewarded(e=!1){return this.gp.ads.showRewardedVideo({showRewardedFailedOverlay:e})},AdsShowPreloader(){return this.gp.ads.showPreloader()},AdsShowSticky(){return this.gp.ads.showSticky()},AdsCloseSticky(){return this.gp.ads.closeSticky()},AdsRefreshSticky(){return this.gp.ads.refreshSticky()},AnalyticsHit(e){return this.gp.analytics.hit(e)},AnalyticsGoal(e,t){return this.gp.analytics.goal(e,t)},SocialsShare(e,t,r){return this.gp.socials.share({text:e,url:t,image:r})},SocialsPost(e,t,r){return this.gp.socials.post({text:e,url:t,image:r})},SocialsInvite(e,t,r){return this.gp.socials.invite({text:e,url:t,image:r})},SocialsJoinCommunity(){return this.gp.socials.joinCommunity()},GamesCollectionsOpen(e){var t=parseInt(e,10)||0;return this.gp.gamesCollections.open(0<t?{id:t}:{tag:e||"ANY"})},GamesCollectionsFetch(t){var e=parseInt(t,10)||0;return this.gp.gamesCollections.fetch(0<e?{id:e}:{tag:t}).then(e=>{this.lastGamesCollectionIdOrTag=t,this.gamesCollection=e,this.Trigger(this.conditions.OnGamesCollectionsFetch),this.Trigger(this.conditions.OnGamesCollectionsFetchAny)}).catch(e=>{this.handleResult(!1,e),this.lastGamesCollectionIdOrTag=t,this.gamesCollectionFetchError=e&&e.message||"",this.Trigger(this.conditions.OnGamesCollectionsFetchError),this.Trigger(this.conditions.OnGamesCollectionsFetchAnyError)})},DocumentsOpen(e){e=this.mappers.documentTypes[e];return this.gp.documents.open({type:e})},DocumentsFetch(e,t){const r=this.mappers.documentTypes[e];e=this.mappers.documentFormat[t];return this.gp.documents.fetch({type:r,format:e}).then(e=>{this.lastDocumentType=r,this.document=e,this.Trigger(this.conditions.OnDocumentsFetch),this.Trigger(this.conditions.OnDocumentsFetchAny)}).catch(e=>{this.handleResult(!1,e),this.documentFetchError=this.etos(e),this.lastDocumentType=r,this.Trigger(this.conditions.OnDocumentsFetchError),this.Trigger(this.conditions.OnDocumentsFetchAnyError)})},PlayersFetch(t,e){return this.gp.players.fetch({ids:stoarr(e,Number)}).then(e=>{this.lastPlayersTag=t,this.playersList=e.players,this.handleResult(!0),this.Trigger(this.conditions.OnPlayersFetch),this.Trigger(this.conditions.OnPlayersAnyFetch)}).catch(e=>{this.lastPlayersTag=t,this.handleResult(!1,e),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError)})},PlayersFetchOne(t,e){return this.gp.players.fetch({ids:[Number(e)]}).then(e=>{this.lastPlayersTag=t,e.players[0]?(this.playersList=e.players,this.currentPlayersIndex=0,this.currentPlayersPlayer=e.players[0],this.handleResult(!0),this.Trigger(this.conditions.OnPlayersFetch),this.Trigger(this.conditions.OnPlayersAnyFetch)):(this.handleResult(!1,new Error("player_not_found")),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError))}).catch(e=>{this.lastPlayersTag=t,this.handleResult(!1,e),this.Trigger(this.conditions.OnPlayersFetchError),this.Trigger(this.conditions.OnPlayersAnyFetchError)})},AppAddShortcut(){return this.gp.app.addShortcut()},AppRequestReview(){return this.gp.app.requestReview()},ChangeLanguage(e){return this.gp.changeLanguage(this.mappers.language[e])},ChangeLanguageByCode(e=""){return this.gp.changeLanguage(e.toLowerCase())},ChangeAvatarGenerator(e){return this.gp.changeAvatarGenerator(this.mappers.avatarGenerator[e])},SetBackground(e,t,r){return this.gp.setBackground({url:e,blur:t,fade:r})},LoadOverlay(){return this.gp.loadOverlay()},Pause(){return this.gp.pause()},Resume(){return this.gp.resume()},GameStart(){return this.gp.gameStart()},GameplayStart(){return this.gp.gameplayStart()},GameplayStop(){return this.gp.gameplayStop()},SocialsAddShareUrlParam(e,t){this.shareParams[e]=t},SocialsResetShareParams(){this.shareParams={}},RewardsAccept(e){return this.gp.rewards.accept(this.getIdOrTag(e))},RewardsGive(e,t){const r=this.getIdOrTag(e);return r.lazy=!!t,this.gp.rewards.give(r)},TriggersClaim(e){return this.gp.triggers.claim({id:e,tag:e})},SchedulersRegister(e){return this.gp.schedulers.register(this.getIdOrTag(e))},SchedulersClaimDay(e,t){return this.gp.schedulers.claimDay(e,t)},SchedulersClaimDayAdditional(e,t,r){return this.gp.schedulers.claimDayAdditional(e,t,r)},SchedulersClaimAllDay(e,t){return this.gp.schedulers.claimAllDay(e,t)},SchedulersClaimAllDays(e){return this.gp.schedulers.claimAllDays(e)},EventsJoin(e){return this.gp.events.join(this.getIdOrTag(e))},LoadFromJSON(e){try{var t=JSON.parse(e);if(!("isReady"in t))throw new Error("Data was corrupted");this.LoadFromJson(t)}catch(e){this.Trigger(this.conditions.OnLoadJsonError)}}};
-}
-
-{
-"use strict";C3.Plugins.Eponesh_GameScore.Exps={PlayerID(){return this.gp.player.id},PlayerScore(){return this.gp.player.score},PlayerName(){return this.gp.player.name},PlayerAvatar(){return this.gp.player.avatar},PlayerGet(e){return this.gp.player.get(e)},PlayerHas(e){return this.gp.player.is(e)},PlayerFieldName(e){return this.gp.player.getFieldName(e)},PlayerFieldVariantName(e,r){return this.gp.player.getFieldVariantName(e,r)},PlayerGetFieldVariantAt(e,r){e=this.gp.player.getField(e).variants[r];return e?e.value:""},PlayerGetFieldVariantIndex(e,r){return this.gp.player.getField(e).variants.findIndex(e=>e.value===r)},PlayerCurFieldKey(){return this.currentPlayerFieldKey||""},PlayerCurFieldType(){return this.currentPlayerFieldType||""},PlayerCurFieldName(){return this.currentPlayerFieldName||""},PlayerCurFieldValue(){return"string"==typeof this.currentPlayerFieldValue?this.currentPlayerFieldValue:Number(this.currentPlayerFieldValue||0)},PlayerCurFieldVariantValue(){return"string"==typeof this.currentPlayerFieldVariantValue?this.currentPlayerFieldVariantValue:Number(this.currentPlayerFieldVariantValue||0)},PlayerCurFieldVariantName(){return this.currentPlayerFieldVariantName||""},PlayerCurFieldVariantIndex(){return this.currentPlayerFieldVariantIndex||0},PlayerStatsPlaytimeAll(){return this.gp.player.stats.playtimeAll||0},PlayerStatsPlaytimeToday(){return this.gp.player.stats.playtimeToday||0},PlayerStatsActiveDays(){return this.gp.player.stats.activeDays||0},PlayerStatsActiveDaysConsecutive(){return this.gp.player.stats.activeDaysConsecutive||0},LeaderboardCurPlayerName(){return this.currentLeaderboardPlayer.name||""},LeaderboardCurPlayerAvatar(){return this.currentLeaderboardPlayer.avatar||""},LeaderboardCurPlayerID(){return this.currentLeaderboardPlayer.id||0},LeaderboardCurPlayerScore(){return this.currentLeaderboardPlayer.score||0},LeaderboardCurPlayerPosition(){return this.currentLeaderboardPlayer.position||0},LeaderboardCurPlayerIndex(){return this.currentLeaderboardIndex||0},LeaderboardCurPlayerField(e){return e in this.currentLeaderboardPlayer?this.currentLeaderboardPlayer[e]:0},LeaderboardPlayerFieldAt(e,r){e=this.leaderboard[e];return e&&r in e?e[r]:0},LeaderboardPlayerPosition(){return this.leaderboardPlayerPosition||0},LastLeaderboardTag(){return this.lastLeaderboardTag},LastLeaderboardVariant(){return this.lastLeaderboardVariant},IsFullscreenMode(){return Number(this.gp.fullscreen.isEnabled)},Language(){return this.gp.language},AvatarGenerator(){return this.gp.avatarGenerator},ServerTime(){return this.gp.serverTime},ServerTimeUnix(){return new Date(this.gp.serverTime).getTime()},IsPaused(){return this.gp.isPaused},IsGameplay(){return this.gp.isGameplay},DeviceType(){return this.gp.device.type},PlatformType(){return this.gp.platform.type},AppTitle(){return this.gp.app.title},AppDescription(){return this.gp.app.description},AppImage(){return this.gp.app.image},AppUrl(){return this.gp.app.url},AppLastReviewRating(){return Number(this.appLastReviewRating)||0},AchievementsTotalAchievements(){return this.gp.achievements.list.length},AchievementsTotalAchievementsGroups(){return this.gp.achievements.groupsList.length},AchievementsTotalPlayerAchievements(){return this.gp.achievements.unlockedList.length},AchievementsCurAchievementIndex(){return this.currentAchievementIndex},AchievementsCurAchievementID(){return this.currentAchievement.id},AchievementsCurAchievementTag(){return this.currentAchievement.tag},AchievementsCurAchievementName(){return this.currentAchievement.name},AchievementsCurAchievementDescription(){return this.currentAchievement.description},AchievementsCurAchievementIcon(){return this.currentAchievement.icon},AchievementsCurAchievementIconSmall(){return this.currentAchievement.iconSmall},AchievementsCurAchievementRare(){return this.currentAchievement.rare},AchievementsCurAchievementUnlocked(){return this.currentAchievement.unlocked},AchievementsCurAchievementLockedIcon(){return this.currentAchievement.lockedIcon},AchievementsCurAchievementLockedIconSmall(){return this.currentAchievement.lockedIconSmall},AchievementsCurAchievementProgress(){return this.currentAchievement.progress},AchievementsCurAchievementMaxProgress(){return this.currentAchievement.maxProgress},AchievementsCurAchievementProgressStep(){return this.currentAchievement.progressStep},AchievementsCurAchievementsGroupIndex(){return this.currentAchievementsGroupIndex},AchievementsCurAchievementsGroupID(){return this.currentAchievementsGroupID},AchievementsCurAchievementsGroupTag(){return this.currentAchievementsGroupTag},AchievementsCurAchievementsGroupName(){return this.currentAchievementsGroupName},AchievementsCurAchievementsGroupDescription(){return this.currentAchievementsGroupDescription},AchievementsCurPlayerAchievementIndex(){return this.currentPlayerAchievementIndex},AchievementsCurPlayerAchievementID(){return this.currentPlayerAchievementId},AchievementsCurPlayerAchievementUnlockDate(){return this.currentPlayerAchievementUnlockDate},AchievementsUnlockedAchievementSuccess(){return this.isUnlockAchievementSuccess},AchievementsUnlockedAchievementError(){return this.unlockAchievementError},AchievementsUnlockedAchievementID(){return this.currentAchievement.id},AchievementsUnlockedAchievementTag(){return this.currentAchievement.tag},AchievementsUnlockedAchievementName(){return this.currentAchievement.name},AchievementsUnlockedAchievementDescription(){return this.currentAchievement.description},AchievementsUnlockedAchievementIcon(){return this.currentAchievement.icon},AchievementsUnlockedAchievementIconSmall(){return this.currentAchievement.iconSmall},AchievementsUnlockedAchievementRare(){return this.currentAchievement.rare},AchievementsGetProgress(e){return this.gp.achievements.getProgress(e)},SocialsCommunityLink(){return this.gp.socials.communityLink},SocialsGetShareParam(e){return this.gp.socials.getShareParam(e)},SocialsShareLink(){return this.gp.socials.makeShareUrl(this.shareParams)},PaymentsCurProductIndex(){return this.currentProductIndex},PaymentsCurProductID(){return this.currentProduct.id},PaymentsCurProductTag(){return this.currentProduct.tag},PaymentsCurProductName(){return this.currentProduct.name},PaymentsCurProductDescription(){return this.currentProduct.description},PaymentsCurProductIcon(){return this.currentProduct.icon},PaymentsCurProductIconSmall(){return this.currentProduct.iconSmall},PaymentsCurProductPrice(){return this.currentProduct.price},PaymentsCurProductCurrency(){return this.currentProduct.currency},PaymentsCurProductCurrencySymbol(){return this.currentProduct.currencySymbol},PaymentsCurProductPurchases(){return this.currentProductPurchases},PaymentsCurPurchaseIndex(){return this.currentPurchaseIndex},PaymentsCurPurchaseID(){return this.currentPurchase.id||0},PaymentsCurPurchaseTag(){return this.currentPurchase.tag||""},PaymentsCurPurchaseDate(){return this.currentPurchase.createdAt||""},PaymentsCurPurchaseExpirationDate(){return this.currentPurchase.expiredAt||""},PaymentsCurPurchaseSubscribed(){return Number(this.currentPurchase.subscribed||!1)||0},PaymentsPurchasedProductSuccess(){return this.isPurchaseProductSuccess},PaymentsPurchasedProductError(){return this.purchaseProductError},PaymentsPurchasedProductID(){return this.purchasedProductId},PaymentsPurchasedProductTag(){return this.purchasedProductTag},PaymentsConsumedProductSuccess(){return this.isConsumeProductSuccess},PaymentsConsumedProductError(){return this.consumeProductError},PaymentsConsumedProductID(){return this.consumedProductId},PaymentsConsumedProductTag(){return this.consumedProductTag},PaymentsPurchaseDate(e){e=this.gp.payments.getPurchase(e);return e&&e.createdAt||""},PaymentsExpirationDate(e){e=this.gp.payments.getPurchase(e);return e&&e.expiredAt||""},ImagesCurImageIndex(){return this.currentImageIndex},ImagesCurImageID(){return this.currentImage.id||""},ImagesCurImageSrc(){return this.currentImage.src||""},ImagesCurImageWidth(){return this.currentImage.width||0},ImagesCurImageHeight(){return this.currentImage.height||0},ImagesCurImagePlayerID(){return this.currentImage.playerId||0},ImagesCurImageTagIndex(){return this.currentImageTagIndex},ImagesCurImageTag(){return this.currentImageTag||""},ImagesTempFileUrl(){return this.lastImageTempUrl||""},ImagesResize(e,r,t,n){return this.gp.images.resize(e,r,t,n)},FilesCurFileIndex(){return this.currentFileIndex},FilesCurFileID(){return this.currentFile.id||""},FilesCurFileSrc(){return this.currentFile.src||""},FilesCurFileName(){return this.currentFile.name||""},FilesCurFileSize(){return this.currentFile.size||0},FilesCurFilePlayerID(){return this.currentFile.playerId||0},FilesCurFileTagIndex(){return this.currentFileTagIndex},FilesCurFileTag(){return this.currentFileTag||""},FilesTempFileUrl(){return this.lastFileTempUrl||""},FilesLastFileContent(){return this.lastFileContent||""},GamesCollectionsCollectionID(){return this.gamesCollection.id},GamesCollectionsCollectionTag(){return this.gamesCollection.tag},GamesCollectionsCollectionName(){return this.gamesCollection.name},GamesCollectionsCollectionDescription(){return this.gamesCollection.description},GamesCollectionsCurGameIndex(){return this.currentGameIndex},GamesCollectionsCurGameID(){return this.currentGameId},GamesCollectionsCurGameTag(){return this.currentGameTag},GamesCollectionsCurGameName(){return this.currentGameName},GamesCollectionsCurGameDescription(){return this.currentGameDescription},GamesCollectionsCurGameIcon(){return this.currentGameIcon},GamesCollectionsCurGameUrl(){return this.currentGameUrl},GamesCollectionsFetchError(){return this.gamesCollectionFetchError},DocumentsDocumentType(){return this.document.type},DocumentsDocumentContent(){return this.document.content},DocumentsFetchError(){return this.documentFetchError},VariablesGet(e){return this.gp.variables.get(e)},VariablesGet(e){return this.gp.variables.get(e)},PlatformVariablesGet(e){return this.platformVariables[e]||""},VariablesHas(e){return Number(this.gp.variables.has(e))},VariablesType(e){return this.gp.variables.type(e)},VariablesCurIndex(){return this.currentVariableIndex||0},VariablesCurKey(){return this.currentVariable.key||""},VariablesCurType(){return this.currentVariable.type||""},VariablesCurValue(){return this.currentVariable.value||""},PlayersCurPlayerName(){return this.currentPlayersPlayer.state.name||""},PlayersCurPlayerAvatar(){return this.currentPlayersPlayer.state.avatar||""},PlayersCurPlayerID(){return this.currentPlayersPlayer.state.id||0},PlayersCurPlayerScore(){return this.currentPlayersPlayer.state.score||0},PlayersCurPlayerIndex(){return this.currentPlayersIndex||0},PlayersCurPlayerField(e){return this.currentPlayersPlayer&&e in this.currentPlayersPlayer.state?this.currentPlayersPlayer.state[e]:0},PlayersPlayerFieldAt(e,r){e=this.playersList[e];return e&&r in e.state?e.state[r]:0},LastPlayersTag(){return this.lastPlayersTag},RewardsCurIndex(){return this.curRewardIndex||0},RewardsCurID(){return this.curReward.id||0},RewardsCurTag(){return this.curReward.tag||""},RewardsCurName(){return this.curReward.name||""},RewardsCurDescription(){return this.curReward.description||""},RewardsCurIcon(){return this.curReward.icon||""},RewardsCurIconSmall(){return this.curReward.iconSmall||""},RewardsCurCountTotal(){return this.curPlayerReward.countTotal||0},RewardsCurCountAccepted(){return this.curPlayerReward.countAccepted||0},TriggersCurIndex(){return this.curTriggerIndex||0},TriggersCurID(){return this.curTriggerInfo.trigger.id||0},TriggersCurTag(){return this.curTriggerInfo.trigger.tag||""},TriggersCurDescription(){return this.curTriggerInfo.trigger.description||""},BonusCurIndex(){return this.curBonusIndex||0},BonusCurID(){return this.curBonus.id||0},BonusCurType(){return this.curBonus.type||""},SchedulersCurIndex(){return this.curSchedulerIndex||0},SchedulersCurID(){return this.curSchedulerInfo.scheduler.id||0},SchedulersCurTag(){return this.curSchedulerInfo.scheduler.tag||0},SchedulersCurType(){return this.curSchedulerInfo.scheduler.type||0},SchedulersCurDays(){return this.curSchedulerInfo.scheduler.days||0},SchedulersCurTodayDay(){return this.curSchedulerInfo.currentDay||0},SchedulersCurPlayerStatsActiveDays(){return(this.curSchedulerInfo.stats||{}).activeDays||0},SchedulersCurPlayerStatsActiveDaysConsecutive(){return(this.curSchedulerInfo.stats||{}).activeDaysConsecutive||0},SchedulersCurDayDayNumber(){return this.curSchedulerDayInfo.day||0},EventsCurIndex(){return this.curEventIndex||0},EventsCurID(){return this.curEventInfo.event.id||0},EventsCurTag(){return this.curEventInfo.event.tag||0},EventsCurName(){return this.curEventInfo.event.name||0},EventsCurDescription(){return this.curEventInfo.event.description||0},EventsCurIcon(){return this.curEventInfo.event.icon||0},EventsCurIconSmall(){return this.curEventInfo.event.iconSmall||0},EventsCurTimeLeft(){return this.curEventInfo.event.timeLeft||0},EventsCurPlayerStatsActiveDays(){return(this.curEventInfo.stats||{}).activeDays||0},EventsCurPlayerStatsActiveDaysConsecutive(){return(this.curEventInfo.stats||{}).activeDaysConsecutive||0},ExperimentsGet(e){return this.gp.experiments.map[e]||""},SegmentsCurSegment(){return this.curSegment||""},LastError(){return this.lastError},IsLastActionSuccess(){return Number(this.isLastActionSuccess)},AsJSON(){return JSON.stringify(this.SaveToJson())}};
-}
-
-{
 "use strict";C3.Plugins.GamePush_Channels=class extends C3.SDKPluginBase{constructor(e){super(e,"GamePush_Channels")}Release(){super.Release()}};
 }
 
@@ -4797,6 +4774,68 @@ options);validate_date_format_option.call(this,second,"second",SECOND_FORMATS,op
 }
 
 {
+'use strict';{const C3=self.C3;C3.Plugins.Cryptography=class CryptographyPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.Cryptography.Type=class CryptographyType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
+{const C3=self.C3;C3.Plugins.Cryptography.Instance=class CryptographyInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._triggerTag="";this._hashHexStr="";if(!self.isSecureContext)console.error("[Construct] Cryptography object features will not work as this is not a secure context.")}}}
+{const C3=self.C3;C3.Plugins.Cryptography.Cnds={OnHashFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnAnyHashFinished(){return true},OnEncryptionFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnEncryptionFailed(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnDecryptionFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnDecryptionFailed(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnAnyEncryptionFinished(){return true},OnAnyEncryptionFailed(){return true},
+OnAnyDecryptionFinished(){return true},OnAnyDecryptionFailed(){return true}}}
+{const C3=self.C3;const HASH_ALGORITHMS=["SHA-256","SHA-384","SHA-512"];function ToHex(arrayBuffer){let ret="";const uint8arr=new Uint8Array(arrayBuffer);for(let i=0,len=uint8arr.length;i<len;++i){const v=uint8arr[i];const ch=v.toString(16);ret+=("0"+ch).slice(-2)}return ret}function GetPasswordKey(passwordStr){const textEncoder=new TextEncoder("utf-8");passwordStr=passwordStr.normalize();return crypto.subtle.importKey("raw",textEncoder.encode(passwordStr),"PBKDF2",false,["deriveKey"])}function DeriveKey(passwordKey,
+salt,iterations,keyUsage){return crypto.subtle.deriveKey({"name":"PBKDF2","salt":salt,"iterations":iterations,"hash":"SHA-256"},passwordKey,{"name":"AES-GCM","length":256},false,[keyUsage])}async function EncryptArrayBuffer(arrayBuffer,passwordStr,iterations){const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const passwordKey=await GetPasswordKey(passwordStr);const encryptionKey=await DeriveKey(passwordKey,salt,iterations,"encrypt");const encryptedArrayBuffer=
+await crypto.subtle.encrypt({"name":"AES-GCM","iv":iv},encryptionKey,arrayBuffer);const resultData=new Uint8Array(1+salt.byteLength+iv.byteLength+4+encryptedArrayBuffer.byteLength);const dataView=new DataView(resultData.buffer);let ptr=0;dataView.setUint8(ptr,0);ptr+=1;resultData.set(salt,ptr);ptr+=salt.byteLength;resultData.set(iv,ptr);ptr+=iv.byteLength;dataView.setUint32(ptr,iterations);ptr+=4;resultData.set(new Uint8Array(encryptedArrayBuffer),ptr);return resultData.buffer}async function DecryptArrayBuffer(arrayBuffer,
+passwordStr){if(arrayBuffer.byteLength<33)throw new Error(`data too short (${arrayBuffer.byteLength} bytes)`);const dataView=new DataView(arrayBuffer);let ptr=0;const reservedValue=dataView.getUint8(ptr);ptr+=1;if(reservedValue!==0)throw new Error(`unexpected reserved value ${reservedValue}`);const salt=arrayBuffer.slice(ptr,ptr+16);ptr+=16;const iv=arrayBuffer.slice(ptr,ptr+12);ptr+=12;const iterations=dataView.getUint32(ptr);ptr+=4;const encryptedData=arrayBuffer.slice(ptr);const passwordKey=await GetPasswordKey(passwordStr);
+const encryptionKey=await DeriveKey(passwordKey,salt,iterations,"decrypt");const decryptedArrayBuffer=await crypto.subtle.decrypt({"name":"AES-GCM","iv":iv},encryptionKey,encryptedData);return decryptedArrayBuffer}C3.Plugins.Cryptography.Acts={async HashBinary(objectClass,alg,tag){if(!objectClass)return;const target=objectClass.GetFirstPicked(this._inst);if(!target)return;const sdkInst=target.GetSdkInstance();const algorithm=HASH_ALGORITHMS[alg];const hashBuffer=await crypto.subtle.digest(algorithm,
+sdkInst.GetArrayBufferReadOnly());this._hashHexStr=ToHex(hashBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyHashFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnHashFinished)},async EncryptBinary(objectClass,alg,password,iterations,tag){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();try{const encryptedArrayBuffer=await EncryptArrayBuffer(sdkInst.GetArrayBufferCopy(),
+password,iterations);sdkInst.SetArrayBufferTransfer(encryptedArrayBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyEncryptionFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnEncryptionFinished)}catch(err){console.warn("[Binary data] Encryption failed: ",err);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyEncryptionFailed);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnEncryptionFailed)}},
+async DecryptBinary(objectClass,alg,password,tag){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();try{const decryptedArrayBuffer=await DecryptArrayBuffer(sdkInst.GetArrayBufferReadOnly(),password);sdkInst.SetArrayBufferTransfer(decryptedArrayBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyDecryptionFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnDecryptionFinished)}catch(err){console.warn("[Binary data] Decryption failed: ",
+err);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyDecryptionFailed);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnDecryptionFailed)}}}}{const C3=self.C3;C3.Plugins.Cryptography.Exps={Hash(){return this._hashHexStr},Tag(){return this._triggerTag}}};
+
+}
+
+{
+'use strict';{const C3=self.C3;C3.Plugins.BinaryData=class BinaryDataPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.BinaryData.Type=class BinaryDataType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
+{const C3=self.C3;const C3X=self.C3X;const IInstance=self.IInstance;const BASE64_DICTIONARY="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";C3.Plugins.BinaryData.Instance=class BinaryDataInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._buffer=new ArrayBuffer(0);this._view=null;this._altView=null;this._littleEndian=properties[0]===0;this._blobURL="";this._dataChangedSinceBlobURL=false;this._setters=[[1,(o,v)=>this._view.setInt8(o,v)],[1,(o,v)=>this._view.setUint8(o,
+v)],[2,(o,v)=>this._view.setInt16(o,v,this._littleEndian)],[2,(o,v)=>this._view.setUint16(o,v,this._littleEndian)],[4,(o,v)=>this._view.setInt32(o,v,this._littleEndian)],[4,(o,v)=>this._view.setUint32(o,v,this._littleEndian)],[4,(o,v)=>this._view.setFloat32(o,v,this._littleEndian)],[8,(o,v)=>this._view.setFloat64(o,v,this._littleEndian)]];this._getters=[[1,o=>this._view.getInt8(o)],[1,o=>this._view.getUint8(o)],[2,o=>this._view.getInt16(o,this._littleEndian)],[2,o=>this._view.getUint16(o,this._littleEndian)],
+[4,o=>this._view.getInt32(o,this._littleEndian)],[4,o=>this._view.getUint32(o,this._littleEndian)],[4,o=>this._view.getFloat32(o,this._littleEndian)],[8,o=>this._view.getFloat64(o,this._littleEndian)]];this._UpdateViews()}_CheckValidIndex(index,size){return index>=0&&index+size<=this.ByteLength()}_ClampToLength(value){const l=this.ByteLength();if(value<0)return 0;if(value>=l)return l;return value}_ClampToValidIndex(value){const l=this.ByteLength();if(value<0)return 0;if(value>l)return l;return value}ByteLength(){return this._buffer.byteLength}_UpdateViews(){const B=
+this._buffer;this._view=new DataView(B);this._altView=new Uint8Array(B);this._OnDataChanged()}_OnDataChanged(){if(this._blobURL)this._dataChangedSinceBlobURL=true}_RevokeBlobURL(){if(this._blobURL){URL.revokeObjectURL(this._blobURL);this._blobURL=""}}_GetBlobURL(){if(this._dataChangedSinceBlobURL){this._RevokeBlobURL();this._dataChangedSinceBlobURL=false}if(!this._blobURL){const blob=new Blob([this._altView],{type:""});this._blobURL=URL.createObjectURL(blob)}return this._blobURL}_GetBinaryDataSdkInstance(objectClass){if(!objectClass)return null;
+const target=objectClass.GetFirstPicked(this._inst);if(!target)return null;return target.GetSdkInstance()}_Get(type,offset){const getter=this._getters[type][1];const size=this._getters[type][0];if(this._CheckValidIndex(offset,size))return getter(offset);return 0}_Set(type,offset,value){const setter=this._setters[type][1];const size=this._setters[type][0];if(this._CheckValidIndex(offset,size)){setter(offset,value);this._OnDataChanged()}}_ResizeBuffer(source,length){if(!(source instanceof ArrayBuffer))throw new TypeError("Source must be an instance of ArrayBuffer");
+if(length<=source.byteLength)return source.slice(0,length);const sourceView=new Uint8Array(source);const destView=new Uint8Array(new ArrayBuffer(length));destView.set(sourceView);return destView.buffer}SetArrayBufferCopy(viewOrBuffer){if(C3.WeakIsInstanceOf(viewOrBuffer,ArrayBuffer))this._buffer=viewOrBuffer.slice(0);else{C3.WeakRequireTypedArray(viewOrBuffer);const buffer=viewOrBuffer.buffer;const byteLength=viewOrBuffer.byteLength;const byteOffset=viewOrBuffer.byteOffset;this._buffer=buffer.slice(byteOffset,
+byteOffset+byteLength)}this._UpdateViews()}SetArrayBufferTransfer(buffer){C3.WeakRequireInstanceOf(buffer,ArrayBuffer);this._buffer=buffer;this._UpdateViews()}GetArrayBufferCopy(){return this._buffer.slice(0)}GetArrayBufferReadOnly(){return this._buffer}TypedArrayToString(typedArray,utfLabel){let decoder=new TextDecoder(utfLabel||"utf-8");return decoder.decode(typedArray)}StringToArrayBuffer(str){let encoder=new TextEncoder("utf-8");return encoder.encode(str).buffer}Uint8ArrayToBase64String(uint8array){const read=
+i=>i<length?uint8array[i]:(padding++,0);const length=uint8array.length;const mask=63;const output=[];let padding=0;let i=0;while(i<length){const chunk=(read(i++)<<16)+(read(i++)<<8)+read(i++);output.push(BASE64_DICTIONARY[chunk>>>18&mask],BASE64_DICTIONARY[chunk>>>12&mask],BASE64_DICTIONARY[chunk>>>6&mask],BASE64_DICTIONARY[chunk&mask])}i=output.length-padding;while(i<output.length)output[i++]="=";return output.join("")}Base64StringToUint8Array(str){const paddingIndex=str.indexOf("=");const originalLength=
+str.length;const alignedLength=originalLength>>2<<2;const alignmentOffset=originalLength-alignedLength;const padding=paddingIndex>-1?originalLength-paddingIndex:0;if(padding>2)throw new Error("Invalid padding");const isLegacy=alignedLength===paddingIndex;let unpaddedLength=originalLength;if(isLegacy)unpaddedLength=alignedLength-padding;else if(alignmentOffset===0&&paddingIndex>-1)unpaddedLength-=padding;const outputLength=unpaddedLength*3>>2;const output=new Uint8Array(outputLength);let readIndex=
+0;let writeIndex=0;const read=()=>{if(readIndex>=unpaddedLength)return 0;const n=str.charCodeAt(readIndex++);if(n>64&&n<91)return n-65;if(n>96&&n<123)return n-71;if(n>47&&n<58)return n+4;if(n===43)return 62;if(n===47)return 63;if(n===61)return 0;throw new Error(`Invalid character at column ${readIndex-1}`);};const push=v=>writeIndex<outputLength&&(output[writeIndex++]=v);while(writeIndex<outputLength){const chunk=(read()<<18)+(read()<<12)+(read()<<6)+read();push(chunk>>>16&255);push(chunk>>>8&255);
+push(chunk&255)}return output}GetScriptInterfaceClass(){return self.IBinaryDataInstance}};const map=new WeakMap;self.IBinaryDataInstance=class IBinaryDataInstance extends IInstance{constructor(){super();map.set(this,IInstance._GetInitInst().GetSdkInstance())}setArrayBufferCopy(viewOrBuffer){if(!(viewOrBuffer instanceof ArrayBuffer)&&!C3.IsTypedArray(viewOrBuffer))throw new TypeError("invalid parameter");map.get(this).SetArrayBufferCopy(viewOrBuffer)}setArrayBufferTransfer(arrayBuffer){if(!(arrayBuffer instanceof
+ArrayBuffer))throw new TypeError("invalid parameter");map.get(this).SetArrayBufferTransfer(arrayBuffer)}getArrayBufferCopy(){return map.get(this).GetArrayBufferCopy()}getArrayBufferReadOnly(){return map.get(this).GetArrayBufferReadOnly()}}}
+{const C3=self.C3;C3.Plugins.BinaryData.Cnds={CompareLength(operator,length){return C3.compare(this.ByteLength(),operator,length)},CompareValue(type,offset,operator,value){return C3.compare(this._Get(type,offset),operator,value)},OnCompressionFinished(){return true},OnCompressionFailed(){return true},OnDecompressionFinished(){return true},OnDecompressionFailed(){return true}}}
+{const C3=self.C3;const COMPRESSION_FORMATS=["deflate","gzip"];C3.Plugins.BinaryData.Acts={SetEndian(b){this._littleEndian=b===0},SetLength(byteLength){this._buffer=this._ResizeBuffer(this._buffer,byteLength);this._UpdateViews()},SetFromBase64(str){try{const view=this.Base64StringToUint8Array(str);this.SetArrayBufferTransfer(view.buffer)}catch(err){console.warn("[BinaryData] Invalid base64 string: ",err)}},SetFromBinaryData(objectClass){const otherSdkInst=this._GetBinaryDataSdkInstance(objectClass);
+if(otherSdkInst===null)return;const buffer=otherSdkInst.GetArrayBufferCopy();this.SetArrayBufferTransfer(buffer)},SetFromText(str){const arrayBuffer=this.StringToArrayBuffer(str.normalize());this.SetArrayBufferTransfer(arrayBuffer)},Fill(type,value,offset,length){const setter=this._setters[type][1];const size=this._setters[type][0];const start=this._ClampToLength(offset);let end=0;if(length===-1)end=this.ByteLength();else end=this._ClampToLength(start+length);if(end<=start)return;const correctedLength=
+Math.floor((end-start)/size)*size;end=start+correctedLength;for(let i=start;i<end;i+=size)setter(i,value);this._OnDataChanged()},Copy(objectClass,start,length,target){const otherSdkInst=this._GetBinaryDataSdkInstance(objectClass);if(otherSdkInst===null)return;target=this._ClampToValidIndex(target);start=otherSdkInst._ClampToLength(start);let end;if(length===-1)end=otherSdkInst.ByteLength();else end=otherSdkInst._ClampToLength(start+length);if(end<=start)return;const selfSize=this.ByteLength();if(target+
+end-start>selfSize){const capacity=selfSize-target;end=start+capacity;if(end<=start)return}if(otherSdkInst===this)this._altView.copyWithin(target,start,end);else{const sourceBuffer=otherSdkInst.GetArrayBufferReadOnly();const slicedView=new Uint8Array(sourceBuffer,start,end-start);this._altView.set(slicedView,target)}this._OnDataChanged()},SetValue(type,value,offset){this._Set(type,offset,value)},async Compress(format_){const format=COMPRESSION_FORMATS[format_];try{const cs=new CompressionStream(format);
+const blob=new Blob([this._buffer]);const compressedStream=blob.stream().pipeThrough(cs);const compressedArrayBuffer=await (new Response(compressedStream)).arrayBuffer();this.SetArrayBufferTransfer(compressedArrayBuffer);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnCompressionFinished)}catch(err){console.error(`[Binary data] Error compressing data as '${format}': `,err);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnCompressionFailed)}},async Decompress(format_){const format=COMPRESSION_FORMATS[format_];
+try{const dcs=new DecompressionStream(format);const blob=new Blob([this._buffer]);const decompressedStream=blob.stream().pipeThrough(dcs);const decompressedArrayBuffer=await (new Response(decompressedStream)).arrayBuffer();this.SetArrayBufferTransfer(decompressedArrayBuffer);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnDecompressionFinished)}catch(err){console.error(`[Binary data] Error decompressing data as '${format}': `,err);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnDecompressionFailed)}}}}
+{const C3=self.C3;const T={int8:0,uint8:1,int16:2,uint16:3,int32:4,uint32:5,float32:6,float64:7};C3.Plugins.BinaryData.Exps={GetURL(){return this._GetBlobURL()},GetBase64(){return this.Uint8ArrayToBase64String(this._altView)},ByteLength(){return this.ByteLength()},GetInt8(offset){return this._Get(T.int8,offset)},GetUint8(offset){return this._Get(T.uint8,offset)},GetInt16(offset){return this._Get(T.int16,offset)},GetUint16(offset){return this._Get(T.uint16,offset)},GetInt32(offset){return this._Get(T.int32,
+offset)},GetUint32(offset){return this._Get(T.uint32,offset)},GetFloat32(offset){return this._Get(T.float32,offset)},GetFloat64(offset){return this._Get(T.float64,offset)},GetText(offset,length){let result="";if(this._CheckValidIndex(offset,length)){const view=this._altView.subarray(offset,offset+length);try{result=this.TypedArrayToString(view)}catch(e){console.warn("[Binary data] Failed to decode text: ",e)}}return result},GetAllText(){try{return this.TypedArrayToString(this._altView)}catch(e){console.warn("[Binary data] Failed to decode text: ",
+e);return""}}}};
+
+}
+
+{
+'use strict';{const C3=self.C3;const DOM_COMPONENT_ID="text-input";C3.Plugins.TextBox=class TextInputPlugin extends C3.SDKDOMPluginBase{constructor(opts){super(opts,DOM_COMPONENT_ID);this.AddElementMessageHandler("click",(sdkInst,e)=>sdkInst._OnClick(e));this.AddElementMessageHandler("dblclick",(sdkInst,e)=>sdkInst._OnDoubleClick(e));this.AddElementMessageHandler("change",(sdkInst,e)=>sdkInst._OnChange(e))}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.TextBox.Type=class TextInputType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
+{const C3=self.C3;const C3X=self.C3X;const TEXT=0;const PLACEHOLDER=1;const TOOLTIP=2;const INITIALLY_VISIBLE=3;const ENABLE=4;const READ_ONLY=5;const SPELL_CHECK=6;const TYPE=7;const AUTO_FONT_SIZE=8;const ID=9;const CLASS_NAME=10;const DOM_COMPONENT_ID="text-input";const elemTypes=["text","password","email","number","tel","url","textarea","search"];C3.Plugins.TextBox.Instance=class TextInputInstance extends C3.SDKDOMInstanceBase{constructor(inst,properties){super(inst,DOM_COMPONENT_ID);this._text=
+"";this._placeholder="";this._title="";this._isEnabled=true;this._isReadOnly=false;this._spellCheck=false;this._type="text";this._autoFontSize=true;this._maxLength=-1;this._id="";this._className="";if(properties){this._text=properties[TEXT];this._placeholder=properties[PLACEHOLDER];this._title=properties[TOOLTIP];this.GetWorldInfo().SetVisible(properties[INITIALLY_VISIBLE]);this._isEnabled=properties[ENABLE];this._isReadOnly=properties[READ_ONLY];this._spellCheck=properties[SPELL_CHECK];this._type=
+elemTypes[properties[TYPE]];this._autoFontSize=properties[AUTO_FONT_SIZE];this._id=properties[ID];this._className=properties[CLASS_NAME]}this.CreateElement({"type":this._type,"id":this._id,"className":this._className})}Release(){super.Release()}GetElementState(){return{"text":this._text,"placeholder":this._placeholder,"title":this._title,"isEnabled":this._isEnabled,"isReadOnly":this._isReadOnly,"spellCheck":this._spellCheck,"maxLength":this._maxLength}}async _OnClick(e){this.DispatchScriptEvent("click",
+true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnClicked)}async _OnDoubleClick(e){this.DispatchScriptEvent("dblclick",true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnDoubleClicked)}async _OnChange(e){this._text=e["text"];this.DispatchScriptEvent("change",true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnTextChanged)}_SetText(text){if(this._text===text)return;this._text=text;this.UpdateElementState()}_GetText(){return this._text}_SetPlaceholder(placeholder){if(this._placeholder===
+placeholder)return;this._placeholder=placeholder;this.UpdateElementState()}_GetPlaceholder(){return this._placeholder}_SetTooltip(title){if(this._title===title)return;this._title=title;this.UpdateElementState()}_GetTooltip(){return this._title}_SetEnabled(e){e=!!e;if(this._isEnabled===e)return;this._isEnabled=e;this.UpdateElementState()}_IsEnabled(){return this._isEnabled}_SetReadOnly(r){r=!!r;if(this._isReadOnly===r)return;this._isReadOnly=r;this.UpdateElementState()}_IsReadOnly(){return this._isReadOnly}_SetMaxLength(l){l=
+Math.max(+l,-1);if(this._maxLength===l)return;this._maxLength=l;this.UpdateElementState()}_GetMaxLength(){return this._maxLength}_ScrollToBottom(){Promise.resolve().then(()=>this.PostToDOMElement("scroll-to-bottom"))}Draw(renderer){}SaveToJson(){return{"t":this._text,"p":this._placeholder,"ti":this._title,"e":this._isEnabled,"r":this._isReadOnly,"sp":this._spellCheck,"ml":this._maxLength,"type":this._type,"id":this._id}}LoadFromJson(o){this._text=o["t"];this._placeholder=o["p"];this._title=o["ti"];
+this._isEnabled=o["e"];this._isReadOnly=o["r"];this._spellCheck=o["sp"];this._maxLength=o.hasOwnProperty("ml")?o["ml"]:-1;this._type=o["type"];this._id=o["id"];this.UpdateElementState()}GetPropertyValueByIndex(index){switch(index){case TEXT:return this._text;case PLACEHOLDER:return this._placeholder;case TOOLTIP:return this._title;case ENABLE:return this._isEnabled;case READ_ONLY:return this._isReadOnly;case SPELL_CHECK:return this._spellCheck;case AUTO_FONT_SIZE:return this._autoFontSize}}SetPropertyValueByIndex(index,
+value){switch(index){case TEXT:if(this._text===value)return;this._text=value;this.UpdateElementState();break;case PLACEHOLDER:if(this._placeholder===value)return;this._placeholder=value;this.UpdateElementState();break;case TOOLTIP:if(this._title===value)return;this._title=value;this.UpdateElementState();break;case ENABLE:if(this._isEnabled===!!value)return;this._isEnabled=!!value;this.UpdateElementState();break;case READ_ONLY:if(this._isReadOnly===!!value)return;this._isReadOnly=!!value;this.UpdateElementState();
+break;case SPELL_CHECK:if(this._spellCheck===!!value)return;this._spellCheck=!!value;this.UpdateElementState();break;case AUTO_FONT_SIZE:this._autoFontSize=!!value;break}}GetDebuggerProperties(){const Acts=C3.Plugins.TextBox.Acts;const prefix="plugins.textbox";return[{title:prefix+".name",properties:[{name:prefix+".properties.text.name",value:this._text,onedit:v=>this.CallAction(Acts.SetText,v)},{name:prefix+".properties.enabled.name",value:this._isEnabled,onedit:v=>this.CallAction(Acts.SetEnabled,
+v)},{name:prefix+".properties.read-only.name",value:this._isReadOnly,onedit:v=>this.CallAction(Acts.SetReadOnly,v)}]}]}GetScriptInterfaceClass(){return self.ITextInputInstance}};const map=new WeakMap;self.ITextInputInstance=class ITextInputInstance extends self.IDOMInstance{constructor(){super();map.set(this,self.IInstance._GetInitInst().GetSdkInstance())}set text(str){C3X.RequireString(str);map.get(this)._SetText(str)}get text(){return map.get(this)._GetText()}set placeholder(str){C3X.RequireString(str);
+map.get(this)._SetPlaceholder(str)}get placeholder(){return map.get(this)._GetPlaceholder()}set tooltip(str){C3X.RequireString(str);map.get(this)._SetTooltip(str)}get tooltip(){return map.get(this)._GetTooltip()}set isEnabled(e){map.get(this)._SetEnabled(e)}get isEnabled(){return map.get(this)._IsEnabled()}set isReadOnly(r){map.get(this)._SetReadOnly(r)}get isReadOnly(){return map.get(this)._IsReadOnly()}set maxLength(l){C3X.RequireFiniteNumber(l);map.get(this)._SetMaxLength(l)}get maxLength(){return map.get(this)._GetMaxLength()}scrollToBottom(){map.get(this)._ScrollToBottom()}}}
+{const C3=self.C3;C3.Plugins.TextBox.Cnds={CompareText(text,case_){if(case_===0)return C3.equalsNoCase(this._text,text);else return this._text===text},OnTextChanged(){return true},OnClicked(){return true},OnDoubleClicked(){return true}}}
+{const C3=self.C3;C3.Plugins.TextBox.Acts={SetText(param){this._SetText(param.toString())},AppendText(param){if(param==="")return;this._SetText(this._GetText()+param)},SetPlaceholder(placeholder){this._SetPlaceholder(placeholder)},SetTooltip(title){this._SetTooltip(title)},SetReadOnly(r){this._SetReadOnly(r===0)},ScrollToBottom(){this._ScrollToBottom()},SetMaxLength(l){this._SetMaxLength(l)}}}{const C3=self.C3;C3.Plugins.TextBox.Exps={Text(){return this._GetText()},MaxLength(){return this._GetMaxLength()}}};
+
+}
+
+{
 'use strict';{const C3=self.C3;C3.Plugins.LocalStorage=class LocalStoragePlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.LocalStorage.Type=class LocalStorageType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
 {const C3=self.C3;const DOM_COMPONENT_ID="localstorage";C3.Plugins.LocalStorage.Instance=class LocalStorageInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst,DOM_COMPONENT_ID);this._currentKey="";this._lastValue="";this._keyNamesList=[];this._errorMessage="";this._isPersistent=false;this._pendingGets=0;this._pendingSets=0;this._storage=this._runtime._GetProjectStorage();this._debugCache=new Map;this._isLoadingDebugCache=false;this._runtime.AddLoadPromise(this._Init())}async _Init(){const result=
 await Promise.race([this.PostToDOMAsync("init"),C3.Wait(3E3)]);if(result)this._isPersistent=result["isPersistent"]}Release(){super.Release()}async _TriggerStorageError(err){this._errorMessage=this._GetErrorString(err);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnError)}_GetErrorString(err){if(!err)return"unknown error";else if(typeof err==="string")return err;else if(typeof err.message==="string")return err.message;else if(typeof err.name==="string")return err.name;else if(typeof err.data===
@@ -4813,24 +4852,6 @@ await this.ScheduleTriggers(async()=>{this._currentKey=key;if(typeof value==="un
 "";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemRemoved);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemRemoved)})}catch(err){await this._TriggerStorageError(err)}},async ClearStorage(){try{await this._storage.clear();await this.ScheduleTriggers(async()=>{this._currentKey="";this._lastValue="";C3.clearArray(this._keyNamesList);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnCleared)})}catch(err){await this._TriggerStorageError(err)}},async GetAllKeyNames(){try{const keyList=
 await this._storage.keys();await this.ScheduleTriggers(async()=>{this._keyNamesList=keyList;await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllKeyNamesLoaded)})}catch(err){await this._TriggerStorageError(err)}},async RequestPersistent(){const result=await this.PostToDOMAsync("request-persistent");if(result["isOk"])this._isPersistent=result["isPersistent"]}}}
 {const C3=self.C3;C3.Plugins.LocalStorage.Exps={ItemValue(){return this._lastValue},Key(){return this._currentKey},KeyCount(){return this._keyNamesList.length},KeyAt(i){i=Math.floor(i);if(i<0||i>=this._keyNamesList.length)return"";return this._keyNamesList[i]},ErrorMessage(){return this._errorMessage}}};
-
-}
-
-{
-'use strict';{const C3=self.C3;C3.Plugins.Keyboard=class KeyboardPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}
-{const C3=self.C3;const C3X=self.C3X;C3.Plugins.Keyboard.Type=class KeyboardType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}GetScriptInterfaceClass(){return self.IKeyboardObjectType}};let keyboardObjectType=null;function GetKeyboardSdkInstance(){return keyboardObjectType.GetSingleGlobalInstance().GetSdkInstance()}self.IKeyboardObjectType=class IKeyboardObjectType extends self.IObjectClass{constructor(objectType){super(objectType);keyboardObjectType=
-objectType;objectType.GetRuntime()._GetCommonScriptInterfaces().keyboard=this}isKeyDown(keyOrCode){const keyboardInst=GetKeyboardSdkInstance();if(typeof keyOrCode==="string")return keyboardInst.IsKeyDown(keyOrCode);else if(typeof keyOrCode==="number")return keyboardInst.IsKeyCodeDown(keyOrCode);else throw new TypeError("expected string or number");}}}
-{const C3=self.C3;C3.Plugins.Keyboard.Instance=class KeyboardInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._keysDownByString=new Set;this._keysDownByWhich=new Set;this._triggerWhich=0;this._triggerString="";this._triggerTypedKey="";const rt=this.GetRuntime().Dispatcher();this._disposables=new C3.CompositeDisposable(C3.Disposable.From(rt,"keydown",e=>this._OnKeyDown(e.data)),C3.Disposable.From(rt,"keyup",e=>this._OnKeyUp(e.data)),C3.Disposable.From(rt,"window-blur",
-()=>this._OnWindowOrKeyboardBlur()),C3.Disposable.From(rt,"keyboard-blur",()=>this._OnWindowOrKeyboardBlur()))}Release(){super.Release()}_OnKeyDown(e){const which=e["which"];const keyString=e["code"]||which.toString();const typedKey=e["key"];if(this._keysDownByString.has(keyString))return;this._keysDownByString.add(keyString);this._keysDownByWhich.add(which);this._triggerString=keyString;this._triggerWhich=which;this._triggerTypedKey=typedKey;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKey);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKey);
-this.Trigger(C3.Plugins.Keyboard.Cnds.OnLeftRightKeyPressed);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCode)}_OnKeyUp(e){const which=e["which"];const keyString=e["code"]||which.toString();const typedKey=e["key"];this._keysDownByString.delete(keyString);this._keysDownByWhich.delete(which);this._triggerString=keyString;this._triggerWhich=which;this._triggerTypedKey=typedKey;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnLeftRightKeyReleased);
-this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCodeReleased)}_OnWindowOrKeyboardBlur(){for(const which of this._keysDownByWhich){this._keysDownByWhich.delete(which);this._triggerWhich=which;this.Trigger(C3.Plugins.Keyboard.Cnds.OnAnyKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyReleased);this.Trigger(C3.Plugins.Keyboard.Cnds.OnKeyCodeReleased)}this._keysDownByString.clear()}IsKeyDown(str){return this._keysDownByString.has(str)}IsKeyCodeDown(which){return this._keysDownByWhich.has(which)}SaveToJson(){return{"tk":this._triggerWhich,
-"tkk":this._triggerTypedKey}}LoadFromJson(o){this._triggerWhich=o["tk"];if(o.hasOwnProperty("tkk"))this._triggerTypedKey=o["tkk"]}GetDebuggerProperties(){const prefix="plugins.keyboard";return[{title:prefix+".name",properties:[{name:prefix+".debugger.last-key-code",value:this._triggerWhich},{name:prefix+".debugger.last-key-string",value:C3.Plugins.Keyboard.Exps.StringFromKeyCode(this._triggerWhich)},{name:prefix+".debugger.last-typed-key",value:this._triggerTypedKey}]}]}}}
-{const C3=self.C3;const LEFTRIGHT_KEY_STRINGS=["ShiftLeft","ShiftRight","ControlLeft","ControlRight","AltLeft","AltRight","MetaLeft","MetaRight"];C3.Plugins.Keyboard.Cnds={IsKeyDown(which){return this._keysDownByWhich.has(which)},OnKey(which){return this._triggerWhich===which},OnAnyKey(){return true},OnAnyKeyReleased(){return true},OnKeyReleased(which){return this._triggerWhich===which},IsKeyCodeDown(which){which=Math.floor(which);return this._keysDownByWhich.has(which)},OnKeyCode(which){return this._triggerWhich===
-which},OnKeyCodeReleased(which){return this._triggerWhich===which},OnLeftRightKeyPressed(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._triggerString===keyString},OnLeftRightKeyReleased(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._triggerString===keyString},IsLeftRightKeyDown(index){const keyString=LEFTRIGHT_KEY_STRINGS[index];return this._keysDownByString.has(keyString)}}}{const C3=self.C3;C3.Plugins.Keyboard.Acts={}}
-{const C3=self.C3;function StringFromCharCode(kc){kc=Math.floor(kc);switch(kc){case 8:return"backspace";case 9:return"tab";case 13:return"enter";case 16:return"shift";case 17:return"control";case 18:return"alt";case 19:return"pause";case 20:return"capslock";case 27:return"esc";case 33:return"pageup";case 34:return"pagedown";case 35:return"end";case 36:return"home";case 37:return"\u2190";case 38:return"\u2191";case 39:return"\u2192";case 40:return"\u2193";case 45:return"insert";case 46:return"del";
-case 91:return"left window key";case 92:return"right window key";case 93:return"select";case 96:return"numpad 0";case 97:return"numpad 1";case 98:return"numpad 2";case 99:return"numpad 3";case 100:return"numpad 4";case 101:return"numpad 5";case 102:return"numpad 6";case 103:return"numpad 7";case 104:return"numpad 8";case 105:return"numpad 9";case 106:return"numpad *";case 107:return"numpad +";case 109:return"numpad -";case 110:return"numpad .";case 111:return"numpad /";case 112:return"F1";case 113:return"F2";
-case 114:return"F3";case 115:return"F4";case 116:return"F5";case 117:return"F6";case 118:return"F7";case 119:return"F8";case 120:return"F9";case 121:return"F10";case 122:return"F11";case 123:return"F12";case 144:return"numlock";case 145:return"scroll lock";case 186:return";";case 187:return"=";case 188:return",";case 189:return"-";case 190:return".";case 191:return"/";case 192:return"'";case 219:return"[";case 220:return"\\";case 221:return"]";case 222:return"#";case 223:return"`";default:return String.fromCharCode(kc)}}
-C3.Plugins.Keyboard.Exps={LastKeyCode(){return this._triggerWhich},StringFromKeyCode(kc){return StringFromCharCode(kc)},TypedKey(){return this._triggerTypedKey}}};
 
 }
 
@@ -5458,64 +5479,28 @@ C3.Plugins.Keyboard.Exps={LastKeyCode(){return this._triggerWhich},StringFromKey
 }
 
 {
-'use strict';{const C3=self.C3;C3.Plugins.Cryptography=class CryptographyPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.Cryptography.Type=class CryptographyType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
-{const C3=self.C3;C3.Plugins.Cryptography.Instance=class CryptographyInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._triggerTag="";this._hashHexStr="";if(!self.isSecureContext)console.error("[Construct] Cryptography object features will not work as this is not a secure context.")}}}
-{const C3=self.C3;C3.Plugins.Cryptography.Cnds={OnHashFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnAnyHashFinished(){return true},OnEncryptionFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnEncryptionFailed(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnDecryptionFinished(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnDecryptionFailed(tag){return C3.equalsNoCase(this._triggerTag,tag)},OnAnyEncryptionFinished(){return true},OnAnyEncryptionFailed(){return true},
-OnAnyDecryptionFinished(){return true},OnAnyDecryptionFailed(){return true}}}
-{const C3=self.C3;const HASH_ALGORITHMS=["SHA-256","SHA-384","SHA-512"];function ToHex(arrayBuffer){let ret="";const uint8arr=new Uint8Array(arrayBuffer);for(let i=0,len=uint8arr.length;i<len;++i){const v=uint8arr[i];const ch=v.toString(16);ret+=("0"+ch).slice(-2)}return ret}function GetPasswordKey(passwordStr){const textEncoder=new TextEncoder("utf-8");passwordStr=passwordStr.normalize();return crypto.subtle.importKey("raw",textEncoder.encode(passwordStr),"PBKDF2",false,["deriveKey"])}function DeriveKey(passwordKey,
-salt,iterations,keyUsage){return crypto.subtle.deriveKey({"name":"PBKDF2","salt":salt,"iterations":iterations,"hash":"SHA-256"},passwordKey,{"name":"AES-GCM","length":256},false,[keyUsage])}async function EncryptArrayBuffer(arrayBuffer,passwordStr,iterations){const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const passwordKey=await GetPasswordKey(passwordStr);const encryptionKey=await DeriveKey(passwordKey,salt,iterations,"encrypt");const encryptedArrayBuffer=
-await crypto.subtle.encrypt({"name":"AES-GCM","iv":iv},encryptionKey,arrayBuffer);const resultData=new Uint8Array(1+salt.byteLength+iv.byteLength+4+encryptedArrayBuffer.byteLength);const dataView=new DataView(resultData.buffer);let ptr=0;dataView.setUint8(ptr,0);ptr+=1;resultData.set(salt,ptr);ptr+=salt.byteLength;resultData.set(iv,ptr);ptr+=iv.byteLength;dataView.setUint32(ptr,iterations);ptr+=4;resultData.set(new Uint8Array(encryptedArrayBuffer),ptr);return resultData.buffer}async function DecryptArrayBuffer(arrayBuffer,
-passwordStr){if(arrayBuffer.byteLength<33)throw new Error(`data too short (${arrayBuffer.byteLength} bytes)`);const dataView=new DataView(arrayBuffer);let ptr=0;const reservedValue=dataView.getUint8(ptr);ptr+=1;if(reservedValue!==0)throw new Error(`unexpected reserved value ${reservedValue}`);const salt=arrayBuffer.slice(ptr,ptr+16);ptr+=16;const iv=arrayBuffer.slice(ptr,ptr+12);ptr+=12;const iterations=dataView.getUint32(ptr);ptr+=4;const encryptedData=arrayBuffer.slice(ptr);const passwordKey=await GetPasswordKey(passwordStr);
-const encryptionKey=await DeriveKey(passwordKey,salt,iterations,"decrypt");const decryptedArrayBuffer=await crypto.subtle.decrypt({"name":"AES-GCM","iv":iv},encryptionKey,encryptedData);return decryptedArrayBuffer}C3.Plugins.Cryptography.Acts={async HashBinary(objectClass,alg,tag){if(!objectClass)return;const target=objectClass.GetFirstPicked(this._inst);if(!target)return;const sdkInst=target.GetSdkInstance();const algorithm=HASH_ALGORITHMS[alg];const hashBuffer=await crypto.subtle.digest(algorithm,
-sdkInst.GetArrayBufferReadOnly());this._hashHexStr=ToHex(hashBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyHashFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnHashFinished)},async EncryptBinary(objectClass,alg,password,iterations,tag){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();try{const encryptedArrayBuffer=await EncryptArrayBuffer(sdkInst.GetArrayBufferCopy(),
-password,iterations);sdkInst.SetArrayBufferTransfer(encryptedArrayBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyEncryptionFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnEncryptionFinished)}catch(err){console.warn("[Binary data] Encryption failed: ",err);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyEncryptionFailed);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnEncryptionFailed)}},
-async DecryptBinary(objectClass,alg,password,tag){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();try{const decryptedArrayBuffer=await DecryptArrayBuffer(sdkInst.GetArrayBufferReadOnly(),password);sdkInst.SetArrayBufferTransfer(decryptedArrayBuffer);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyDecryptionFinished);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnDecryptionFinished)}catch(err){console.warn("[Binary data] Decryption failed: ",
-err);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnAnyDecryptionFailed);this._triggerTag=tag;await this.TriggerAsync(C3.Plugins.Cryptography.Cnds.OnDecryptionFailed)}}}}{const C3=self.C3;C3.Plugins.Cryptography.Exps={Hash(){return this._hashHexStr},Tag(){return this._triggerTag}}};
-
-}
-
-{
-'use strict';{const C3=self.C3;C3.Plugins.BinaryData=class BinaryDataPlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.BinaryData.Type=class BinaryDataType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
-{const C3=self.C3;const C3X=self.C3X;const IInstance=self.IInstance;const BASE64_DICTIONARY="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";C3.Plugins.BinaryData.Instance=class BinaryDataInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._buffer=new ArrayBuffer(0);this._view=null;this._altView=null;this._littleEndian=properties[0]===0;this._blobURL="";this._dataChangedSinceBlobURL=false;this._setters=[[1,(o,v)=>this._view.setInt8(o,v)],[1,(o,v)=>this._view.setUint8(o,
-v)],[2,(o,v)=>this._view.setInt16(o,v,this._littleEndian)],[2,(o,v)=>this._view.setUint16(o,v,this._littleEndian)],[4,(o,v)=>this._view.setInt32(o,v,this._littleEndian)],[4,(o,v)=>this._view.setUint32(o,v,this._littleEndian)],[4,(o,v)=>this._view.setFloat32(o,v,this._littleEndian)],[8,(o,v)=>this._view.setFloat64(o,v,this._littleEndian)]];this._getters=[[1,o=>this._view.getInt8(o)],[1,o=>this._view.getUint8(o)],[2,o=>this._view.getInt16(o,this._littleEndian)],[2,o=>this._view.getUint16(o,this._littleEndian)],
-[4,o=>this._view.getInt32(o,this._littleEndian)],[4,o=>this._view.getUint32(o,this._littleEndian)],[4,o=>this._view.getFloat32(o,this._littleEndian)],[8,o=>this._view.getFloat64(o,this._littleEndian)]];this._UpdateViews()}_CheckValidIndex(index,size){return index>=0&&index+size<=this.ByteLength()}_ClampToLength(value){const l=this.ByteLength();if(value<0)return 0;if(value>=l)return l;return value}_ClampToValidIndex(value){const l=this.ByteLength();if(value<0)return 0;if(value>l)return l;return value}ByteLength(){return this._buffer.byteLength}_UpdateViews(){const B=
-this._buffer;this._view=new DataView(B);this._altView=new Uint8Array(B);this._OnDataChanged()}_OnDataChanged(){if(this._blobURL)this._dataChangedSinceBlobURL=true}_RevokeBlobURL(){if(this._blobURL){URL.revokeObjectURL(this._blobURL);this._blobURL=""}}_GetBlobURL(){if(this._dataChangedSinceBlobURL){this._RevokeBlobURL();this._dataChangedSinceBlobURL=false}if(!this._blobURL){const blob=new Blob([this._altView],{type:""});this._blobURL=URL.createObjectURL(blob)}return this._blobURL}_GetBinaryDataSdkInstance(objectClass){if(!objectClass)return null;
-const target=objectClass.GetFirstPicked(this._inst);if(!target)return null;return target.GetSdkInstance()}_Get(type,offset){const getter=this._getters[type][1];const size=this._getters[type][0];if(this._CheckValidIndex(offset,size))return getter(offset);return 0}_Set(type,offset,value){const setter=this._setters[type][1];const size=this._setters[type][0];if(this._CheckValidIndex(offset,size)){setter(offset,value);this._OnDataChanged()}}_ResizeBuffer(source,length){if(!(source instanceof ArrayBuffer))throw new TypeError("Source must be an instance of ArrayBuffer");
-if(length<=source.byteLength)return source.slice(0,length);const sourceView=new Uint8Array(source);const destView=new Uint8Array(new ArrayBuffer(length));destView.set(sourceView);return destView.buffer}SetArrayBufferCopy(viewOrBuffer){if(C3.WeakIsInstanceOf(viewOrBuffer,ArrayBuffer))this._buffer=viewOrBuffer.slice(0);else{C3.WeakRequireTypedArray(viewOrBuffer);const buffer=viewOrBuffer.buffer;const byteLength=viewOrBuffer.byteLength;const byteOffset=viewOrBuffer.byteOffset;this._buffer=buffer.slice(byteOffset,
-byteOffset+byteLength)}this._UpdateViews()}SetArrayBufferTransfer(buffer){C3.WeakRequireInstanceOf(buffer,ArrayBuffer);this._buffer=buffer;this._UpdateViews()}GetArrayBufferCopy(){return this._buffer.slice(0)}GetArrayBufferReadOnly(){return this._buffer}TypedArrayToString(typedArray,utfLabel){let decoder=new TextDecoder(utfLabel||"utf-8");return decoder.decode(typedArray)}StringToArrayBuffer(str){let encoder=new TextEncoder("utf-8");return encoder.encode(str).buffer}Uint8ArrayToBase64String(uint8array){const read=
-i=>i<length?uint8array[i]:(padding++,0);const length=uint8array.length;const mask=63;const output=[];let padding=0;let i=0;while(i<length){const chunk=(read(i++)<<16)+(read(i++)<<8)+read(i++);output.push(BASE64_DICTIONARY[chunk>>>18&mask],BASE64_DICTIONARY[chunk>>>12&mask],BASE64_DICTIONARY[chunk>>>6&mask],BASE64_DICTIONARY[chunk&mask])}i=output.length-padding;while(i<output.length)output[i++]="=";return output.join("")}Base64StringToUint8Array(str){const paddingIndex=str.indexOf("=");const originalLength=
-str.length;const alignedLength=originalLength>>2<<2;const alignmentOffset=originalLength-alignedLength;const padding=paddingIndex>-1?originalLength-paddingIndex:0;if(padding>2)throw new Error("Invalid padding");const isLegacy=alignedLength===paddingIndex;let unpaddedLength=originalLength;if(isLegacy)unpaddedLength=alignedLength-padding;else if(alignmentOffset===0&&paddingIndex>-1)unpaddedLength-=padding;const outputLength=unpaddedLength*3>>2;const output=new Uint8Array(outputLength);let readIndex=
-0;let writeIndex=0;const read=()=>{if(readIndex>=unpaddedLength)return 0;const n=str.charCodeAt(readIndex++);if(n>64&&n<91)return n-65;if(n>96&&n<123)return n-71;if(n>47&&n<58)return n+4;if(n===43)return 62;if(n===47)return 63;if(n===61)return 0;throw new Error(`Invalid character at column ${readIndex-1}`);};const push=v=>writeIndex<outputLength&&(output[writeIndex++]=v);while(writeIndex<outputLength){const chunk=(read()<<18)+(read()<<12)+(read()<<6)+read();push(chunk>>>16&255);push(chunk>>>8&255);
-push(chunk&255)}return output}GetScriptInterfaceClass(){return self.IBinaryDataInstance}};const map=new WeakMap;self.IBinaryDataInstance=class IBinaryDataInstance extends IInstance{constructor(){super();map.set(this,IInstance._GetInitInst().GetSdkInstance())}setArrayBufferCopy(viewOrBuffer){if(!(viewOrBuffer instanceof ArrayBuffer)&&!C3.IsTypedArray(viewOrBuffer))throw new TypeError("invalid parameter");map.get(this).SetArrayBufferCopy(viewOrBuffer)}setArrayBufferTransfer(arrayBuffer){if(!(arrayBuffer instanceof
-ArrayBuffer))throw new TypeError("invalid parameter");map.get(this).SetArrayBufferTransfer(arrayBuffer)}getArrayBufferCopy(){return map.get(this).GetArrayBufferCopy()}getArrayBufferReadOnly(){return map.get(this).GetArrayBufferReadOnly()}}}
-{const C3=self.C3;C3.Plugins.BinaryData.Cnds={CompareLength(operator,length){return C3.compare(this.ByteLength(),operator,length)},CompareValue(type,offset,operator,value){return C3.compare(this._Get(type,offset),operator,value)},OnCompressionFinished(){return true},OnCompressionFailed(){return true},OnDecompressionFinished(){return true},OnDecompressionFailed(){return true}}}
-{const C3=self.C3;const COMPRESSION_FORMATS=["deflate","gzip"];C3.Plugins.BinaryData.Acts={SetEndian(b){this._littleEndian=b===0},SetLength(byteLength){this._buffer=this._ResizeBuffer(this._buffer,byteLength);this._UpdateViews()},SetFromBase64(str){try{const view=this.Base64StringToUint8Array(str);this.SetArrayBufferTransfer(view.buffer)}catch(err){console.warn("[BinaryData] Invalid base64 string: ",err)}},SetFromBinaryData(objectClass){const otherSdkInst=this._GetBinaryDataSdkInstance(objectClass);
-if(otherSdkInst===null)return;const buffer=otherSdkInst.GetArrayBufferCopy();this.SetArrayBufferTransfer(buffer)},SetFromText(str){const arrayBuffer=this.StringToArrayBuffer(str.normalize());this.SetArrayBufferTransfer(arrayBuffer)},Fill(type,value,offset,length){const setter=this._setters[type][1];const size=this._setters[type][0];const start=this._ClampToLength(offset);let end=0;if(length===-1)end=this.ByteLength();else end=this._ClampToLength(start+length);if(end<=start)return;const correctedLength=
-Math.floor((end-start)/size)*size;end=start+correctedLength;for(let i=start;i<end;i+=size)setter(i,value);this._OnDataChanged()},Copy(objectClass,start,length,target){const otherSdkInst=this._GetBinaryDataSdkInstance(objectClass);if(otherSdkInst===null)return;target=this._ClampToValidIndex(target);start=otherSdkInst._ClampToLength(start);let end;if(length===-1)end=otherSdkInst.ByteLength();else end=otherSdkInst._ClampToLength(start+length);if(end<=start)return;const selfSize=this.ByteLength();if(target+
-end-start>selfSize){const capacity=selfSize-target;end=start+capacity;if(end<=start)return}if(otherSdkInst===this)this._altView.copyWithin(target,start,end);else{const sourceBuffer=otherSdkInst.GetArrayBufferReadOnly();const slicedView=new Uint8Array(sourceBuffer,start,end-start);this._altView.set(slicedView,target)}this._OnDataChanged()},SetValue(type,value,offset){this._Set(type,offset,value)},async Compress(format_){const format=COMPRESSION_FORMATS[format_];try{const cs=new CompressionStream(format);
-const blob=new Blob([this._buffer]);const compressedStream=blob.stream().pipeThrough(cs);const compressedArrayBuffer=await (new Response(compressedStream)).arrayBuffer();this.SetArrayBufferTransfer(compressedArrayBuffer);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnCompressionFinished)}catch(err){console.error(`[Binary data] Error compressing data as '${format}': `,err);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnCompressionFailed)}},async Decompress(format_){const format=COMPRESSION_FORMATS[format_];
-try{const dcs=new DecompressionStream(format);const blob=new Blob([this._buffer]);const decompressedStream=blob.stream().pipeThrough(dcs);const decompressedArrayBuffer=await (new Response(decompressedStream)).arrayBuffer();this.SetArrayBufferTransfer(decompressedArrayBuffer);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnDecompressionFinished)}catch(err){console.error(`[Binary data] Error decompressing data as '${format}': `,err);await this.TriggerAsync(C3.Plugins.BinaryData.Cnds.OnDecompressionFailed)}}}}
-{const C3=self.C3;const T={int8:0,uint8:1,int16:2,uint16:3,int32:4,uint32:5,float32:6,float64:7};C3.Plugins.BinaryData.Exps={GetURL(){return this._GetBlobURL()},GetBase64(){return this.Uint8ArrayToBase64String(this._altView)},ByteLength(){return this.ByteLength()},GetInt8(offset){return this._Get(T.int8,offset)},GetUint8(offset){return this._Get(T.uint8,offset)},GetInt16(offset){return this._Get(T.int16,offset)},GetUint16(offset){return this._Get(T.uint16,offset)},GetInt32(offset){return this._Get(T.int32,
-offset)},GetUint32(offset){return this._Get(T.uint32,offset)},GetFloat32(offset){return this._Get(T.float32,offset)},GetFloat64(offset){return this._Get(T.float64,offset)},GetText(offset,length){let result="";if(this._CheckValidIndex(offset,length)){const view=this._altView.subarray(offset,offset+length);try{result=this.TypedArrayToString(view)}catch(e){console.warn("[Binary data] Failed to decode text: ",e)}}return result},GetAllText(){try{return this.TypedArrayToString(this._altView)}catch(e){console.warn("[Binary data] Failed to decode text: ",
-e);return""}}}};
-
-}
-
-{
-'use strict';{const C3=self.C3;const DOM_COMPONENT_ID="text-input";C3.Plugins.TextBox=class TextInputPlugin extends C3.SDKDOMPluginBase{constructor(opts){super(opts,DOM_COMPONENT_ID);this.AddElementMessageHandler("click",(sdkInst,e)=>sdkInst._OnClick(e));this.AddElementMessageHandler("dblclick",(sdkInst,e)=>sdkInst._OnDoubleClick(e));this.AddElementMessageHandler("change",(sdkInst,e)=>sdkInst._OnChange(e))}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.TextBox.Type=class TextInputType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
-{const C3=self.C3;const C3X=self.C3X;const TEXT=0;const PLACEHOLDER=1;const TOOLTIP=2;const INITIALLY_VISIBLE=3;const ENABLE=4;const READ_ONLY=5;const SPELL_CHECK=6;const TYPE=7;const AUTO_FONT_SIZE=8;const ID=9;const CLASS_NAME=10;const DOM_COMPONENT_ID="text-input";const elemTypes=["text","password","email","number","tel","url","textarea","search"];C3.Plugins.TextBox.Instance=class TextInputInstance extends C3.SDKDOMInstanceBase{constructor(inst,properties){super(inst,DOM_COMPONENT_ID);this._text=
-"";this._placeholder="";this._title="";this._isEnabled=true;this._isReadOnly=false;this._spellCheck=false;this._type="text";this._autoFontSize=true;this._maxLength=-1;this._id="";this._className="";if(properties){this._text=properties[TEXT];this._placeholder=properties[PLACEHOLDER];this._title=properties[TOOLTIP];this.GetWorldInfo().SetVisible(properties[INITIALLY_VISIBLE]);this._isEnabled=properties[ENABLE];this._isReadOnly=properties[READ_ONLY];this._spellCheck=properties[SPELL_CHECK];this._type=
-elemTypes[properties[TYPE]];this._autoFontSize=properties[AUTO_FONT_SIZE];this._id=properties[ID];this._className=properties[CLASS_NAME]}this.CreateElement({"type":this._type,"id":this._id,"className":this._className})}Release(){super.Release()}GetElementState(){return{"text":this._text,"placeholder":this._placeholder,"title":this._title,"isEnabled":this._isEnabled,"isReadOnly":this._isReadOnly,"spellCheck":this._spellCheck,"maxLength":this._maxLength}}async _OnClick(e){this.DispatchScriptEvent("click",
-true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnClicked)}async _OnDoubleClick(e){this.DispatchScriptEvent("dblclick",true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnDoubleClicked)}async _OnChange(e){this._text=e["text"];this.DispatchScriptEvent("change",true);await this.TriggerAsync(C3.Plugins.TextBox.Cnds.OnTextChanged)}_SetText(text){if(this._text===text)return;this._text=text;this.UpdateElementState()}_GetText(){return this._text}_SetPlaceholder(placeholder){if(this._placeholder===
-placeholder)return;this._placeholder=placeholder;this.UpdateElementState()}_GetPlaceholder(){return this._placeholder}_SetTooltip(title){if(this._title===title)return;this._title=title;this.UpdateElementState()}_GetTooltip(){return this._title}_SetEnabled(e){e=!!e;if(this._isEnabled===e)return;this._isEnabled=e;this.UpdateElementState()}_IsEnabled(){return this._isEnabled}_SetReadOnly(r){r=!!r;if(this._isReadOnly===r)return;this._isReadOnly=r;this.UpdateElementState()}_IsReadOnly(){return this._isReadOnly}_SetMaxLength(l){l=
-Math.max(+l,-1);if(this._maxLength===l)return;this._maxLength=l;this.UpdateElementState()}_GetMaxLength(){return this._maxLength}_ScrollToBottom(){Promise.resolve().then(()=>this.PostToDOMElement("scroll-to-bottom"))}Draw(renderer){}SaveToJson(){return{"t":this._text,"p":this._placeholder,"ti":this._title,"e":this._isEnabled,"r":this._isReadOnly,"sp":this._spellCheck,"ml":this._maxLength,"type":this._type,"id":this._id}}LoadFromJson(o){this._text=o["t"];this._placeholder=o["p"];this._title=o["ti"];
-this._isEnabled=o["e"];this._isReadOnly=o["r"];this._spellCheck=o["sp"];this._maxLength=o.hasOwnProperty("ml")?o["ml"]:-1;this._type=o["type"];this._id=o["id"];this.UpdateElementState()}GetPropertyValueByIndex(index){switch(index){case TEXT:return this._text;case PLACEHOLDER:return this._placeholder;case TOOLTIP:return this._title;case ENABLE:return this._isEnabled;case READ_ONLY:return this._isReadOnly;case SPELL_CHECK:return this._spellCheck;case AUTO_FONT_SIZE:return this._autoFontSize}}SetPropertyValueByIndex(index,
-value){switch(index){case TEXT:if(this._text===value)return;this._text=value;this.UpdateElementState();break;case PLACEHOLDER:if(this._placeholder===value)return;this._placeholder=value;this.UpdateElementState();break;case TOOLTIP:if(this._title===value)return;this._title=value;this.UpdateElementState();break;case ENABLE:if(this._isEnabled===!!value)return;this._isEnabled=!!value;this.UpdateElementState();break;case READ_ONLY:if(this._isReadOnly===!!value)return;this._isReadOnly=!!value;this.UpdateElementState();
-break;case SPELL_CHECK:if(this._spellCheck===!!value)return;this._spellCheck=!!value;this.UpdateElementState();break;case AUTO_FONT_SIZE:this._autoFontSize=!!value;break}}GetDebuggerProperties(){const Acts=C3.Plugins.TextBox.Acts;const prefix="plugins.textbox";return[{title:prefix+".name",properties:[{name:prefix+".properties.text.name",value:this._text,onedit:v=>this.CallAction(Acts.SetText,v)},{name:prefix+".properties.enabled.name",value:this._isEnabled,onedit:v=>this.CallAction(Acts.SetEnabled,
-v)},{name:prefix+".properties.read-only.name",value:this._isReadOnly,onedit:v=>this.CallAction(Acts.SetReadOnly,v)}]}]}GetScriptInterfaceClass(){return self.ITextInputInstance}};const map=new WeakMap;self.ITextInputInstance=class ITextInputInstance extends self.IDOMInstance{constructor(){super();map.set(this,self.IInstance._GetInitInst().GetSdkInstance())}set text(str){C3X.RequireString(str);map.get(this)._SetText(str)}get text(){return map.get(this)._GetText()}set placeholder(str){C3X.RequireString(str);
-map.get(this)._SetPlaceholder(str)}get placeholder(){return map.get(this)._GetPlaceholder()}set tooltip(str){C3X.RequireString(str);map.get(this)._SetTooltip(str)}get tooltip(){return map.get(this)._GetTooltip()}set isEnabled(e){map.get(this)._SetEnabled(e)}get isEnabled(){return map.get(this)._IsEnabled()}set isReadOnly(r){map.get(this)._SetReadOnly(r)}get isReadOnly(){return map.get(this)._IsReadOnly()}set maxLength(l){C3X.RequireFiniteNumber(l);map.get(this)._SetMaxLength(l)}get maxLength(){return map.get(this)._GetMaxLength()}scrollToBottom(){map.get(this)._ScrollToBottom()}}}
-{const C3=self.C3;C3.Plugins.TextBox.Cnds={CompareText(text,case_){if(case_===0)return C3.equalsNoCase(this._text,text);else return this._text===text},OnTextChanged(){return true},OnClicked(){return true},OnDoubleClicked(){return true}}}
-{const C3=self.C3;C3.Plugins.TextBox.Acts={SetText(param){this._SetText(param.toString())},AppendText(param){if(param==="")return;this._SetText(this._GetText()+param)},SetPlaceholder(placeholder){this._SetPlaceholder(placeholder)},SetTooltip(title){this._SetTooltip(title)},SetReadOnly(r){this._SetReadOnly(r===0)},ScrollToBottom(){this._ScrollToBottom()},SetMaxLength(l){this._SetMaxLength(l)}}}{const C3=self.C3;C3.Plugins.TextBox.Exps={Text(){return this._GetText()},MaxLength(){return this._GetMaxLength()}}};
+'use strict';{const C3=self.C3;C3.Plugins.Date=class DatePlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.Date.Type=class DateType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}{const C3=self.C3;C3.Plugins.Date.Instance=class DateInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst)}}}
+{const C3=self.C3;const getters=[];getters[0]=[ts=>C3.Plugins.Date.Exps.GetYear(ts),ts=>C3.Plugins.Date.Exps.GetMonth(ts),ts=>C3.Plugins.Date.Exps.GetDate(ts),ts=>C3.Plugins.Date.Exps.GetDay(ts),ts=>C3.Plugins.Date.Exps.GetHours(ts),ts=>C3.Plugins.Date.Exps.GetMinutes(ts),ts=>C3.Plugins.Date.Exps.GetSeconds(ts),ts=>C3.Plugins.Date.Exps.GetMilliseconds(ts)];getters[1]=[ts=>C3.Plugins.Date.Exps.GetUTCYear(ts),ts=>C3.Plugins.Date.Exps.GetUTCMonth(ts),ts=>C3.Plugins.Date.Exps.GetUTCDate(ts),ts=>C3.Plugins.Date.Exps.GetUTCDay(ts),
+ts=>C3.Plugins.Date.Exps.GetUTCHours(ts),ts=>C3.Plugins.Date.Exps.GetUTCMinutes(ts),ts=>C3.Plugins.Date.Exps.GetUTCSeconds(ts),ts=>C3.Plugins.Date.Exps.GetUTCMilliseconds(ts)];const parse=dateString=>C3.Plugins.Date.Exps.Parse(dateString);C3.Plugins.Date.Cnds={CompareTimeStamps(first,cmp,second){return C3.compare(first,cmp,second)},CompareDateStrings(first,cmp,second){return C3.compare(parse(first),cmp,parse(second))},CompareTimestampParts(first,cmp,second,part){return C3.compare(getters[1][part](first),
+cmp,getters[1][part](second))},CompareDateStringParts(first,cmp,second,part,mode){return C3.compare(getters[mode][part](parse(first)),cmp,getters[mode][part](parse(second)))}}}{const C3=self.C3;C3.Plugins.Date.Acts={}}
+{const C3=self.C3;const Intl=self.Intl;const getters=new Map;getters.set("local",new Map([["year",ts=>(new Date(ts)).getFullYear()],["month",ts=>(new Date(ts)).getMonth()],["date",ts=>(new Date(ts)).getDate()],["day",ts=>(new Date(ts)).getDay()],["hours",ts=>(new Date(ts)).getHours()],["minutes",ts=>(new Date(ts)).getMinutes()],["seconds",ts=>(new Date(ts)).getSeconds()],["milliseconds",ts=>(new Date(ts)).getMilliseconds()]]));getters.set("universal",new Map([["year",ts=>(new Date(ts)).getUTCFullYear()],
+["month",ts=>(new Date(ts)).getUTCMonth()],["date",ts=>(new Date(ts)).getUTCDate()],["day",ts=>(new Date(ts)).getUTCDay()],["hours",ts=>(new Date(ts)).getUTCHours()],["minutes",ts=>(new Date(ts)).getUTCMinutes()],["seconds",ts=>(new Date(ts)).getUTCSeconds()],["milliseconds",ts=>(new Date(ts)).getUTCMilliseconds()]]));const setters=new Map;setters.set("local",new Map([["year",(ts,year)=>(new Date(ts)).setFullYear(year)],["month",(ts,month)=>(new Date(ts)).setMonth(month)],["date",(ts,date)=>(new Date(ts)).setDate(date)],
+["hours",(ts,hours)=>(new Date(ts)).setHours(hours)],["minutes",(ts,minutes)=>(new Date(ts)).setMinutes(minutes)],["seconds",(ts,seconds)=>(new Date(ts)).setSeconds(seconds)],["milliseconds",(ts,milliseconds)=>(new Date(ts)).setMilliseconds(milliseconds)]]));setters.set("universal",new Map([["year",(ts,year)=>(new Date(ts)).setUTCFullYear(year)],["month",(ts,month)=>(new Date(ts)).setUTCMonth(month)],["date",(ts,date)=>(new Date(ts)).setUTCDate(date)],["hours",(ts,hours)=>(new Date(ts)).setUTCHours(hours)],
+["minutes",(ts,minutes)=>(new Date(ts)).setUTCMinutes(minutes)],["seconds",(ts,seconds)=>(new Date(ts)).setUTCSeconds(seconds)],["milliseconds",(ts,milliseconds)=>(new Date(ts)).setUTCMilliseconds(milliseconds)]]));const validate_date_format_option=function(chosenOption,optionName,validOptions,optionsObject){if(validOptions.includes(chosenOption))optionsObject[optionName]=chosenOption};const validate_hour_format_option=function(hourFormat,optionsObject){if(!hourFormat)return;if(hourFormat==="12")optionsObject["hour12"]=
+true;else if(hourFormat==="24")optionsObject["hour12"]=false};const validate_locale=function(locale){try{return Intl.getCanonicalLocales(locale)}catch(err){return self.navigator.language}};const DATE_STYLES=["full","long","medium","short"];const TIME_STYLES=["full","long","medium","short"];const WEEK_DAY_FORMATS=["long","short","narrow"];const YEAR_FORMATS=["numeric","2-digit"];const MONTH_FORMATS=["numeric","2-digit","long","short","narrow"];const DAY_FORMATS=["numeric","2-digit"];const HOUR_FORMATS=
+["numeric","2-digit"];const MINUTE_FORMATS=["numeric","2-digit"];const SECOND_FORMATS=["numeric","2-digit"];C3.Plugins.Date.Exps={ToString(timeStamp){return(new Date(timeStamp)).toString()},ToDateString(timeStamp){return(new Date(timeStamp)).toDateString()},ToTimeString(timeStamp){return(new Date(timeStamp)).toTimeString()},ToLocaleString(timeStamp){return(new Date(timeStamp)).toLocaleString()},ToLocaleDateString(timeStamp){return(new Date(timeStamp)).toLocaleDateString()},ToLocaleTimeString(timeStamp){return(new Date(timeStamp)).toLocaleTimeString()},
+ToUTCString(timeStamp){return(new Date(timeStamp)).toUTCString()},Parse(dateString){return Date.parse(dateString)},Get(year,month,day,hours,minutes,seconds,milliseconds){return Date.UTC(year,month,day,hours,minutes,seconds,milliseconds)},Now(){return Date.now()},TimezoneOffset(){return(new Date(Date.now())).getTimezoneOffset()},GetYear(timeStamp){return getters.get("local").get("year")(timeStamp)},GetUTCYear(timeStamp){return getters.get("universal").get("year")(timeStamp)},GetMonth(timeStamp){return getters.get("local").get("month")(timeStamp)},
+GetUTCMonth(timeStamp){return getters.get("universal").get("month")(timeStamp)},GetDate(timeStamp){return getters.get("local").get("date")(timeStamp)},GetUTCDate(timeStamp){return getters.get("universal").get("date")(timeStamp)},GetDay(timeStamp){return getters.get("local").get("day")(timeStamp)},GetUTCDay(timeStamp){return getters.get("universal").get("day")(timeStamp)},GetHours(timeStamp){return getters.get("local").get("hours")(timeStamp)},GetUTCHours(timeStamp){return getters.get("universal").get("hours")(timeStamp)},
+GetMinutes(timeStamp){return getters.get("local").get("minutes")(timeStamp)},GetUTCMinutes(timeStamp){return getters.get("universal").get("minutes")(timeStamp)},GetSeconds(timeStamp){return getters.get("local").get("seconds")(timeStamp)},GetUTCSeconds(timeStamp){return getters.get("universal").get("seconds")(timeStamp)},GetMilliseconds(timeStamp){return getters.get("local").get("milliseconds")(timeStamp)},GetUTCMilliseconds(timeStamp){return getters.get("universal").get("milliseconds")(timeStamp)},
+ChangeYear(timeStamp,year){return setters.get("local").get("year")(timeStamp,year)},ChangeUTCYear(timeStamp,year){return setters.get("universal").get("year")(timeStamp,year)},ChangeMonth(timeStamp,month){return setters.get("local").get("month")(timeStamp,month)},ChangeUTCMonth(timeStamp,month){return setters.get("universal").get("month")(timeStamp,month)},ChangeDate(timeStamp,date){return setters.get("local").get("date")(timeStamp,date)},ChangeUTCDate(timeStamp,date){return setters.get("universal").get("date")(timeStamp,
+date)},ChangeDay(timeStamp,targetDay){const year=C3.Plugins.Date.Exps.GetYear(timeStamp);const month=C3.Plugins.Date.Exps.GetMonth(timeStamp);const date=C3.Plugins.Date.Exps.GetDate(timeStamp);const hours=C3.Plugins.Date.Exps.GetHours(timeStamp);const minutes=C3.Plugins.Date.Exps.GetMinutes(timeStamp);const seconds=C3.Plugins.Date.Exps.GetSeconds(timeStamp);const milliseconds=C3.Plugins.Date.Exps.GetMilliseconds(timeStamp);const currentDay=C3.Plugins.Date.Exps.GetDay(timeStamp);const distance=targetDay-
+currentDay;return(new Date(year,month,date+distance,hours,minutes,seconds,milliseconds)).getTime()},ChangeUTCDay(timeStamp,targetDay){const year=C3.Plugins.Date.Exps.GetUTCYear(timeStamp);const month=C3.Plugins.Date.Exps.GetUTCMonth(timeStamp);const date=C3.Plugins.Date.Exps.GetUTCDate(timeStamp);const hours=C3.Plugins.Date.Exps.GetUTCHours(timeStamp);const minutes=C3.Plugins.Date.Exps.GetUTCMinutes(timeStamp);const seconds=C3.Plugins.Date.Exps.GetUTCSeconds(timeStamp);const milliseconds=C3.Plugins.Date.Exps.GetUTCMilliseconds(timeStamp);
+const currentDay=C3.Plugins.Date.Exps.GetUTCDay(timeStamp);const distance=targetDay-currentDay;return C3.Plugins.Date.Exps.Get(year,month,date+distance,hours,minutes,seconds,milliseconds)},ChangeHours(timeStamp,hours){return setters.get("local").get("hours")(timeStamp,hours)},ChangeUTCHours(timeStamp,hours){return setters.get("universal").get("hours")(timeStamp,hours)},ChangeMinutes(timeStamp,minutes){return setters.get("local").get("minutes")(timeStamp,minutes)},ChangeUTCMinutes(timeStamp,minutes){return setters.get("universal").get("minutes")(timeStamp,
+minutes)},ChangeSeconds(timeStamp,seconds){return setters.get("local").get("seconds")(timeStamp,seconds)},ChangeUTCSeconds(timeStamp,seconds){return setters.get("universal").get("seconds")(timeStamp,seconds)},ChangeMilliseconds(timeStamp,milliseconds){return setters.get("local").get("milliseconds")(timeStamp,milliseconds)},ChangeUTCMilliseconds(timeStamp,milliseconds){return setters.get("universal").get("milliseconds")(timeStamp,milliseconds)},Difference(firstTimeStamp,secondTimeStamp){return secondTimeStamp-
+firstTimeStamp},ToTimerHours(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalHours(milliseconds))},ToTimerMinutes(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalMinutes(milliseconds))%60},ToTimerSeconds(milliseconds){return Math.trunc(C3.Plugins.Date.Exps.ToTotalSeconds(milliseconds))%60},ToTimerMilliseconds(milliseconds){return milliseconds%1E3},ToTotalHours(milliseconds){return milliseconds/(1E3*60*60)},ToTotalMinutes(milliseconds){return milliseconds/(1E3*60)},ToTotalSeconds(milliseconds){return milliseconds/
+1E3},FormatDateWithStyles(locale,timestamp,dateStyle,timeStyle,hourFormat){const l=validate_locale(locale);if(!l)return;let options={};validate_date_format_option.call(this,dateStyle,"dateStyle",DATE_STYLES,options);validate_date_format_option.call(this,timeStyle,"timeStyle",TIME_STYLES,options);validate_hour_format_option.call(this,hourFormat,options);return(new Intl.DateTimeFormat(l,options)).format(timestamp)},FormatDateWithComponents(locale,timestamp,weekday,year,month,day,hour,minute,second,
+hourFormat){const l=validate_locale(locale);if(!l)return;const options={};validate_date_format_option.call(this,weekday,"weekday",WEEK_DAY_FORMATS,options);validate_date_format_option.call(this,year,"year",YEAR_FORMATS,options);validate_date_format_option.call(this,month,"month",MONTH_FORMATS,options);validate_date_format_option.call(this,day,"day",DAY_FORMATS,options);validate_date_format_option.call(this,hour,"hour",HOUR_FORMATS,options);validate_date_format_option.call(this,minute,"minute",MINUTE_FORMATS,
+options);validate_date_format_option.call(this,second,"second",SECOND_FORMATS,options);validate_hour_format_option.call(this,hourFormat,options);return(new Intl.DateTimeFormat(l,options)).format(timestamp)}}};
 
 }
 
@@ -5615,23 +5600,6 @@ opts.tags,opts.startValue,endValue,time,easeIndex,!!opts.destroyOnComplete,!!opt
 }
 
 {
-'use strict';{const C3=self.C3;C3.Behaviors.DragnDrop=class DragnDropBehavior extends C3.SDKBehaviorBase{constructor(opts){super(opts);const rt=this._runtime.Dispatcher();this._disposables=new C3.CompositeDisposable(C3.Disposable.From(rt,"pointerdown",e=>this._OnPointerDown(e.data)),C3.Disposable.From(rt,"pointermove",e=>this._OnPointerMove(e.data)),C3.Disposable.From(rt,"pointerup",e=>this._OnPointerUp(e.data,false)),C3.Disposable.From(rt,"pointercancel",e=>this._OnPointerUp(e.data,true)))}Release(){this._disposables.Release();
-this._disposables=null;super.Release()}_OnPointerDown(e){if(e["pointerType"]==="mouse"&&e["button"]!==0)return;this._OnInputDown(e["pointerId"].toString(),e["pageX"]-this._runtime.GetCanvasClientX(),e["pageY"]-this._runtime.GetCanvasClientY())}_OnPointerMove(e){if((e["lastButtons"]&1)!==0&&(e["buttons"]&1)===0)this._OnInputUp(e["pointerId"].toString());else this._OnInputMove(e["pointerId"].toString(),e["pageX"]-this._runtime.GetCanvasClientX(),e["pageY"]-this._runtime.GetCanvasClientY())}_OnPointerUp(e,
-isCancel){if(e["pointerType"]==="mouse"&&e["button"]!==0)return;this._OnInputUp(e["pointerId"].toString())}async _OnInputDown(src,clientX,clientY){const myInstances=this.GetInstances();let topMost=null;let topBehInst=null;let topX=0;let topY=0;for(const inst of myInstances){const behInst=inst.GetBehaviorSdkInstanceFromCtor(C3.Behaviors.DragnDrop);if(!behInst.IsEnabled()||behInst.IsDragging()||inst.IsDestroyed())continue;const wi=inst.GetWorldInfo();const layer=wi.GetLayer();const [lx,ly]=layer.CanvasCssToLayer(clientX,
-clientY,wi.GetTotalZElevation());if(!layer.IsSelfAndParentsInteractive()||!wi.ContainsPoint(lx,ly))continue;if(!topMost){topMost=inst;topBehInst=behInst;topX=lx;topY=ly;continue}const topWi=topMost.GetWorldInfo();if(layer.GetIndex()>topWi.GetLayer().GetIndex()||layer.GetIndex()===topWi.GetLayer().GetIndex()&&wi.GetZIndex()>topWi.GetZIndex()){topMost=inst;topBehInst=behInst;topX=lx;topY=ly}}if(topMost)await topBehInst._OnDown(src,topX,topY)}_OnInputMove(src,clientX,clientY){const myInstances=this.GetInstances();
-for(const inst of myInstances){const behInst=inst.GetBehaviorSdkInstanceFromCtor(C3.Behaviors.DragnDrop);if(!behInst.IsEnabled()||!behInst.IsDragging()||behInst.IsDragging()&&behInst.GetDragSource()!==src)continue;const wi=inst.GetWorldInfo();const layer=wi.GetLayer();const [lx,ly]=layer.CanvasCssToLayer(clientX,clientY,wi.GetTotalZElevation());behInst._OnMove(lx,ly)}}async _OnInputUp(src){const myInstances=this.GetInstances();for(const inst of myInstances){const behInst=inst.GetBehaviorSdkInstanceFromCtor(C3.Behaviors.DragnDrop);
-if(behInst.IsDragging()&&behInst.GetDragSource()===src)await behInst._OnUp()}}}}{const C3=self.C3;C3.Behaviors.DragnDrop.Type=class DragnDropType extends C3.SDKBehaviorTypeBase{constructor(behaviorType){super(behaviorType)}Release(){super.Release()}OnCreate(){}}}
-{const C3=self.C3;const C3X=self.C3X;const IBehaviorInstance=self.IBehaviorInstance;const AXES=0;const ENABLE=1;C3.Behaviors.DragnDrop.Instance=class DragnDropInstance extends C3.SDKBehaviorInstanceBase{constructor(behInst,properties){super(behInst);this._isDragging=false;this._dx=0;this._dy=0;this._dragSource="<none>";this._axes=0;this._isEnabled=true;if(properties){this._axes=properties[AXES];this._isEnabled=properties[ENABLE]}}Release(){super.Release()}SaveToJson(){return{"a":this._axes,"e":this._isEnabled}}LoadFromJson(o){this._axes=
-o["a"];this._isEnabled=o["e"];this._isDragging=false}_SetEnabled(e){this._isEnabled=!!e;if(!this._isEnabled)this._isDragging=false}IsEnabled(){return this._isEnabled}_SetAxes(a){this._axes=a}_GetAxes(){return this._axes}_Drop(){if(this._isDragging)this._OnUp()}IsDragging(){return this._isDragging}GetDragSource(){return this._dragSource}async _OnDown(src,x,y){const wi=this.GetWorldInfo();this._dx=x-wi.GetX();this._dy=y-wi.GetY();this._isDragging=true;this._dragSource=src;this.DispatchScriptEvent("dragstart");
-await this.TriggerAsync(C3.Behaviors.DragnDrop.Cnds.OnDragStart)}_OnMove(x,y){const wi=this.GetWorldInfo();const newX=x-this._dx;const newY=y-this._dy;if(this._axes===0){if(wi.GetX()!==newX||wi.GetY()!==newY){wi.SetXY(newX,newY);wi.SetBboxChanged()}}else if(this._axes===1){if(wi.GetX()!==newX){wi.SetX(newX);wi.SetBboxChanged()}}else if(this._axes===2)if(wi.GetY()!==newY){wi.SetY(newY);wi.SetBboxChanged()}}async _OnUp(){this._isDragging=false;this.DispatchScriptEvent("drop");await this.TriggerAsync(C3.Behaviors.DragnDrop.Cnds.OnDrop)}GetPropertyValueByIndex(index){switch(index){case AXES:return this._GetAxes();
-case ENABLE:return this.IsEnabled()}}SetPropertyValueByIndex(index,value){switch(index){case AXES:this._SetAxes(value);break;case ENABLE:this._SetEnabled(!!value);break}}GetDebuggerProperties(){const prefix="behaviors.dragndrop";const axesPrefix=prefix+".properties.axes";let axesName="";if(this._axes===0)axesName=axesPrefix+".items.both";else if(this._axes===1)axesName=axesPrefix+".items.horizontal-only";else if(this._axes===2)axesName=axesPrefix+".items.vertical-only";return[{title:"$"+this.GetBehaviorType().GetName(),
-properties:[{name:prefix+".debugger.is-dragging",value:this.IsDragging()},{name:axesPrefix+".name",value:[axesName]},{name:prefix+".properties.enabled.name",value:this.IsEnabled(),onedit:v=>this._SetEnabled(v)}]}]}GetScriptInterfaceClass(){return self.IDragDropBehaviorInstance}};const map=new WeakMap;const VALID_AXES=["both","horizontal","vertical"];self.IDragDropBehaviorInstance=class IDragDropBehaviorInstance extends IBehaviorInstance{constructor(){super();map.set(this,IBehaviorInstance._GetInitInst().GetSdkInstance())}set axes(str){const a=
-VALID_AXES.indexOf(str);if(a===-1)throw new Error("invalid axes");map.get(this)._SetAxes(a)}get axes(){return VALID_AXES[map.get(this)._GetAxes()]}drop(){map.get(this)._Drop()}get isDragging(){return map.get(this).IsDragging()}get isEnabled(){return map.get(this).IsEnabled()}set isEnabled(e){map.get(this)._SetEnabled(e)}}}{const C3=self.C3;C3.Behaviors.DragnDrop.Cnds={IsDragging(){return this.IsDragging()},OnDragStart(){return true},OnDrop(){return true},IsEnabled(){return this.IsEnabled()}}}
-{const C3=self.C3;C3.Behaviors.DragnDrop.Acts={SetEnabled(e){this._SetEnabled(!!e)},SetAxes(a){this._SetAxes(a)},Drop(){this._Drop()}}}{const C3=self.C3;C3.Behaviors.DragnDrop.Exps={}};
-
-}
-
-{
 'use strict';{const C3=self.C3;C3.Behaviors.Fade=class FadeBehavior extends C3.SDKBehaviorBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Behaviors.Fade.Type=class FadeType extends C3.SDKBehaviorTypeBase{constructor(behaviorType){super(behaviorType)}Release(){super.Release()}OnCreate(){}}}
 {const C3=self.C3;const C3X=self.C3X;const IBehaviorInstance=self.IBehaviorInstance;const FADE_IN_TIME=0;const WAIT_TIME=1;const FADE_OUT_TIME=2;const DESTROY=3;const ACTIVE_AT_START=4;C3.Behaviors.Fade.Instance=class FadeInstance extends C3.SDKBehaviorInstanceBase{constructor(behInst,properties){super(behInst);this._fadeInTime=0;this._waitTime=0;this._fadeOutTime=0;this._destroy=true;this._activeAtStart=true;this._setMaxOpacity=false;this._stage=0;this._stageTime=C3.New(C3.KahanSum);this._maxOpacity=
 this._inst.GetWorldInfo().GetOpacity()||1;if(properties){this._fadeInTime=properties[FADE_IN_TIME];this._waitTime=properties[WAIT_TIME];this._fadeOutTime=properties[FADE_OUT_TIME];this._destroy=!!properties[DESTROY];this._activeAtStart=!!properties[ACTIVE_AT_START];this._stage=this._activeAtStart?0:3}if(this._activeAtStart)if(this._fadeInTime===0){this._stage=1;if(this._waitTime===0)this._stage=2}else{this._inst.GetWorldInfo().SetOpacity(0);this._runtime.UpdateRender()}this._StartTicking()}Release(){super.Release()}SaveToJson(){return{"fit":this._fadeInTime,
@@ -5671,38 +5639,6 @@ class ITimerBehaviorInstance extends IBehaviorInstance{constructor(){super();map
 map.get(this)._StopTimer(name)}stopAllTimers(){map.get(this)._StopAllTimers()}isTimerRunning(name){C3X.RequireString(name);return map.get(this)._IsTimerRunning(name)}isTimerPaused(name){C3X.RequireString(name);return map.get(this)._IsTimerPaused(name)}getCurrentTime(name){C3X.RequireString(name);return map.get(this)._GetTimerCurrentTime(name)}getTotalTime(name){C3X.RequireString(name);return map.get(this)._GetTimerTotalTime(name)}getDuration(name){C3X.RequireString(name);return map.get(this)._GetTimerDuration(name)}hasFinished(name){C3X.RequireString(name);
 return map.get(this)._HasTimerFinished(name)}}}{const C3=self.C3;C3.Behaviors.Timer.Cnds={OnTimer(name){return this._HasTimerFinished(name)},IsTimerRunning(name){return this._IsTimerRunning(name)},IsTimerPaused(name){return this._IsTimerPaused(name)}}}
 {const C3=self.C3;C3.Behaviors.Timer.Acts={StartTimer(duration,type,name){this._StartTimer(duration,name,type===1)},StopTimer(name){this._StopTimer(name)},StopAllTimers(){this._StopAllTimers()},PauseResumeTimer(name,state){this._SetTimerPaused(name,state===0)},PauseResumeAllTimers(state){this._SetAllTimersPaused(state===0)}}}{const C3=self.C3;C3.Behaviors.Timer.Exps={CurrentTime(name){return this._GetTimerCurrentTime(name)},TotalTime(name){return this._GetTimerTotalTime(name)},Duration(name){return this._GetTimerDuration(name)}}};
-
-}
-
-{
-'use strict';{const C3=self.C3;C3.Behaviors.Turret=class TurretBehavior extends C3.SDKBehaviorBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Behaviors.Turret.Type=class TurretType extends C3.SDKBehaviorTypeBase{constructor(behaviorType){super(behaviorType);this._targetTypes=[]}Release(){C3.clearArray(this._targetTypes);super.Release()}OnCreate(){}GetTargetTypes(){return this._targetTypes}}}
-{const C3=self.C3;const C3X=self.C3X;const IBehaviorInstance=self.IBehaviorInstance;const RANGE=0;const RATE_OF_FIRE=1;const ROTATE=2;const ROTATE_SPEED=3;const TARGET_MODE=4;const PREDICTIVE_AIM=5;const PROJECTILE_SPEED=6;const USE_COLLISION_CELLS=7;const ENABLED=8;const tmpRect=C3.New(C3.Rect);const candidates=[];C3.Behaviors.Turret.Instance=class TurretInstance extends C3.SDKBehaviorInstanceBase{constructor(behInst,properties){super(behInst);this._range=300;this._rateOfFire=1;this._isRotateEnabled=
-true;this._rotateSpeed=C3.toRadians(180);this._targetMode=0;this._predictiveAim=false;this._projectileSpeed=500;this._useCollisionCells=true;this._isEnabled=true;this._lastCheckTime=0;this._fireTimeCount=0;this._currentTarget=null;this._loadTargetUid=-1;this._oldTargetX=0;this._oldTargetY=0;this._lastSpeeds=[0,0,0,0];this._speedsCount=0;this._firstTickWithTarget=true;if(properties){this._range=properties[RANGE];this._rateOfFire=properties[RATE_OF_FIRE];this._isRotateEnabled=!!properties[ROTATE];this._rotateSpeed=
-C3.toRadians(properties[ROTATE_SPEED]);this._targetMode=properties[TARGET_MODE];this._predictiveAim=!!properties[PREDICTIVE_AIM];this._projectileSpeed=properties[PROJECTILE_SPEED];this._useCollisionCells=!!properties[USE_COLLISION_CELLS];this._isEnabled=!!properties[ENABLED]}this._fireTimeCount=this._rateOfFire;const rt=this._runtime.Dispatcher();this._disposables=new C3.CompositeDisposable(C3.Disposable.From(rt,"instancedestroy",e=>this._OnInstanceDestroyed(e.instance)),C3.Disposable.From(rt,"afterload",
-e=>this._OnAfterLoad()));if(this._isEnabled)this._StartTicking()}Release(){this._currentTarget=null;super.Release()}_OnAfterLoad(){if(this._loadTargetUid===-1)this._currentTarget=null;else this._currentTarget=this._runtime.GetInstanceByUID(this._loadTargetUid)}_OnInstanceDestroyed(inst){if(this._currentTarget===inst)this._currentTarget=null}_MaybeAcquireTargetInstance(inst){if(this._currentTarget!==inst&&this._inst!==inst&&this.IsInRange(inst)){this._currentTarget=inst;this._OnTargetAcquired();return true}return false}_UnacquireTarget(){this._currentTarget=
-null;this._speedsCount=0;this._firstTickWithTarget=true}_SetRange(r){this._range=r}_GetRange(){return this._range}_SetRateOfFire(r){this._rateOfFire=r}_GetRateOfFire(){return this._rateOfFire}_SetRotateEnabled(r){this._isRotateEnabled=!!r}_IsRotateEnabled(){return this._isRotateEnabled}_SetRotateSpeed(r){this._rotateSpeed=r}_GetRotateSpeed(){return this._rotateSpeed}_SetTargetMode(m){this._targetMode=m}_GetTargetMode(){return this._targetMode}_SetPredictiveAim(p){this._predictiveAim=!!p}_IsPredictiveAim(){return this._predictiveAim}_SetProjectileSpeed(s){this._projectileSpeed=
-s}_GetProjectileSpeed(){return this._projectileSpeed}_SetEnabled(e){this._isEnabled=!!e;if(this._isEnabled)this._StartTicking();else this._StopTicking()}_IsEnabled(){return this._isEnabled}SaveToJson(){return{"r":this._range,"rof":this._rateOfFire,"re":this._isRotateEnabled,"rs":this._rotateSpeed,"tm":this._targetMode,"pa":this._predictiveAim,"ps":this._projectileSpeed,"ucc":this._useCollisionCells,"e":this._isEnabled,"lct":this._lastCheckTime,"ftc":this._fireTimeCount,"t":this._currentTarget?this._currentTarget.GetUID():
--1,"ox":this._oldTargetX,"oy":this._oldTargetY,"ls":this._lastSpeeds,"sc":this._speedsCount,"targs":this.GetSdkType().GetTargetTypes().map(t=>t.GetSID())}}LoadFromJson(o){this._range=o["r"];this._rateOfFire=o["rof"];this._isRotateEnabled=o["re"];this._rotateSpeed=o["rs"];this._targetMode=o["tm"];this._predictiveAim=o["pa"];this._projectileSpeed=o["ps"];this._useCollisionCells=o["ucc"];this._SetEnabled(o["e"]);this._lastCheckTime=o["lct"];this._fireTimeCount=o["ftc"];this._loadTargetUid=o["t"];this._oldTargetX=
-o["ox"];this._oldTargetY=o["oy"];this._lastSpeeds=o["ls"];this._speedsCount=o["sc"];const targetTypes=this.GetSdkType().GetTargetTypes();C3.clearArray(targetTypes);for(const sid of o["targs"]){const objectClass=this._runtime.GetObjectClassBySID(sid);if(objectClass)targetTypes.push(objectClass)}}AddSpeed(s){if(this._speedsCount<4){this._lastSpeeds[this._speedsCount]=s;this._speedsCount++}else{this._lastSpeeds.shift();this._lastSpeeds.push(s)}}GetSpeed(){let ret=0;for(let i=0;i<this._speedsCount;++i)ret+=
-this._lastSpeeds[i];return ret/this._speedsCount}IsInRange(inst){const myWi=this.GetWorldInfo();const otherWi=inst.GetWorldInfo();const dx=otherWi.GetX()-myWi.GetX();const dy=otherWi.GetY()-myWi.GetY();return dx*dx+dy*dy<=this._range*this._range}LookForFirstTarget(){const wi=this.GetWorldInfo();const targetTypes=this.GetSdkType().GetTargetTypes();const collisionEngine=this._runtime.GetCollisionEngine();if(this._useCollisionCells){tmpRect.set(wi.GetX()-this._range,wi.GetY()-this._range,wi.GetX()+this._range,
-wi.GetY()+this._range);collisionEngine.GetObjectClassesCollisionCandidates(null,targetTypes,tmpRect,candidates)}else for(const objectClass of targetTypes)C3.appendArray(candidates,objectClass.GetInstances());for(const rinst of candidates)if(rinst!==this._inst&&this.IsInRange(rinst)){this._currentTarget=rinst;C3.clearArray(candidates);return}C3.clearArray(candidates)}LookForNearestTarget(){const wi=this.GetWorldInfo();const targetTypes=this.GetSdkType().GetTargetTypes();const collisionEngine=this._runtime.GetCollisionEngine();
-const myX=wi.GetX();const myY=wi.GetY();let closest=this._range*this._range;this._currentTarget=null;if(this._useCollisionCells){tmpRect.set(myX-this._range,myY-this._range,myX+this._range,myY+this._range);collisionEngine.GetObjectClassesCollisionCandidates(null,targetTypes,tmpRect,candidates)}else for(const objectClass of targetTypes)C3.appendArray(candidates,objectClass.GetInstances());for(const rinst of candidates){if(rinst===this._inst)continue;const otherWi=rinst.GetWorldInfo();const dx=myX-
-otherWi.GetX();const dy=myY-otherWi.GetY();const dist=dx*dx+dy*dy;if(dist<closest){this._currentTarget=rinst;closest=dist}}C3.clearArray(candidates)}_OnTargetAcquired(){this._speedsCount=0;this._firstTickWithTarget=true;const targetWi=this._currentTarget.GetWorldInfo();this._oldTargetX=targetWi.GetX();this._oldTargetY=targetWi.GetY();this.DispatchScriptEvent("targetacquired",false,{targetInst:this._currentTarget.GetInterfaceClass()});this.Trigger(C3.Behaviors.Turret.Cnds.OnTargetAcquired)}Tick(){if(!this._isEnabled)return;
-const dt=this._runtime.GetDt(this._inst);const nowTime=this._runtime.GetGameTime();const wi=this.GetWorldInfo();if(this._currentTarget&&!this.IsInRange(this._currentTarget)){this._currentTarget=null;this._speedsCount=0;this._firstTickWithTarget=true}if(nowTime>=this._lastCheckTime+.1){this._lastCheckTime=nowTime;if(this._targetMode===0&&!this._currentTarget){this.LookForFirstTarget();if(this._currentTarget)this._OnTargetAcquired()}else if(this._targetMode===1){const oldTarget=this._currentTarget;
-this.LookForNearestTarget();if(this._currentTarget&&this._currentTarget!==oldTarget)this._OnTargetAcquired()}}this._fireTimeCount+=dt;if(this._currentTarget){let targetWi=this._currentTarget.GetWorldInfo();let targetAngle=C3.angleTo(wi.GetX(),wi.GetY(),targetWi.GetX(),targetWi.GetY());if(this._predictiveAim){const Gx=wi.GetX();const Gy=wi.GetY();const Px=targetWi.GetX();const Py=targetWi.GetY();const h=C3.angleTo(Px,Py,this._oldTargetX,this._oldTargetY);if(!this._firstTickWithTarget)this.AddSpeed(C3.distanceTo(Px,
-Py,this._oldTargetX,this._oldTargetY)/dt);const s=this.GetSpeed();const q=Py-Gy;const r=Px-Gx;const w=(s*Math.sin(h)*(Gx-Px)-s*Math.cos(h)*(Gy-Py))/this._projectileSpeed;const a=Math.asin(w/Math.hypot(q,r))-Math.atan2(q,-r)+Math.PI;if(!isNaN(a))targetAngle=a}if(this._isRotateEnabled){wi.SetAngle(C3.angleRotate(wi.GetAngle(),targetAngle,this._rotateSpeed*dt));wi.SetBboxChanged()}if(this._fireTimeCount>=this._rateOfFire&&(!this._isRotateEnabled||C3.toDegrees(C3.angleDiff(wi.GetAngle(),targetAngle))<=
-.1)&&(!this._predictiveAim||this._speedsCount>=4)){this._fireTimeCount-=this._rateOfFire;if(this._fireTimeCount>=this._rateOfFire)this._fireTimeCount=0;this.DispatchScriptEvent("shoot",false,{targetInst:this._currentTarget.GetInterfaceClass()});this.Trigger(C3.Behaviors.Turret.Cnds.OnShoot)}if(this._currentTarget){targetWi=this._currentTarget.GetWorldInfo();this._oldTargetX=targetWi.GetX();this._oldTargetY=targetWi.GetY()}this._firstTickWithTarget=false}if(this._fireTimeCount>this._rateOfFire)this._fireTimeCount=
-this._rateOfFire}GetPropertyValueByIndex(index){switch(index){case RANGE:return this._GetRange();case RATE_OF_FIRE:return this._GetRateOfFire();case ROTATE:return this._IsRotateEnabled();case ROTATE_SPEED:return C3.toDegrees(this._GetRotateSpeed());case TARGET_MODE:return this._GetTargetMode();case PREDICTIVE_AIM:return this._IsPredictiveAim();case PROJECTILE_SPEED:return this._GetProjectileSpeed();case USE_COLLISION_CELLS:return this._useCollisionCells;case ENABLED:return this._IsEnabled()}}SetPropertyValueByIndex(index,
-value){switch(index){case RANGE:this._SetRange(value);break;case RATE_OF_FIRE:this._SetRateOfFire(value);break;case ROTATE:this._SetRotateEnabled(!!value);break;case ROTATE_SPEED:if(!this._IsRotateEnabled())return;this._SetRotateSpeed(C3.toRadians(value));break;case TARGET_MODE:this._SetTargetMode(value);break;case PREDICTIVE_AIM:this._SetPredictiveAim(!!value);break;case PROJECTILE_SPEED:if(!this._IsPredictiveAim())return;this._SetProjectileSpeed(value);break;case USE_COLLISION_CELLS:this._useCollisionCells=
-!!value;break;case ENABLED:this._SetEnabled(value);break}}GetDebuggerProperties(){const prefix="behaviors.turret";return[{title:"$"+this.GetBehaviorType().GetName(),properties:[{name:prefix+".properties.range.name",value:this._GetRange(),onedit:v=>this._SetRange(v)},{name:prefix+".properties.rate-of-fire.name",value:this._GetRateOfFire(),onedit:v=>this._SetRateOfFire(v)},{name:prefix+".properties.rotate-speed.name",value:C3.toDegrees(this._GetRotateSpeed()),onedit:v=>this._SetRotateSpeed(C3.toRadians(v))},
-{name:prefix+".properties.predictive-aim.name",value:this._IsPredictiveAim(),onedit:v=>this._SetPredictiveAim(v)},{name:prefix+".properties.projectile-speed.name",value:this._GetProjectileSpeed(),onedit:v=>this._SetProjectileSpeed(v)},{name:prefix+".debugger.has-target",value:!!this._currentTarget},{name:prefix+".debugger.target-uid",value:this._currentTarget?this._currentTarget.GetUID():0},{name:prefix+".properties.enabled.name",value:this._IsEnabled(),onedit:v=>this._SetEnabled(v)}]}]}GetScriptInterfaceClass(){return self.ITurretBehaviorInstance}};
-const map=new WeakMap;const VALID_TARGET_MODES=["first","nearest"];self.ITurretBehaviorInstance=class ITurretBehaviorInstance extends IBehaviorInstance{constructor(){super();map.set(this,IBehaviorInstance._GetInitInst().GetSdkInstance())}get currentTarget(){const t=map.get(this)._currentTarget;return t?t.GetInterfaceClass():null}set currentTarget(iinst){const inst=map.get(this);if(iinst)inst._MaybeAcquireTargetInstance(inst.GetRuntime()._UnwrapIWorldInstance(iinst));else inst._UnacquireTarget()}get range(){return map.get(this)._GetRange()}set range(r){C3X.RequireFiniteNumber(r);
-map.get(this)._SetRange(r)}get rateOfFire(){return map.get(this)._GetRateOfFire()}set rateOfFire(r){C3X.RequireFiniteNumber(r);map.get(this)._SetRateOfFire(r)}get isRotateEnabled(){return map.get(this)._IsRotateEnabled()}set isRotateEnabled(r){map.get(this)._SetRotateEnabled(!!r)}get rotateSpeed(){return map.get(this)._GetRotateSpeed()}set rotateSpeed(r){C3X.RequireFiniteNumber(r);map.get(this)._SetRotateSpeed(r)}get targetMode(){return VALID_TARGET_MODES[map.get(this)._GetTargetMode()]}set targetMode(str){const m=
-VALID_TARGET_MODES.indexOf(str);if(m===-1)throw new Error("invalid targetMode");map.get(this)._SetTargetMode(m)}get isPredictiveAimEnabled(){return map.get(this)._IsPredictiveAim()}set isPredictiveAimEnabled(p){map.get(this)._SetPredictiveAim(!!p)}get projectileSpeed(){return map.get(this)._GetProjectileSpeed()}set projectileSpeed(s){C3X.RequireFiniteNumber(s);map.get(this)._SetProjectileSpeed(s)}get isEnabled(){return map.get(this)._IsEnabled()}set isEnabled(e){map.get(this)._SetEnabled(e)}}}
-{const C3=self.C3;C3.Behaviors.Turret.Cnds={HasTarget(){return!!this._currentTarget},OnShoot(){return true},OnTargetAcquired(){return true},IsEnabled(){return this._IsEnabled()}}}
-{const C3=self.C3;C3.Behaviors.Turret.Acts={AcquireTarget(objectClass){if(!objectClass)return;const instances=objectClass.GetCurrentSol().GetInstances();for(const inst of instances)if(this._MaybeAcquireTargetInstance(inst))break},AddTarget(objectClass){const targetTypes=this.GetSdkType().GetTargetTypes();if(targetTypes.includes(objectClass))return;for(const t of targetTypes)if(t.IsFamily()&&t.FamilyHasMember(objectClass))return;targetTypes.push(objectClass)},ClearTargets(){C3.clearArray(this.GetSdkType().GetTargetTypes())},
-UnacquireTarget(){this._UnacquireTarget()},SetEnabled(e){this._SetEnabled(e!==0)},SetRange(r){this._SetRange(r)},SetRateOfFire(r){this._SetRateOfFire(r)},SetRotate(r){this._SetRotateEnabled(r!==0)},SetRotateSpeed(r){this._SetRotateSpeed(C3.toRadians(r))},SetTargetMode(m){this._SetTargetMode(m)},SetPredictiveAim(p){this._SetPredictiveAim(p!==0)},SetProjectileSpeed(s){this._SetProjectileSpeed(s)}}}
-{const C3=self.C3;C3.Behaviors.Turret.Exps={TargetUID(){return this._currentTarget?this._currentTarget.GetUID():0},Range(){return this._GetRange()},RateOfFire(){return this._GetRateOfFire()},RotateSpeed(){return C3.toDegrees(this._GetRotateSpeed())}}};
 
 }
 
@@ -5779,7 +5715,6 @@ self.C3_GetObjectRefTable = function () {
 	return [
 		C3.Plugins.Sprite,
 		C3.Behaviors.Tween,
-		C3.Behaviors.DragnDrop,
 		C3.Plugins.TiledBg,
 		C3.Plugins.Dictionary,
 		C3.Plugins.Arr,
@@ -5792,18 +5727,17 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade,
 		C3.Plugins.Spritefont2,
 		C3.Behaviors.Flash,
-		C3.Plugins.Browser,
-		C3.Plugins.Date,
 		C3.Plugins.Eponesh_GameScore,
-		C3.Plugins.GamePush_Channels,
-		C3.Plugins.LocalStorage,
 		C3.Plugins.Keyboard,
-		C3.Plugins.GameAnalytics,
+		C3.Plugins.Browser,
+		C3.Plugins.GamePush_Channels,
 		C3.Plugins.Cryptography,
 		C3.Plugins.BinaryData,
 		C3.Plugins.TextBox,
+		C3.Plugins.LocalStorage,
+		C3.Plugins.GameAnalytics,
+		C3.Plugins.Date,
 		C3.Behaviors.Timer,
-		C3.Behaviors.Turret,
 		C3.Behaviors.Bullet,
 		C3.Behaviors.MoveTo,
 		C3.Behaviors.destroy,
@@ -5830,10 +5764,10 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Touch.Cnds.OnTouchObject,
 		C3.Behaviors.Tween.Cnds.IsAnyPlaying,
+		C3.Plugins.Sprite.Cnds.IsOverlapping,
 		C3.Plugins.Sprite.Cnds.IsVisible,
-		C3.Plugins.System.Acts.WaitForPreviousActions,
-		C3.Plugins.Sprite.Exps.X,
-		C3.Plugins.Sprite.Acts.SetPosToObject,
+		C3.Behaviors.Tween.Acts.TweenTwoProperties,
+		C3.Behaviors.Tween.Acts.TweenOneProperty,
 		C3.Plugins.Sprite.Acts.SetAnimFrame,
 		C3.Plugins.Sprite.Cnds.CompareFrame,
 		C3.Plugins.Sprite.Acts.ZMoveToObject,
@@ -5853,46 +5787,40 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.BinaryData.Acts.SetFromText,
 		C3.Plugins.Cryptography.Acts.EncryptBinary,
 		C3.Plugins.System.Acts.AddVar,
+		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
-		C3.Plugins.Sprite.Cnds.OnCreated,
-		C3.Plugins.Dictionary.Cnds.HasKey,
-		C3.Plugins.Dictionary.Exps.Get,
-		C3.Plugins.Text.Cnds.CompareInstanceVar,
-		C3.Plugins.System.Cnds.OnLayoutStart,
-		C3.Plugins.Json.Acts.Parse,
-		C3.Plugins.Eponesh_GameScore.Exps.PlayerGet,
-		C3.Plugins.Json.Cnds.CompareValue,
-		C3.Plugins.Sprite.Exps.UID,
+		C3.Plugins.Browser.Acts.ConsoleLog,
+		C3.Plugins.System.Acts.WaitForPreviousActions,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.System.Cnds.PickByEvaluate,
 		C3.Plugins.Json.Acts.SetValue,
+		C3.Plugins.System.Cnds.OnLayoutStart,
+		C3.Plugins.Json.Acts.Parse,
+		C3.Plugins.Eponesh_GameScore.Exps.PlayerGet,
 		C3.Plugins.Arr.Acts.SetSize,
 		C3.Plugins.Arr.Acts.Push,
 		C3.Plugins.System.Exps.random,
 		C3.Plugins.Arr.Exps.Width,
 		C3.Plugins.Arr.Exps.At,
-		C3.Behaviors.Turret.Acts.AddTarget,
-		C3.Behaviors.Turret.Cnds.OnShoot,
-		C3.Behaviors.Turret.Cnds.IsEnabled,
-		C3.Behaviors.Turret.Acts.SetEnabled,
 		C3.Plugins.System.Cnds.EveryTick,
+		C3.Plugins.Sprite.Exps.UID,
 		C3.Behaviors.Tween.Cnds.OnTweensFinished,
 		C3.Plugins.System.Cnds.PickAll,
 		C3.Plugins.System.Acts.CreateObjectByName,
 		C3.Plugins.System.Cnds.PickLastCreated,
-		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Sprite.Acts.SetSize,
+		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.Sprite.Exps.Width,
 		C3.Plugins.Sprite.Acts.SetWidth,
 		C3.Plugins.Sprite.Acts.SetHeight,
-		C3.Behaviors.Tween.Acts.TweenTwoProperties,
-		C3.Plugins.Text.Cnds.OnCreated,
-		C3.Plugins.Text.Cnds.PickParent,
-		C3.Plugins.Text.Acts.SetPos,
 		C3.Plugins.System.Acts.SetGroupActive,
+		C3.Behaviors.Timer.Cnds.IsTimerRunning,
+		C3.Behaviors.Timer.Acts.StartTimer,
+		C3.Plugins.System.Exps.choose,
+		C3.Behaviors.Timer.Cnds.OnTimer,
 		C3.Plugins.Sprite.Exps.ImagePointX,
 		C3.Plugins.Sprite.Exps.ImagePointY,
-		C3.Plugins.Sprite.Cnds.IsOverlapping,
+		C3.Plugins.Dictionary.Exps.Get,
 		C3.Plugins.Sprite.Acts.AddInstanceVar,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
@@ -5905,144 +5833,140 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Tween.Acts.StopAllTweens,
 		C3.Plugins.System.Cnds.Compare,
 		C3.Plugins.Sprite.Acts.SetVisible,
+		C3.Plugins.Sprite.Acts.SetAngle,
 		C3.Plugins.Text.Acts.SetVisible,
 		C3.Plugins.Sprite.Acts.MoveToTop,
 		C3.Behaviors.Tween.Acts.StopTweens,
 		C3.Plugins.Sprite.Cnds.PickByUID,
 		C3.Plugins.Spritefont2.Exps.Text,
+		C3.Plugins.LocalStorage.Acts.CheckItemExists,
+		C3.Plugins.LocalStorage.Cnds.OnItemExists,
+		C3.Plugins.LocalStorage.Acts.GetItem,
+		C3.Plugins.LocalStorage.Cnds.OnItemGet,
+		C3.Plugins.LocalStorage.Exps.ItemValue,
+		C3.Plugins.TiledBg.Acts.SetWidth,
+		C3.Plugins.LocalStorage.Cnds.OnItemMissing,
+		C3.Plugins.Dictionary.Cnds.HasKey,
 		C3.Plugins.Dictionary.Acts.AddKey,
 		C3.Plugins.Dictionary.Acts.SetKey,
-		C3.Plugins.Sprite.Acts.Spawn,
+		C3.Behaviors.MoveTo.Acts.MoveToObject,
+		C3.Behaviors.MoveTo.Acts.MoveToPosition,
 		C3.Plugins.Sprite.Exps.Angle,
-		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
+		C3.Behaviors.MoveTo.Acts.SetMaxSpeed,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.Sprite.Cnds.OnCollision,
-		C3.Plugins.Sprite.Acts.SubInstanceVar,
-		C3.Plugins.TiledBg.Acts.SetWidth,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelMembersCount,
 		C3.Plugins.System.Cnds.ForEachOrdered,
 		C3.Plugins.TiledBg.Acts.MoveToTop,
+		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
 		C3.Plugins.System.Exps.float,
 		C3.Plugins.System.Exps.tokenat,
 		C3.Plugins.TiledBg.Exps.Width,
-		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Behaviors.Bullet.Acts.SetEnabled,
 		C3.Plugins.System.Exps.dt,
-		C3.Behaviors.Tween.Acts.TweenOneProperty,
 		C3.Plugins.Sprite.Acts.StopAnim,
 		C3.Behaviors.MoveTo.Acts.Stop,
 		C3.Plugins.Sprite.Cnds.OnAnyAnimFinished,
 		C3.Plugins.Sprite.Cnds.IsAnimPlaying,
+		C3.Plugins.Sprite.Cnds.OnCreated,
+		C3.Plugins.Sprite.Acts.SetPosToObject,
 		C3.Plugins.Sprite.Cnds.OnDestroyed,
+		C3.Plugins.System.Exps.layoutheight,
 		C3.Plugins.System.Acts.GoToLayout,
 		C3.Plugins.System.Acts.SetLayerInteractive,
 		C3.Plugins.Sprite.Exps.Count,
-		C3.Plugins.System.Acts.Signal,
 		C3.Plugins.Json.Exps.ArraySize,
+		C3.Plugins.LocalStorage.Acts.RemoveItem,
 		C3.Plugins.Cryptography.Cnds.OnEncryptionFinished,
 		C3.Plugins.BinaryData.Exps.GetBase64,
-		C3.Plugins.System.Exps.layoutheight,
-		C3.ScriptsInEvents.EsCoin_Event3_Act1,
+		C3.Plugins.LocalStorage.Cnds.OnItemSet,
+		C3.Plugins.GameAnalytics.Acts.addDesignEvent,
+		C3.ScriptsInEvents.Coin_Event3_Act1,
 		C3.Behaviors.Fade.Acts.RestartFade,
 		C3.Plugins.Sprite.Acts.SetAnimSpeed,
-		C3.Plugins.System.Exps.timescale,
-		C3.Plugins.System.Cnds.OnSignal,
-		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
-		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
-		C3.Plugins.System.Exps.viewportmidx,
-		C3.Plugins.System.Exps.viewporttop,
-		C3.Plugins.System.Exps.viewportmidy,
-		C3.Plugins.System.Acts.SetObjectTimescale,
-		C3.Plugins.System.Acts.SetTimescale,
-		C3.Plugins.Text.Acts.SetInstanceVar,
-		C3.Plugins.Text.Acts.SetFontColor,
-		C3.ScriptsInEvents.EsMain_Event44_Act1,
-		C3.Plugins.Json.Exps.ToBeautifiedString,
-		C3.Plugins.Dictionary.Exps.AsJSON,
-		C3.ScriptsInEvents.EsMain_Event80_Act1,
-		C3.Plugins.Dictionary.Acts.JSONLoad,
-		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Eponesh_GameScore.Cnds.IsMobile,
 		C3.Plugins.System.Acts.SetCanvasSize,
 		C3.Plugins.System.Cnds.OnLoadComplete,
-		C3.Plugins.System.Acts.ToggleBoolVar,
+		C3.Plugins.System.Acts.SetObjectTimescale,
+		C3.Behaviors.Tween.Cnds.IsPlaying,
+		C3.Plugins.Text.Cnds.CompareInstanceVar,
+		C3.Plugins.Text.Acts.SetInstanceVar,
+		C3.Plugins.Spritefont2.Acts.MoveToLayer,
+		C3.Plugins.Sprite.Acts.SetFlipped,
 		C3.Plugins.System.Cnds.Every,
-		C3.Plugins.AJAX.Acts.RequestFile,
-		C3.Plugins.Json.Cnds.HasKey,
-		C3.Plugins.AJAX.Cnds.OnComplete,
-		C3.Plugins.AJAX.Exps.LastData,
+		C3.Plugins.Text.Acts.SetPos,
+		C3.Plugins.System.Acts.ToggleBoolVar,
+		C3.Plugins.System.Acts.SetTimescale,
+		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.System.Acts.ResetGlobals,
-		C3.Plugins.Dictionary.Acts.Clear,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerReset,
-		C3.Plugins.Json.Acts.DeleteKey,
-		C3.Plugins.Json.Exps.CurrentKey,
 		C3.Plugins.System.Acts.RestartLayout,
-		C3.ScriptsInEvents.EsHomeevents_Event18_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event19_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event21_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event22_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event24_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event25_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event26_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event27_Act1,
+		C3.ScriptsInEvents.Homeevents_Event22_Act1,
+		C3.ScriptsInEvents.Homeevents_Event23_Act1,
+		C3.ScriptsInEvents.Homeevents_Event25_Act1,
+		C3.ScriptsInEvents.Homeevents_Event26_Act1,
+		C3.ScriptsInEvents.Homeevents_Event28_Act1,
+		C3.ScriptsInEvents.Homeevents_Event29_Act1,
+		C3.ScriptsInEvents.Homeevents_Event30_Act1,
+		C3.ScriptsInEvents.Homeevents_Event31_Act1,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerSetName,
-		C3.ScriptsInEvents.EsHomeevents_Event28_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event28_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event28_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event28_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event29_Act5,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act5,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act6,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act7,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act8,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act9,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act10,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act11,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act12,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act13,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act14,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act15,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act16,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act17,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act18,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act19,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act20,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act21,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act22,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act23,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act24,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act25,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act26,
-		C3.ScriptsInEvents.EsHomeevents_Event30_Act27,
-		C3.ScriptsInEvents.EsHomeevents_Event36,
-		C3.ScriptsInEvents.EsHomeevents_Event37,
-		C3.ScriptsInEvents.EsHomeevents_Event38,
-		C3.ScriptsInEvents.EsHomeevents_Event39,
-		C3.ScriptsInEvents.EsHomeevents_Event44_Act1,
-		C3.ScriptsInEvents.EsHomeevents_Event44_Act2,
-		C3.ScriptsInEvents.EsHomeevents_Event44_Act3,
-		C3.ScriptsInEvents.EsHomeevents_Event44_Act4,
-		C3.ScriptsInEvents.EsHomeevents_Event44_Act6,
+		C3.ScriptsInEvents.Homeevents_Event32_Act1,
+		C3.ScriptsInEvents.Homeevents_Event32_Act2,
+		C3.ScriptsInEvents.Homeevents_Event32_Act3,
+		C3.ScriptsInEvents.Homeevents_Event32_Act4,
+		C3.ScriptsInEvents.Homeevents_Event33_Act1,
+		C3.ScriptsInEvents.Homeevents_Event33_Act2,
+		C3.ScriptsInEvents.Homeevents_Event33_Act3,
+		C3.ScriptsInEvents.Homeevents_Event33_Act4,
+		C3.ScriptsInEvents.Homeevents_Event33_Act5,
+		C3.ScriptsInEvents.Homeevents_Event34_Act1,
+		C3.ScriptsInEvents.Homeevents_Event34_Act2,
+		C3.ScriptsInEvents.Homeevents_Event34_Act3,
+		C3.ScriptsInEvents.Homeevents_Event34_Act4,
+		C3.ScriptsInEvents.Homeevents_Event34_Act5,
+		C3.ScriptsInEvents.Homeevents_Event34_Act6,
+		C3.ScriptsInEvents.Homeevents_Event34_Act7,
+		C3.ScriptsInEvents.Homeevents_Event34_Act8,
+		C3.ScriptsInEvents.Homeevents_Event34_Act9,
+		C3.ScriptsInEvents.Homeevents_Event34_Act10,
+		C3.ScriptsInEvents.Homeevents_Event34_Act11,
+		C3.ScriptsInEvents.Homeevents_Event34_Act12,
+		C3.ScriptsInEvents.Homeevents_Event34_Act13,
+		C3.ScriptsInEvents.Homeevents_Event34_Act14,
+		C3.ScriptsInEvents.Homeevents_Event34_Act15,
+		C3.ScriptsInEvents.Homeevents_Event34_Act16,
+		C3.ScriptsInEvents.Homeevents_Event34_Act17,
+		C3.ScriptsInEvents.Homeevents_Event34_Act18,
+		C3.ScriptsInEvents.Homeevents_Event34_Act19,
+		C3.ScriptsInEvents.Homeevents_Event34_Act20,
+		C3.ScriptsInEvents.Homeevents_Event34_Act21,
+		C3.ScriptsInEvents.Homeevents_Event34_Act22,
+		C3.ScriptsInEvents.Homeevents_Event34_Act23,
+		C3.ScriptsInEvents.Homeevents_Event34_Act24,
+		C3.ScriptsInEvents.Homeevents_Event34_Act25,
+		C3.ScriptsInEvents.Homeevents_Event34_Act26,
+		C3.ScriptsInEvents.Homeevents_Event34_Act27,
+		C3.ScriptsInEvents.Homeevents_Event40,
+		C3.ScriptsInEvents.Homeevents_Event41,
+		C3.ScriptsInEvents.Homeevents_Event42,
+		C3.ScriptsInEvents.Homeevents_Event43,
+		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
+		C3.ScriptsInEvents.Homeevents_Event74_Act1,
+		C3.ScriptsInEvents.Homeevents_Event74_Act2,
+		C3.ScriptsInEvents.Homeevents_Event74_Act3,
+		C3.ScriptsInEvents.Homeevents_Event74_Act4,
+		C3.ScriptsInEvents.Homeevents_Event74_Act6,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
 		C3.Plugins.GameAnalytics.Acts.initialize,
-		C3.Plugins.Eponesh_GameScore.Cnds.OnPlayerLoadComplete,
-		C3.Plugins.LocalStorage.Exps.ItemValue,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
-		C3.Plugins.Date.Cnds.CompareTimeStamps,
-		C3.Plugins.Date.Exps.Now,
 		C3.Plugins.Cryptography.Cnds.OnDecryptionFinished,
 		C3.Plugins.BinaryData.Exps.GetAllText,
 		C3.Plugins.System.Cnds.TriggerOnce,
 		C3.Plugins.TextBox.Acts.SetText,
+		C3.Plugins.Date.Cnds.CompareTimeStamps,
+		C3.Plugins.Date.Exps.Now,
+		C3.Plugins.Eponesh_GameScore.Cnds.OnPlayerLoadComplete,
 		C3.Plugins.GamePush_Channels.Acts.CreateChannel,
 		C3.Plugins.GamePush_Channels.Acts.FetchChannel,
 		C3.Plugins.Eponesh_GameScore.Exps.PlayerName,
@@ -6051,13 +5975,19 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreateError,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsAnyFetch,
 		C3.Plugins.GamePush_Channels.Cnds.EachMember,
-		C3.ScriptsInEvents.EsHomeevents_Event87_Act7,
+		C3.ScriptsInEvents.Homeevents_Event122_Act7,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsRegistered,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersRegister,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsTodayRewardClaimed,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersClaimDay,
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
-		C3.ScriptsInEvents.EsHomeevents_Event106_Act1
+		C3.ScriptsInEvents.Homeevents_Event141_Act1,
+		C3.ScriptsInEvents.Homeevents_Event315_Act1,
+		C3.Plugins.System.Cnds.CompareBoolVar,
+		C3.ScriptsInEvents.Homeevents_Event316_Act1,
+		C3.Plugins.Eponesh_GameScore.Exps.PlayerID,
+		C3.Plugins.System.Acts.SetBoolVar,
+		C3.Plugins.Keyboard.Cnds.OnKey
 	];
 };
 self.C3_JsPropNameTable = [
@@ -6084,7 +6014,6 @@ self.C3_JsPropNameTable = [
 	{monster_target: 0},
 	{Number: 0},
 	{GunType: 0},
-	{marge: 0},
 	{G_Gun1: 0},
 	{G_Gun10: 0},
 	{G_Gun11: 0},
@@ -6122,7 +6051,6 @@ self.C3_JsPropNameTable = [
 	{count_attack: 0},
 	{is_stop: 0},
 	{coin_bonus: 0},
-	{DragDrop: 0},
 	{G_Monster1: 0},
 	{G_Monster10: 0},
 	{G_Monster11: 0},
@@ -6153,8 +6081,10 @@ self.C3_JsPropNameTable = [
 	{angle_bullet: 0},
 	{is_bullet_valid: 0},
 	{G_Bullet1: 0},
+	{G_Bullet2: 0},
 	{DicData: 0},
 	{Array_RandomSetGun: 0},
+	{Array_DataWave: 0},
 	{Array_RandomSetMonster: 0},
 	{Array_RandomData: 0},
 	{JSON_Guns: 0},
@@ -6162,10 +6092,6 @@ self.C3_JsPropNameTable = [
 	{JSON_Wall: 0},
 	{JSON_Wave: 0},
 	{JSON_GunMerge: 0},
-	{languageJSON: 0},
-	{varibles: 0},
-	{saveJSON: 0},
-	{gameVariable: 0},
 	{Touch: 0},
 	{AJAX: 0},
 	{Audio: 0},
@@ -6189,7 +6115,6 @@ self.C3_JsPropNameTable = [
 	{Coin_TextBonus: 0},
 	{gun_uid: 0},
 	{is_set_shoot: 0},
-	{number: 0},
 	{Gun_Set: 0},
 	{Gun_SetShoot: 0},
 	{Game_TextCostGun2: 0},
@@ -6246,20 +6171,52 @@ self.C3_JsPropNameTable = [
 	{Wall_TextLevelUpgrade: 0},
 	{PlayButton: 0},
 	{InviteButton: 0},
+	{SettingsButton: 0},
+	{Pause: 0},
+	{PauseButton: 0},
 	{Exit: 0},
 	{Continue: 0},
 	{TaskButton: 0},
 	{Start: 0},
 	{MissionButton: 0},
-	{Browser: 0},
-	{Date: 0},
+	{G_TextCoinTemplate2: 0},
+	{Home_ButtonSetting: 0},
+	{Home_TextDescreptionDelete: 0},
+	{Home_ButtonYesDelete: 0},
+	{Home_ButtonCancel: 0},
+	{upgradePos: 0},
+	{tutorial: 0},
 	{GamePush: 0},
-	{GamePushChannels: 0},
-	{LocalStorage: 0},
 	{Keyboard: 0},
-	{GameAnalytics: 0},
+	{number: 0},
+	{type: 0},
+	{Text: 0},
+	{Text2: 0},
+	{Browser: 0},
+	{GamePushChannels: 0},
 	{mUID: 0},
+	{mouth6: 0},
+	{Cryptography: 0},
+	{BinaryData: 0},
+	{YText: 0},
+	{LocalStorage: 0},
+	{GameAnalytics: 0},
+	{Date: 0},
+	{MainMenu: 0},
+	{planningField: 0},
+	{Property1icncoin: 0},
+	{Sprite: 0},
+	{ID: 0},
+	{DeleteMenu: 0},
+	{DeleteMenuClose: 0},
 	{mouth1: 0},
+	{mouth2: 0},
+	{mouth3: 0},
+	{mouth4: 0},
+	{mouth5: 0},
+	{mouth7: 0},
+	{mouth8: 0},
+	{mouth9: 0},
 	{mouth10: 0},
 	{mouth11: 0},
 	{mouth12: 0},
@@ -6270,53 +6227,22 @@ self.C3_JsPropNameTable = [
 	{mouth17: 0},
 	{mouth18: 0},
 	{mouth19: 0},
-	{mouth2: 0},
 	{mouth20: 0},
-	{mouth3: 0},
-	{mouth4: 0},
-	{mouth5: 0},
-	{mouth6: 0},
-	{mouth7: 0},
-	{mouth8: 0},
-	{mouth9: 0},
-	{btn_arrow: 0},
-	{btn_arrow2: 0},
-	{type: 0},
-	{buttons: 0},
-	{Home_ButtonYesDelete: 0},
-	{IncreaeBut: 0},
-	{MisInfoBut: 0},
-	{ID: 0},
-	{DeleteMenu: 0},
-	{DeleteMenuClose: 0},
-	{GunMerge: 0},
+	{Property1tasksicn: 0},
 	{GunUpgradeT: 0},
+	{WallUpgradeT: 0},
 	{GunUpgradeT2: 0},
-	{G_TextCoinTemplate2: 0},
-	{Home_TextDescreptionDelete: 0},
-	{textLenguage: 0},
-	{translate: 0},
-	{Text: 0},
-	{Text2: 0},
-	{Text3: 0},
-	{TextBonus: 0},
 	{TextCoin: 0},
+	{TextBonus: 0},
 	{TextCoinEarn: 0},
 	{WalllevelUpgrade: 0},
-	{WallUpgradeT: 0},
-	{testText: 0},
-	{upgradePos: 0},
-	{tutorial: 0},
-	{Cryptography: 0},
-	{BinaryData: 0},
-	{YText: 0},
-	{MainMenu: 0},
-	{planningField: 0},
-	{Property1icncoin: 0},
-	{Sprite: 0},
-	{Property1tasksicn: 0},
+	{GunMerge: 0},
+	{MisBackBut: 0},
+	{MisInfoBut: 0},
 	{MissionSt: 0},
 	{MissionBack: 0},
+	{ArmoryBackBut: 0},
+	{ArmoryInfoBut: 0},
 	{LBageActive: 0},
 	{PUcost: 0},
 	{PowerUPD: 0},
@@ -6326,16 +6252,18 @@ self.C3_JsPropNameTable = [
 	{WeaponsBut: 0},
 	{Property1upgrade: 0},
 	{Property1Cannon: 0},
+	{IncreaeBut: 0},
+	{btn_arrow: 0},
+	{btn_arrow2: 0},
 	{weaponrycardimgph: 0},
 	{PremGunLvl: 0},
 	{StatsPH: 0},
+	{Text3: 0},
 	{futureTile: 0},
 	{Wall_Explosion: 0},
-	{popUp: 0},
-	{swipe_sprite: 0},
 	{Sprite2: 0},
+	{buttons: 0},
 	{Timer: 0},
-	{Turret: 0},
 	{G_GunFamily: 0},
 	{Bullet: 0},
 	{G_MonsterFamily: 0},
@@ -6343,15 +6271,11 @@ self.C3_JsPropNameTable = [
 	{DestroyOutsideLayout: 0},
 	{G_BulletFamily: 0},
 	{G_SetGunFamily: 0},
-	{translateSprite: 0},
-	{buttonsFam: 0},
 	{indexPage: 0},
 	{isChangePage: 0},
 	{isUpgrading: 0},
 	{SpeedTimeUPD: 0},
 	{index: 0},
-	{result: 0},
-	{uid_gun: 0},
 	{isDragGun: 0},
 	{isDragingGun: 0},
 	{uidSetGun: 0},
@@ -6363,17 +6287,19 @@ self.C3_JsPropNameTable = [
 	{indexAudioShoot: 0},
 	{uidGunGuide1: 0},
 	{uidGunGuide2: 0},
-	{width: 0},
-	{height: 0},
+	{result: 0},
 	{order_gun: 0},
 	{name: 0},
 	{max_order: 0},
 	{uid_set_gun: 0},
 	{x: 0},
 	{y: 0},
+	{width: 0},
+	{height: 0},
 	{gun_uid_set: 0},
 	{is_shoot: 0},
 	{gun_order_random: 0},
+	{uid_monster_shoot: 0},
 	{cost_gun_merge: 0},
 	{distance_min: 0},
 	{x_start: 0},
@@ -6389,6 +6315,7 @@ self.C3_JsPropNameTable = [
 	{position: 0},
 	{type_monster: 0},
 	{fullhp: 0},
+	{uid_gun: 0},
 	{isWaveEnd: 0},
 	{isStartWave: 0},
 	{isWaveFail: 0},
@@ -6407,31 +6334,26 @@ self.C3_JsPropNameTable = [
 	{stage_fullhp: 0},
 	{stage_monsters_count: 0},
 	{coin: 0},
+	{SaveCoin: 0},
 	{coin_template: 0},
 	{num_coin: 0},
 	{wall_levelUpdate: 0},
 	{wall_isUpgrading: 0},
 	{wall_healthFullUpgradeNext: 0},
 	{wall_costUpgrade: 0},
-	{loadTrue: 0},
-	{loadComplite: 0},
-	{varData: 0},
-	{gameVar: 0},
-	{gameSave: 0},
-	{layerName: 0},
-	{key: 0},
-	{data: 0},
-	{add: 0},
 	{wave_test: 0},
+	{gameSpeed: 0},
 	{indexGuide: 0},
-	{pause: 0},
-	{varKey: 0},
-	{gamePushID: 0},
 	{id: 0},
 	{first_name: 0},
 	{last_name: 0},
 	{language_code: 0},
 	{username: 0},
+	{closeGame: 0},
+	{Close2: 0},
+	{referrer_id: 0},
+	{invite_id: 0},
+	{apikey: 0},
 	{frnscid: 0},
 	{TGINVITEURL: 0},
 	{Start_param: 0},
@@ -6443,7 +6365,13 @@ self.C3_JsPropNameTable = [
 	{Member: 0},
 	{SubGiftInterval: 0},
 	{SubGiftDate: 0},
-	{SubGiftGot: 0}
+	{SubGiftGot: 0},
+	{gamePushID: 0},
+	{test: 0},
+	{loadTrue: 0},
+	{loadComplite: 0},
+	{key: 0},
+	{data: 0}
 ];
 
 self.InstanceType = {
@@ -6497,8 +6425,10 @@ self.InstanceType = {
 	Monster_SpawnScope: class extends self.ISpriteInstance {},
 	Monsters_Explosion: class extends self.ISpriteInstance {},
 	G_Bullet1: class extends self.ISpriteInstance {},
+	G_Bullet2: class extends self.ISpriteInstance {},
 	DicData: class extends self.IDictionaryInstance {},
 	Array_RandomSetGun: class extends self.IArrayInstance {},
+	Array_DataWave: class extends self.IArrayInstance {},
 	Array_RandomSetMonster: class extends self.IArrayInstance {},
 	Array_RandomData: class extends self.IArrayInstance {},
 	JSON_Guns: class extends self.IJSONInstance {},
@@ -6506,10 +6436,6 @@ self.InstanceType = {
 	JSON_Wall: class extends self.IJSONInstance {},
 	JSON_Wave: class extends self.IJSONInstance {},
 	JSON_GunMerge: class extends self.IJSONInstance {},
-	languageJSON: class extends self.IJSONInstance {},
-	varibles: class extends self.IDictionaryInstance {},
-	saveJSON: class extends self.IJSONInstance {},
-	gameVariable: class extends self.IDictionaryInstance {},
 	Touch: class extends self.IInstance {},
 	AJAX: class extends self.IInstance {},
 	Audio: class extends self.IInstance {},
@@ -6573,18 +6499,45 @@ self.InstanceType = {
 	Wall_TextLevelUpgrade: class extends self.ISpriteFontInstance {},
 	PlayButton: class extends self.ISpriteInstance {},
 	InviteButton: class extends self.ISpriteInstance {},
+	SettingsButton: class extends self.ISpriteInstance {},
+	PauseButton: class extends self.ISpriteInstance {},
 	Exit: class extends self.ISpriteInstance {},
 	Continue: class extends self.ISpriteInstance {},
 	TaskButton: class extends self.ISpriteInstance {},
 	MissionButton: class extends self.ISpriteInstance {},
-	Browser: class extends self.IInstance {},
-	Date: class extends self.IInstance {},
+	G_TextCoinTemplate2: class extends self.ITextInstance {},
+	Home_ButtonSetting: class extends self.ISpriteInstance {},
+	Home_TextDescreptionDelete: class extends self.ITextInstance {},
+	Home_ButtonYesDelete: class extends self.ISpriteInstance {},
+	Home_ButtonCancel: class extends self.ISpriteInstance {},
+	tutorial: class extends self.ISpriteInstance {},
 	GamePush: class extends self.IInstance {},
-	GamePushChannels: class extends self.IInstance {},
-	LocalStorage: class extends self.IInstance {},
 	Keyboard: class extends self.IInstance {},
+	Text: class extends self.ITextInstance {},
+	Text2: class extends self.ITextInstance {},
+	Browser: class extends self.IInstance {},
+	GamePushChannels: class extends self.IInstance {},
+	mouth6: class extends self.ISpriteInstance {},
+	Cryptography: class extends self.IInstance {},
+	BinaryData: class extends self.IBinaryDataInstance {},
+	YText: class extends self.ITextInputInstance {},
+	LocalStorage: class extends self.IInstance {},
 	GameAnalytics: class extends self.IInstance {},
+	Date: class extends self.IInstance {},
+	MainMenu: class extends self.ISpriteInstance {},
+	planningField: class extends self.ISpriteInstance {},
+	Property1icncoin: class extends self.ISpriteInstance {},
+	Sprite: class extends self.ISpriteInstance {},
+	DeleteMenu: class extends self.ISpriteInstance {},
+	DeleteMenuClose: class extends self.ISpriteInstance {},
 	mouth1: class extends self.ISpriteInstance {},
+	mouth2: class extends self.ISpriteInstance {},
+	mouth3: class extends self.ISpriteInstance {},
+	mouth4: class extends self.ISpriteInstance {},
+	mouth5: class extends self.ISpriteInstance {},
+	mouth7: class extends self.ISpriteInstance {},
+	mouth8: class extends self.ISpriteInstance {},
+	mouth9: class extends self.ISpriteInstance {},
 	mouth10: class extends self.ISpriteInstance {},
 	mouth11: class extends self.ISpriteInstance {},
 	mouth12: class extends self.ISpriteInstance {},
@@ -6595,48 +6548,22 @@ self.InstanceType = {
 	mouth17: class extends self.ISpriteInstance {},
 	mouth18: class extends self.ISpriteInstance {},
 	mouth19: class extends self.ISpriteInstance {},
-	mouth2: class extends self.ISpriteInstance {},
 	mouth20: class extends self.ISpriteInstance {},
-	mouth3: class extends self.ISpriteInstance {},
-	mouth4: class extends self.ISpriteInstance {},
-	mouth5: class extends self.ISpriteInstance {},
-	mouth6: class extends self.ISpriteInstance {},
-	mouth7: class extends self.ISpriteInstance {},
-	mouth8: class extends self.ISpriteInstance {},
-	mouth9: class extends self.ISpriteInstance {},
-	btn_arrow: class extends self.ISpriteInstance {},
-	btn_arrow2: class extends self.ISpriteInstance {},
-	buttons: class extends self.ISpriteInstance {},
-	Home_ButtonYesDelete: class extends self.ISpriteInstance {},
-	IncreaeBut: class extends self.ISpriteInstance {},
-	MisInfoBut: class extends self.ISpriteInstance {},
-	DeleteMenu: class extends self.ISpriteInstance {},
-	DeleteMenuClose: class extends self.ISpriteInstance {},
-	GunMerge: class extends self.ITextInstance {},
+	Property1tasksicn: class extends self.ISpriteInstance {},
 	GunUpgradeT: class extends self.ITextInstance {},
+	WallUpgradeT: class extends self.ITextInstance {},
 	GunUpgradeT2: class extends self.ITextInstance {},
-	G_TextCoinTemplate2: class extends self.ITextInstance {},
-	Home_TextDescreptionDelete: class extends self.ITextInstance {},
-	Text: class extends self.ITextInstance {},
-	Text2: class extends self.ITextInstance {},
-	Text3: class extends self.ITextInstance {},
-	TextBonus: class extends self.ITextInstance {},
 	TextCoin: class extends self.ITextInstance {},
+	TextBonus: class extends self.ITextInstance {},
 	TextCoinEarn: class extends self.ITextInstance {},
 	WalllevelUpgrade: class extends self.ITextInstance {},
-	WallUpgradeT: class extends self.ITextInstance {},
-	testText: class extends self.ITextInstance {},
-	tutorial: class extends self.ISpriteInstance {},
-	Cryptography: class extends self.IInstance {},
-	BinaryData: class extends self.IBinaryDataInstance {},
-	YText: class extends self.ITextInputInstance {},
-	MainMenu: class extends self.ISpriteInstance {},
-	planningField: class extends self.ISpriteInstance {},
-	Property1icncoin: class extends self.ISpriteInstance {},
-	Sprite: class extends self.ISpriteInstance {},
-	Property1tasksicn: class extends self.ISpriteInstance {},
+	GunMerge: class extends self.ITextInstance {},
+	MisBackBut: class extends self.ISpriteInstance {},
+	MisInfoBut: class extends self.ISpriteInstance {},
 	MissionSt: class extends self.ISpriteInstance {},
 	MissionBack: class extends self.ISpriteInstance {},
+	ArmoryBackBut: class extends self.ISpriteInstance {},
+	ArmoryInfoBut: class extends self.ISpriteInstance {},
 	LBageActive: class extends self.ISpriteInstance {},
 	PowerUPD: class extends self.ISpriteInstance {},
 	SpeedUPD: class extends self.ISpriteInstance {},
@@ -6644,20 +6571,21 @@ self.InstanceType = {
 	WeaponsBut: class extends self.ISpriteInstance {},
 	Property1upgrade: class extends self.ISpriteInstance {},
 	Property1Cannon: class extends self.ISpriteInstance {},
+	IncreaeBut: class extends self.ISpriteInstance {},
+	btn_arrow: class extends self.ISpriteInstance {},
+	btn_arrow2: class extends self.ISpriteInstance {},
 	weaponrycardimgph: class extends self.ISpriteInstance {},
 	PremGunLvl: class extends self.ISpriteInstance {},
 	StatsPH: class extends self.ISpriteInstance {},
+	Text3: class extends self.ITextInstance {},
 	futureTile: class extends self.ITiledBackgroundInstance {},
 	Wall_Explosion: class extends self.ISpriteInstance {},
-	popUp: class extends self.ISpriteInstance {},
-	swipe_sprite: class extends self.ISpriteInstance {},
 	Sprite2: class extends self.ISpriteInstance {},
+	buttons: class extends self.ISpriteInstance {},
 	G_GunFamily: class extends self.ISpriteInstance {},
 	G_MonsterFamily: class extends self.ISpriteInstance {},
 	G_BulletFamily: class extends self.ISpriteInstance {},
-	G_SetGunFamily: class extends self.ISpriteInstance {},
-	translateSprite: class extends self.ISpriteInstance {},
-	buttonsFam: class extends self.ISpriteInstance {}
+	G_SetGunFamily: class extends self.ISpriteInstance {}
 }
 }
 
@@ -6799,6 +6727,12 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".level_update");
 		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			const f2 = p._GetNode(2).GetBoundMethod();
+			return () => or(((n0.ExpInstVar()) >= (4) ? 1 : 0), ((n1.ExpInstVar()) > (f2()) ? 1 : 0));
+		},
 		() => 0,
 		p => {
 			const n0 = p._GetNode(0);
@@ -6827,20 +6761,19 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "star_fill",
 		() => "Button Open Upgrade",
-		() => "armory",
-		() => "popUp",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
+			return () => (n0.ExpObject() / 1.5);
 		},
-		() => "upgradeArmory",
+		() => 0.1,
+		() => 640,
+		() => 0.2,
 		() => "Button Change Page Upgrade",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ((v0.GetValue()) === (0) ? 1 : 0);
 		},
 		() => "click",
-		() => 0.2,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => ((n0.ExpInstVar()) === (1) ? 1 : 0);
@@ -6879,16 +6812,16 @@ self.C3_ExpressionFuncs = [
 			const n2 = p._GetNode(2);
 			return () => (v0.GetValue() - f1(n2.ExpInstVar()));
 		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpInstVar();
+		},
 		() => 158,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpInstVar() / 10000);
 		},
 		() => 162,
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar();
-		},
 		() => "press",
 		() => "Press",
 		p => {
@@ -6900,10 +6833,6 @@ self.C3_ExpressionFuncs = [
 		() => 100,
 		() => "encrypt",
 		() => "PowerUPD",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue()).toString();
-		},
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpInstVar() + 10000);
@@ -6922,57 +6851,16 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => Math.abs((n0.ExpInstVar_Family() - v1.GetValue()));
 		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedUPD.SUcost"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("PowerUPD.PUcost"));
-		},
-		() => "powerLvl",
-		() => "powerUpgradeCost",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpInstVar());
-		},
-		() => "speedLvl",
-		() => "speedUpgradeCost",
-		() => "Guns_Start  Load Data",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#714035][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("dataguns");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("datagunmerge");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpInstVar_Family()).toString();
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			const n2 = p._GetNode(2);
-			return () => f0(n1.ExpObject((n2.ExpInstVar_Family()).toString()));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar_Family();
-		},
+		() => "FUCK YEAH",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const n1 = p._GetNode(1);
 			return () => ((v0.GetValue()) < (n1.ExpInstVar_Family()) ? 1 : 0);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpInstVar_Family();
 		},
 		() => "Guns_Data",
 		() => "Guns_Apply Upgrade",
@@ -7069,6 +6957,19 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpObject(("." + v1.GetValue()));
 		},
 		() => "Guns_Load Data Complete",
+		() => "Guns_Start  Load Data",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#714035][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("dataguns");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("datagunmerge");
+		},
 		() => "Guns_Get Order Random",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7106,9 +7007,6 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => n0.ExpObject(v1.GetValue());
 		},
-		() => "turret",
-		() => "Shoot",
-		() => "turretOn/Off",
 		() => "Guns_Update",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
@@ -7140,7 +7038,6 @@ self.C3_ExpressionFuncs = [
 			return () => and("G_Gun", v0.GetValue());
 		},
 		() => "Container",
-		() => 270,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".bullet_type");
@@ -7159,12 +7056,42 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".number_of_gun");
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage"), v1.GetValue());
 		},
-		() => "Guns_Create",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 10);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage1"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage2"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot1"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot2"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => Math.abs(subtract(n0.ExpObject(".time_shoot"), v1.GetValue()));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".number_of_gun");
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -7174,10 +7101,22 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 20);
 		},
-		() => "margeCount",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() - 22);
+			return () => n0.ExpObject();
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 5);
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
+		},
+		() => "Guns_Create",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpObject() - 10);
 		},
 		() => "Guns_Spawn",
 		p => {
@@ -7190,11 +7129,36 @@ self.C3_ExpressionFuncs = [
 			return () => ((n0.ExpObject()) > (0) ? 1 : 0);
 		},
 		() => "Guns Events",
-		() => "Guns_Shoot Monster",
+		() => "Guns_Check Gun Can Shoot Monster",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => ((n0.ExpInstVar_Family()) === (1) ? 1 : 0);
 		},
+		() => "cooldown",
+		p => {
+			const n0 = p._GetNode(0);
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => multiply(n0.ExpInstVar_Family(), f1(0.95, 1, 1.05));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpObject());
+		},
+		() => "Shoot",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => ((n0.ExpInstVar_Family()) === (n1.ExpObject()) ? 1 : 0);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			const n2 = p._GetNode(2);
+			const n3 = p._GetNode(3);
+			return () => (C3.toDegrees(C3.angleTo(n0.ExpObject(), n1.ExpObject(), n2.ExpObject(), n3.ExpObject())) + 90);
+		},
+		() => "Guns_Shoot Monster",
 		() => "Idle",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7208,7 +7172,6 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject("Shoot_Point1");
 		},
-		() => 0.1,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject("Shoot_Point2");
@@ -7364,6 +7327,28 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => ("+" + n0.ExpObject());
 		},
+		() => "Gun1",
+		() => "Gun2",
+		() => "Gun3",
+		() => "Gun4",
+		() => "Gun5",
+		() => "Gun6",
+		() => "Gun7",
+		() => "Gun8",
+		() => "Gun9",
+		() => "Gun10",
+		() => "Gun11",
+		() => "Gun12",
+		() => "Gun13",
+		() => "Gun14",
+		() => "Gun15",
+		() => "Gun16",
+		() => "Gun17",
+		() => "Gun18",
+		() => "waveCurrent",
+		() => "Wall_Defender.health",
+		() => "Wall_Defender.health_full",
+		() => "indexWaveChild",
 		() => 10000,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -7374,15 +7359,67 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => (and("[outlineback=#2A2C62][lineThickness=4]", f0(v1.GetValue())) + "[/lineThickness][underneath][/outline]");
 		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => and("G_Gun", f0());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => ((n0.ExpObject(".type")) === (f1()) ? 1 : 0);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (and("[outlineback=#000000][lineThickness=4]", n0.ExpInstVar()) + "[/lineThickness][underneath][/outline]");
+		},
+		() => 0.4,
+		() => 0.6,
+		() => 0.8,
+		() => 8,
+		() => 9,
+		() => 10,
+		() => 11,
+		() => 12,
+		() => 13,
+		() => 14,
+		() => 15,
+		() => 16,
+		() => 17,
+		() => 18,
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpInstVar() / n1.ExpInstVar());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpInstVar() * n1.ExpInstVar());
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
+		},
 		() => "YES",
 		() => "NO",
 		() => "isGuide",
-		() => 8,
+		() => "Bullets_Move Find Position Monster",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpObject() + (Math.cos(C3.toRadians((n1.ExpObject() - 90))) * 5000));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpObject() + (Math.sin(C3.toRadians((n1.ExpObject() - 90))) * 5000));
+		},
 		() => "Bullets_Create",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue() - 1);
+			return () => and("G_Bullet", v0.GetValue());
 		},
+		() => "Main",
 		() => -36593782783,
 		() => -526160119202815,
 		() => -562949956095999,
@@ -7391,7 +7428,11 @@ self.C3_ExpressionFuncs = [
 		() => -714706433490943,
 		() => -28002851839,
 		() => "Bullets_Attack Monsters",
-		() => "Main",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => (n0.ExpInstVar_Family() - n1.ExpInstVar_Family());
+		},
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
@@ -7498,6 +7539,20 @@ self.C3_ExpressionFuncs = [
 			return () => (n0.ExpObject() / n1.ExpInstVar_Family());
 		},
 		() => "Monsters_Spawn",
+		() => "Monsters_Find Monster Shoot",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => ((n0.ExpObject()) > (n1.ExpObject()) ? 1 : 0);
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			const n2 = p._GetNode(2);
+			const n3 = p._GetNode(3);
+			const v4 = p._GetNode(4).GetVar();
+			return () => ((C3.distanceTo(n0.ExpObject(), n1.ExpObject(), n2.ExpObject(), n3.ExpObject())) < (v4.GetValue()) ? 1 : 0);
+		},
 		() => "Monsters_Attack",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7533,10 +7588,6 @@ self.C3_ExpressionFuncs = [
 		() => "Monsters_Explosion",
 		() => "Monsters_Tween",
 		() => "M1",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() / 1.5);
-		},
 		() => 56,
 		() => "M2",
 		() => "M3",
@@ -7591,9 +7642,12 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() / 8);
 		},
-		() => 0.4,
 		() => "Wave_Next Button",
 		() => 40,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => (-f0());
+		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
@@ -7601,13 +7655,11 @@ self.C3_ExpressionFuncs = [
 		},
 		() => 470,
 		() => "Wave_Restart",
-		() => "Wall_Defender.health",
-		() => "indexWaveChild",
 		() => "Wave_Setup",
 		() => "Wave_Button Start",
 		() => "Bottom",
 		() => "Wave_Show Wave Fail",
-		() => "fail",
+		() => 608,
 		() => "Wave_Hide Wave Fail",
 		() => "Wave_Complete Load Data",
 		() => "Wave_Start Load Data",
@@ -7635,9 +7687,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => ((n0.ExpObject()) === (0) ? 1 : 0);
 		},
-		() => "changedLanguage",
-		() => "waveCurrent",
-		() => "win",
+		() => 658,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const v1 = p._GetNode(1).GetVar();
@@ -7673,6 +7723,10 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpObject(".");
 		},
 		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (v0.GetValue() - 1);
+		},
+		p => {
 			const n0 = p._GetNode(0);
 			const f1 = p._GetNode(1).GetBoundMethod();
 			return () => n0.ExpObject(and(".", f1("i")));
@@ -7699,9 +7753,9 @@ self.C3_ExpressionFuncs = [
 			const v6 = p._GetNode(6).GetVar();
 			return () => (v0.GetValue() + (((v1.GetValue() * v2.GetValue()) * 10) * f3(f4(v5.GetValue(), (v6.GetValue() - 1), "-"))));
 		},
+		() => "costGun",
 		() => "wall_costUpgrade",
 		() => "wall_levelUpdate",
-		() => "Wall_Defender.health_full",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
@@ -7710,18 +7764,13 @@ self.C3_ExpressionFuncs = [
 		() => 0.0125,
 		() => "CurrentYspeed",
 		() => "tutorial",
-		() => "1",
 		() => "coinEnc",
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (-f0());
+			const v0 = p._GetNode(0).GetVar();
+			return () => and("Wave:wave", v0.GetValue());
 		},
 		() => "Coin_Format Number",
 		() => "Coin_Update",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
-		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
@@ -7746,11 +7795,6 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() * n1.ExpInstVar());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
 			return () => and(and(n0.ExpInstVar(), "/"), n1.ExpInstVar());
 		},
 		() => "Wall_Destroy",
@@ -7770,15 +7814,6 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "Wall_Restore",
 		() => "Wall_Setup",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() / n1.ExpInstVar());
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
-		},
 		() => "Wall_Data",
 		() => "Wall_Data Load Complete",
 		() => "Wall_Data Load",
@@ -7812,150 +7847,121 @@ self.C3_ExpressionFuncs = [
 			const n1 = p._GetNode(1);
 			return () => ((v0.GetValue()) === (n1.ExpObject(".data")) ? 1 : 0);
 		},
-		() => "speed",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => and("speed x", f0());
-		},
-		() => "language",
-		() => "translateSprite",
-		() => "translateOneText",
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			const n2 = p._GetNode(2);
-			return () => n0.ExpObject(((v1.GetValue() + ".") + n2.ExpInstVar()));
-		},
-		() => "translateTextGroup",
-		() => "translateTextWithAdditionalData",
-		() => "myFriends",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (f0() - 1);
-		},
-		() => 599,
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			const f2 = p._GetNode(2).GetBoundMethod();
-			const n3 = p._GetNode(3);
-			const v4 = p._GetNode(4).GetVar();
-			return () => and(and(((and("[size=21]", n0.ExpObject((v1.GetValue() + ".friendBonus"))) + "[/size]") + "[size=40]"), (f2() - 1)), n3.ExpObject((v4.GetValue() + ".coins%")));
-		},
-		() => "friendsBonusCount",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => ((and(("[size=21]+[/size]" + "[size=40]"), (f0() - 1)) + "[/size]") + "[size=24]%[/size]");
-		},
-		() => "waveNumber",
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			const f2 = p._GetNode(2).GetBoundMethod();
-			const v3 = p._GetNode(3).GetVar();
-			return () => and(n0.ExpObject((v1.GetValue() + ".wave")), f2(v3.GetValue(), 2));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => n0.ExpObject((v1.GetValue() + ".infinity"));
-		},
-		() => "stageNumber",
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			const v2 = p._GetNode(2).GetVar();
-			return () => and(n0.ExpObject((v1.GetValue() + ".stage")), (v2.GetValue() + 1));
-		},
-		() => "openPopUp",
-		() => "UI",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("popUp");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => (f0("popUp") - f1("popUp"));
-		},
-		() => "closePopUp",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const v1 = p._GetNode(1).GetVar();
-			const f2 = p._GetNode(2).GetBoundMethod();
-			return () => (f0(v1.GetValue()) - f2("popUp"));
-		},
-		() => "buttonMission",
-		() => "mission",
-		() => "buttonsAnimation",
-		() => "tapButton",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() + 1.5);
-		},
-		() => "buttonClose",
-		() => "close",
-		() => "buttonMissionStart",
-		() => "Default2",
-		() => "take",
-		() => -13052716031,
-		() => "buttonSettings",
-		() => "settings",
-		() => "saveDataCloudStorage",
-		() => "saveGun",
-		() => "gameSave",
-		() => "saveVarible",
-		() => "varData",
-		() => "loadGameVariable",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject("waveCurrent");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("Wall_Defender.health"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("Wall_Defender.health_full"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("indexWaveChild"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("PowerUPD"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedUPD"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SpeedTimeUPD"));
-		},
-		() => "setGameVariable",
-		() => "gameVar",
-		() => "loadDataCloudStorage",
-		() => "coins",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("coin");
 		},
 		() => 720,
 		() => 1280,
-		() => "buttonsGame",
-		() => "buttonPause",
-		() => "pause",
-		() => "buttonExit",
-		() => "buttonContinue",
+		() => 686,
+		() => "1",
+		() => "ru",
+		() => "[outlineback=#004C04][lineThickness=4]В бой![/lineThickness][underneath][/outline]",
+		() => 274,
+		() => "Волна отражена",
+		() => 275,
+		() => "Бонус к монетам",
+		() => 276,
+		() => "Получено монет",
+		() => 277,
+		() => "[outlineback=#004C04][lineThickness=4]Следующая волна[/lineThickness][underneath][/outline]",
+		() => 278,
+		() => "Поражение !!!",
+		() => 280,
+		() => "[outlineback=#004C04][lineThickness=4]Повторить[/lineThickness][underneath][/outline]",
+		() => 202,
+		() => "[outlineback=#714035][lineThickness=4]В меню[/lineThickness][underneath][/outline]",
+		() => 127,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const v1 = p._GetNode(1).GetVar();
+			return () => (("[outlineback=#FFFFFF][lineThickness=4]ВОЛНА  " + f0(v1.GetValue(), 2)) + "[/lineThickness][underneath][/outline]");
+		},
+		() => 124,
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#FFFFFF][lineThickness=4]ЭТАП  ", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
+		},
+		() => "[outlineback=#FFFFFF][lineThickness=4]БЕСКОНЕЧНОСТЬ[/lineThickness][underneath][/outline]",
+		() => 214,
+		() => "[outlineback=#004C04][lineThickness=4]Задания[/lineThickness][underneath][/outline]",
+		() => 218,
+		() => "[outlineback=#004C04][lineThickness=4]В главное меню[/lineThickness][underneath][/outline]",
+		() => 216,
+		() => "[outlineback=#714035][lineThickness=4]Продолжить[/lineThickness][underneath][/outline]",
+		() => 220,
+		() => "[outlineback=#0b2846][lineThickness=4]Пауза[/lineThickness][underneath][/outline]",
+		() => 236,
+		() => "[outlineback=#000000][lineThickness=4]Задания[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#714035][lineThickness=4]Начать[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#004C04][lineThickness=4]Забрать[/lineThickness][underneath][/outline]",
+		() => 363,
+		() => "[outlineback=#000000][lineThickness=4]Оружейная[/lineThickness][underneath][/outline]",
+		() => 350,
+		() => "Атака",
+		() => 367,
+		() => "Скорость",
+		() => 371,
+		() => "[outlineback=#000000][lineThickness=4]Усиления[/lineThickness][underneath][/outline]",
+		() => 372,
+		() => "[outlineback=#000000][lineThickness=4]Орудия[/lineThickness][underneath][/outline]",
+		() => 351,
+		() => "Уровень",
+		() => 156,
+		() => 379,
+		() => "В ближайших обновлениях",
+		() => 384,
+		() => "[outlineback=#000000][lineThickness=4]Тип[/lineThickness][underneath][/outline]",
+		() => 385,
+		() => "[outlineback=#000000][lineThickness=4]Мощь[/lineThickness][underneath][/outline]",
+		() => 386,
+		() => "[outlineback=#000000][lineThickness=4]Скорость[/lineThickness][underneath][/outline]",
+		() => 390,
+		() => "Убей 300 монстров",
+		() => 391,
+		() => 392,
+		() => 393,
+		() => 394,
+		() => "Награды",
+		() => 51,
+		() => "[outlineback=#004C04][lineThickness=5]Fight![/lineThickness][underneath][/outline]",
+		() => "Wave Clean",
+		() => "Coin Bonus",
+		() => "Total Coin Earning",
+		() => "[outlineback=#004C04][lineThickness=4]Next Wave[/lineThickness][underneath][/outline]",
+		() => "Wave Fail !!!",
+		() => "[outlineback=#004C04][lineThickness=4]Try again[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#714035][lineThickness=4]Exit[/lineThickness][underneath][/outline]",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const v1 = p._GetNode(1).GetVar();
+			return () => (("[outlineback=#FFFFFF][lineThickness=4]WAVE  " + f0(v1.GetValue(), 2)) + "[/lineThickness][underneath][/outline]");
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("[outlineback=#FFFFFF][lineThickness=4]STAGE  ", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
+		},
+		() => "[outlineback=#FFFFFF][lineThickness=4]ENDLESS MODE [/lineThickness][underneath][/outline]",
+		() => "[outlineback=#004C04][lineThickness=4]Missions[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#004C04][lineThickness=4]Main menu[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#714035][lineThickness=4]Continue[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#0b2846][lineThickness=4]Pause[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#000000][lineThickness=4]Missions[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#714035][lineThickness=4]Start[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#004C04][lineThickness=4]Claim[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#000000][lineThickness=4]Armory[/lineThickness][underneath][/outline]",
+		() => "Attack",
+		() => "Speed",
+		() => "[outlineback=#000000][lineThickness=4]Upgrades[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#000000][lineThickness=4]Guns[/lineThickness][underneath][/outline]",
+		() => "Level",
+		() => "Coming soon",
+		() => "[outlineback=#000000][lineThickness=4]Type[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#000000][lineThickness=4]Power[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#000000][lineThickness=4]Speed[/lineThickness][underneath][/outline]",
+		() => "Kill 300 monsters",
+		() => "Reward",
+		() => "[outlineback=#000000][lineThickness=4]15000[/lineThickness][underneath][/outline]",
 		() => 357,
 		() => "[outlineback=#000000][lineThickness=4]L1[/lineThickness][underneath][/outline]",
 		() => 358,
@@ -7964,9 +7970,18 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#000000][lineThickness=4]L3[/lineThickness][underneath][/outline]",
 		() => 389,
 		() => "[outlineback=#004C04][lineThickness=4]15000[/lineThickness][underneath][/outline]",
-		() => "infoButtons",
-		() => "infoArm",
-		() => "infoMission",
+		() => "[outlineback=#000000][lineThickness=4]1[/lineThickness][underneath][/outline]",
+		() => 401,
+		() => "[outlineback=#000000][lineThickness=4]PowerUPD.PUcost[/lineThickness][underneath][/outline]",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => (and("[outlineback=#000000][lineThickness=4]", f0(n1.ExpInstVar())) + "[/lineThickness][underneath][/outline]");
+		},
+		() => 404,
+		() => "Default2",
+		() => 387,
+		() => 0.7,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() + 6);
@@ -7987,70 +8002,69 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 2);
 		},
-		() => "gameTimeScale",
+		() => "gameSpeed",
 		() => "timeScale",
 		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject("timeScale");
+			const v0 = p._GetNode(0).GetVar();
+			return () => (2 - v0.GetValue());
 		},
 		p => {
-			const n0 = p._GetNode(0);
-			return () => add(subtract(2, n0.ExpObject("timeScale")), 1);
+			const v0 = p._GetNode(0).GetVar();
+			return () => and((("Speed" + "\n") + "x"), (2 - v0.GetValue()));
 		},
-		() => "setLanguage",
-		() => "gunData",
-		() => "ru",
-		() => "en",
-		() => "buttonPlay",
-		() => "buttonInvite",
+		() => 360,
+		() => -500,
 		() => "SubGiftDate",
 		() => "SubGiftGot",
-		() => 9,
-		() => 10,
-		() => 16,
 		() => 101,
-		() => 11,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ("id          " + v0.GetValue());
 		},
-		() => 12,
-		() => 13,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ("Фамилия          " + v0.GetValue());
 		},
-		() => 14,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ("Язык          " + v0.GetValue());
 		},
-		() => 15,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ("Имя пользователя          " + v0.GetValue());
 		},
 		() => "Удалить все сохранения игры?",
 		() => 264,
+		() => 273,
+		() => 329,
+		() => "Добро пожаловать!",
+		() => 327,
+		() => "[outlineback=#714035][lineThickness=4]Задания[/lineThickness][underneath][/outline]",
+		() => 300,
+		() => "[outlineback=#714035][lineThickness=4]Пригласить друзей[/lineThickness][underneath][/outline]",
+		() => 328,
+		() => "Настройки",
+		() => 60,
+		() => 406,
+		() => 499,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => (f0() - 1);
+		},
+		() => 599,
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => ((and(("[size=21]+[/size]" + "[size=40]"), ((v0.GetValue() - 1) * 100)) + "[/size]") + "[size=24]%[/size]");
+		},
 		() => "Delete all game saves?",
 		() => "Are you sure to delete data?",
-		() => "loadVarible",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject("coinEnc");
-		},
+		() => "Welcome!",
+		() => "[outlineback=#714035][lineThickness=4]Missions[/lineThickness][underneath][/outline]",
+		() => "[outlineback=#714035][lineThickness=4]Invite friends[/lineThickness][underneath][/outline]",
+		() => "Settings",
 		() => "decrypt",
-		() => "costGun",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("costGun"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SubGiftDate"));
-		},
+		() => "2",
+		() => "3",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
@@ -8062,34 +8076,7 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "Бонус будет доступен в течение часа",
 		() => "Получить бонус за подписку",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("SubGiftGot"));
-		},
 		() => "Бонус за подписку получен",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("wall_costUpgrade"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("wall_levelUpdate"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("CurrentYspeed"));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => f0(n1.ExpObject("tutorial"));
-		},
-		() => "2",
-		() => "3",
 		() => 1101,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -8152,7 +8139,11 @@ self.C3_ExpressionFuncs = [
 		},
 		() => 1102,
 		() => 877,
-		() => "Monsters_Tween2"
+		() => "Monsters_Tween2",
+		() => "Resize",
+		() => "cloudStorage",
+		() => "gamePushID",
+		() => "test"
 ];
 
 
