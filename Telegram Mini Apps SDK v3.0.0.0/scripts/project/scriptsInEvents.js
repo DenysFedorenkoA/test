@@ -329,19 +329,14 @@ const scriptsInEvents = {
 		console.log(runtime.globalVars.Start_param);
 	},
 
-	async Homeevents_Event123_Act7(runtime, localVars)
+	async Homeevents_Event122_Act7(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.TGINVITEURL)
 	},
 
-	async Homeevents_Event142_Act1(runtime, localVars)
+	async Homeevents_Event141_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink('https://t.me/gs_community')
-	},
-
-	async Homeevents_Event316_Act1(runtime, localVars)
-	{
-		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	}
 
 };
