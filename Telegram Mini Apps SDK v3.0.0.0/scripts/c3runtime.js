@@ -5895,9 +5895,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Acts.SetFlipped,
 		C3.Plugins.System.Cnds.Every,
 		C3.Plugins.Text.Acts.SetPos,
-		C3.Plugins.System.Acts.ToggleBoolVar,
-		C3.Plugins.System.Acts.SetTimescale,
-		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.System.Acts.ResetGlobals,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerReset,
 		C3.Plugins.System.Acts.RestartLayout,
@@ -5958,8 +5955,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.Homeevents_Event74_Act6,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
 		C3.Plugins.GameAnalytics.Acts.initialize,
-		C3.Plugins.System.Cnds.CompareBoolVar,
-		C3.ScriptsInEvents.Homeevents_Event77_Act1,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
 		C3.Plugins.Cryptography.Cnds.OnDecryptionFinished,
@@ -5977,17 +5972,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreateError,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsAnyFetch,
 		C3.Plugins.GamePush_Channels.Cnds.EachMember,
-		C3.ScriptsInEvents.Homeevents_Event123_Act7,
+		C3.ScriptsInEvents.Homeevents_Event122_Act7,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsRegistered,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersRegister,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsTodayRewardClaimed,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersClaimDay,
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
-		C3.ScriptsInEvents.Homeevents_Event142_Act1,
-		C3.ScriptsInEvents.Homeevents_Event316_Act1,
-		C3.Plugins.Eponesh_GameScore.Exps.PlayerID,
-		C3.Plugins.System.Acts.SetBoolVar,
-		C3.Plugins.Keyboard.Cnds.OnKey
+		C3.ScriptsInEvents.Homeevents_Event141_Act1
 	];
 };
 self.C3_JsPropNameTable = [
@@ -6189,7 +6180,6 @@ self.C3_JsPropNameTable = [
 	{GamePush: 0},
 	{Keyboard: 0},
 	{number: 0},
-	{type: 0},
 	{Text: 0},
 	{Text2: 0},
 	{Browser: 0},
@@ -6261,8 +6251,6 @@ self.C3_JsPropNameTable = [
 	{Text3: 0},
 	{futureTile: 0},
 	{Wall_Explosion: 0},
-	{Sprite2: 0},
-	{buttons: 0},
 	{Timer: 0},
 	{G_GunFamily: 0},
 	{Bullet: 0},
@@ -6342,7 +6330,6 @@ self.C3_JsPropNameTable = [
 	{wall_healthFullUpgradeNext: 0},
 	{wall_costUpgrade: 0},
 	{wave_test: 0},
-	{gameSpeed: 0},
 	{indexGuide: 0},
 	{id: 0},
 	{first_name: 0},
@@ -6365,13 +6352,7 @@ self.C3_JsPropNameTable = [
 	{Member: 0},
 	{SubGiftInterval: 0},
 	{SubGiftDate: 0},
-	{SubGiftGot: 0},
-	{gamePushID: 0},
-	{test: 0},
-	{loadTrue: 0},
-	{loadComplite: 0},
-	{key: 0},
-	{data: 0}
+	{SubGiftGot: 0}
 ];
 
 self.InstanceType = {
@@ -6580,8 +6561,6 @@ self.InstanceType = {
 	Text3: class extends self.ITextInstance {},
 	futureTile: class extends self.ITiledBackgroundInstance {},
 	Wall_Explosion: class extends self.ISpriteInstance {},
-	Sprite2: class extends self.ISpriteInstance {},
-	buttons: class extends self.ISpriteInstance {},
 	G_GunFamily: class extends self.ISpriteInstance {},
 	G_MonsterFamily: class extends self.ISpriteInstance {},
 	G_BulletFamily: class extends self.ISpriteInstance {},
@@ -7053,41 +7032,6 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".bullet_type_shoot2");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage1"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage2"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot1"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot2"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => Math.abs(subtract(n0.ExpObject(".time_shoot"), v1.GetValue()));
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -8002,16 +7946,6 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 2);
 		},
-		() => "gameSpeed",
-		() => "timeScale",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (2 - v0.GetValue());
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => and((("Speed" + "\n") + "x"), (2 - v0.GetValue()));
-		},
 		() => 360,
 		() => -500,
 		() => "SubGiftDate",
@@ -8049,12 +7983,12 @@ self.C3_ExpressionFuncs = [
 		() => 499,
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (f0() - 1);
+			return () => and("Мои друзья:   ", (f0() - 1));
 		},
 		() => 599,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			return () => ((and(("[size=21]+[/size]" + "[size=40]"), ((v0.GetValue() - 1) * 100)) + "[/size]") + "[size=24]%[/size]");
+			return () => (and("Бонус за друзей +  ", ((v0.GetValue() - 1) * 100)) + " % монет");
 		},
 		() => "Delete all game saves?",
 		() => "Are you sure to delete data?",
@@ -8062,6 +7996,14 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#714035][lineThickness=4]Missions[/lineThickness][underneath][/outline]",
 		() => "[outlineback=#714035][lineThickness=4]Invite friends[/lineThickness][underneath][/outline]",
 		() => "Settings",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => and("My friends:   ", (f0() - 1));
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (and("Friends bonus +  ", ((v0.GetValue() - 1) * 100)) + " % coins");
+		},
 		() => "decrypt",
 		() => "2",
 		() => "3",
@@ -8140,10 +8082,7 @@ self.C3_ExpressionFuncs = [
 		() => 1102,
 		() => 877,
 		() => "Monsters_Tween2",
-		() => "Resize",
-		() => "cloudStorage",
-		() => "gamePushID",
-		() => "test"
+		() => "Resize"
 ];
 
 
