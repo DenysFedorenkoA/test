@@ -6039,7 +6039,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
 		C3.Plugins.Date.Cnds.CompareTimeStamps,
 		C3.Plugins.Date.Exps.Now,
-		C3.Plugins.Eponesh_GameScore.Exps.PlayerID,
 		C3.Plugins.Cryptography.Cnds.OnDecryptionFinished,
 		C3.Plugins.BinaryData.Exps.GetAllText,
 		C3.Plugins.System.Cnds.TriggerOnce,
@@ -8088,11 +8087,6 @@ self.C3_ExpressionFuncs = [
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
 			return () => f0(n1.ExpObject("tutorial"));
-		},
-		() => "gamePushID",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject("gamePushID");
 		},
 		() => "2",
 		() => "3",
