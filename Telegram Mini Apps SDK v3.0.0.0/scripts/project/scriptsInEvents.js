@@ -329,36 +329,6 @@ const scriptsInEvents = {
 		console.log(runtime.globalVars.Start_param);
 	},
 
-	async Homeevents_Event77_Act1(runtime, localVars)
-	{
-		async function readFromCloudStorage(key) {
-		  return new Promise((resolve, reject) => {
-		    Telegram.WebApp.CloudStorage.getItem(key, (err, data) => {
-		      if (err) {
-		        reject(err);
-		      } else {
-		        resolve(data);
-		      }
-		    });
-		  });
-		}
-		
-		async function retrieveData() {
-		  try {
-		    const gamePushID = await readFromCloudStorage('gamePushID');
-		
-		
-		    runtime.globalVars.gamePushID = String(gamePushID);
-			runtime.globalVars.loadComplite=true;
-		
-		  } catch (err) {
-		    console.error('Error retrieving data from CloudStorage:', err);
-		  }
-		}
-		
-		retrieveData();
-	},
-
 	async Homeevents_Event123_Act7(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.TGINVITEURL)

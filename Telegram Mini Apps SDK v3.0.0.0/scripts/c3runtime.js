@@ -5958,8 +5958,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.ScriptsInEvents.Homeevents_Event74_Act6,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
 		C3.Plugins.GameAnalytics.Acts.initialize,
-		C3.Plugins.System.Cnds.CompareBoolVar,
-		C3.ScriptsInEvents.Homeevents_Event77_Act1,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
 		C3.Plugins.Cryptography.Cnds.OnDecryptionFinished,
@@ -5985,9 +5983,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
 		C3.ScriptsInEvents.Homeevents_Event142_Act1,
 		C3.ScriptsInEvents.Homeevents_Event316_Act1,
-		C3.Plugins.Eponesh_GameScore.Exps.PlayerID,
-		C3.Plugins.System.Acts.SetBoolVar,
-		C3.Plugins.Keyboard.Cnds.OnKey
+		C3.Plugins.Keyboard.Cnds.OnKey,
+		C3.Plugins.System.Cnds.CompareBoolVar
 	];
 };
 self.C3_JsPropNameTable = [
@@ -8142,7 +8139,6 @@ self.C3_ExpressionFuncs = [
 		() => "Monsters_Tween2",
 		() => "Resize",
 		() => "cloudStorage",
-		() => "gamePushID",
 		() => "test"
 ];
 
