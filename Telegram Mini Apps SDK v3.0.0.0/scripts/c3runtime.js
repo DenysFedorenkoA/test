@@ -4091,6 +4091,21 @@ err)}}};
 
 {
 self["C3_Shaders"] = {};
+self["C3_Shaders"]["skymen_BetterOutline"] = {
+	glsl: "uniform lowp vec3 outlinecolor;\nuniform lowp float width;\nuniform lowp float precisionStep;\nuniform lowp float samples;\nvarying mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 srcOriginStart;\nuniform mediump vec2 srcOriginEnd;\nuniform mediump vec2 layoutStart;\nuniform mediump vec2 layoutEnd;\nuniform lowp sampler2D samplerBack;\nuniform mediump vec2 destStart;\nuniform mediump vec2 destEnd;\nuniform mediump float seconds;\nuniform mediump vec2 pixelSize;\nuniform mediump float layerScale;\nuniform mediump float layerAngle;\n#define PI 3.14159265359\n#define SAMPLES 96\n#define PASSES 64\nvoid main(void)\n{\nmediump float outlineAlpha = 0.0;\nmediump vec2 actualWidth;\nmediump float widthCopy = width;\nmediump vec4 color = vec4(outlinecolor.x, outlinecolor.y, outlinecolor.z, 1.0);\nmediump float angle;\nmediump vec2 layoutSize = abs(vec2(layoutEnd.x-layoutStart.x,(layoutEnd.y-layoutStart.y)));\nmediump vec2 texelSize = abs(srcOriginEnd-srcOriginStart)/layoutSize;\nmediump vec4 fragColor;\nmediump vec2 testPoint;\nmediump float sampledAlpha;\nint passes = int(clamp(width / precisionStep, 1.0, float(PASSES)));\nfor (int j=0; j<PASSES; j++) {\nif (j >= passes ) break;\nwidthCopy = mix(0.0, width, float(j)/float(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor( int i=0; i<SAMPLES; i++ ){\nif (i >= int(samples)) break;\nangle += 1.0/(clamp(samples, 0.0, float(SAMPLES))/2.0) * PI;\ntestPoint = vTex + actualWidth * vec2(cos(angle), sin(angle));\nsampledAlpha = texture2D( samplerFront,  testPoint ).a;\noutlineAlpha = max( outlineAlpha, sampledAlpha );\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nmediump vec4 tex0 = texture2D( samplerFront, vTex );\ngl_FragColor = mix(fragColor, tex0, tex0.a);\n}",
+	glslWebGL2: "#version 300 es\nin mediump vec2 vTex;\nout lowp vec4 outColor;\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define highmedp highp\n#else\n#define highmedp mediump\n#endif\nprecision lowp float;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 srcOriginStart;\nuniform mediump vec2 srcOriginEnd;\nuniform mediump vec2 layoutStart;\nuniform mediump vec2 layoutEnd;\nuniform lowp sampler2D samplerBack;\nuniform lowp sampler2D samplerDepth;\nuniform mediump vec2 destStart;\nuniform mediump vec2 destEnd;\nuniform highmedp float seconds;\nuniform mediump vec2 pixelSize;\nuniform mediump float layerScale;\nuniform mediump float layerAngle;\nuniform mediump float devicePixelRatio;\nuniform mediump float zNear;\nuniform mediump float zFar;\nuniform lowp vec3 outlinecolor;\nuniform lowp float width;\nuniform lowp float precisionStep;\nuniform lowp float samples;\n#define PI 3.14159265359\n#define SAMPLES 96\n#define PASSES 64\nvoid main(void)\n{\nmediump float outlineAlpha = 0.0;\nmediump vec2 actualWidth;\nmediump float widthCopy = width;\nmediump vec4 color = vec4(outlinecolor.x, outlinecolor.y, outlinecolor.z, 1.0);\nmediump float angle;\nmediump vec2 layoutSize = abs(vec2(layoutEnd.x-layoutStart.x,(layoutEnd.y-layoutStart.y)));\nmediump vec2 texelSize = abs(srcOriginEnd-srcOriginStart)/layoutSize;\nmediump vec4 fragColor;\nmediump vec2 testPoint;\nmediump float sampledAlpha;\nint passes = int(clamp(width / precisionStep, 1.0, float(PASSES)));\nint sampleCount = int(clamp(samples, 0.0, float(SAMPLES)));\nfor (int j = 0; j <= passes; j++) {\nwidthCopy = mix(0.0, width, float(j)/float(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor( int i = 0; i < sampleCount; i++ ) {\nangle += 1.0/(float(sampleCount)/2.0) * PI;\ntestPoint = vTex + actualWidth * vec2(cos(angle), sin(angle));\nsampledAlpha = texture( samplerFront,  testPoint ).a;\noutlineAlpha = max( outlineAlpha, sampledAlpha );\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nmediump vec4 tex0 = texture( samplerFront, vTex );\noutColor = mix(fragColor, tex0, tex0.a);\n}",
+	wgsl: "%%FRAGMENTINPUT_STRUCT%%\n/* input struct contains the following fields:\nfragUV : vec2<f32>\nfragPos : vec4<f32>\nfn c3_getBackUV(fragPos : vec2<f32>, texBack : texture_2d<f32>) -> vec2<f32>\nfn c3_getDepthUV(fragPos : vec2<f32>, texDepth : texture_depth_2d) -> vec2<f32>\n*/\n%%FRAGMENTOUTPUT_STRUCT%%\n%%SAMPLERFRONT_BINDING%% var samplerFront : sampler;\n%%TEXTUREFRONT_BINDING%% var textureFront : texture_2d<f32>;\nstruct ShaderParams {\noutlinecolor : vec3<f32>,\nwidth : f32,\nprecisionStep : f32,\nsamples : f32\n};\n%%SHADERPARAMS_BINDING%% var<uniform> shaderParams : ShaderParams;\n%%C3PARAMS_STRUCT%%\n/* c3Params struct contains the following fields:\nsrcStart : vec2<f32>,\nsrcEnd : vec2<f32>,\nsrcOriginStart : vec2<f32>,\nsrcOriginEnd : vec2<f32>,\nlayoutStart : vec2<f32>,\nlayoutEnd : vec2<f32>,\ndestStart : vec2<f32>,\ndestEnd : vec2<f32>,\ndevicePixelRatio : f32,\nlayerScale : f32,\nlayerAngle : f32,\nseconds : f32,\nzNear : f32,\nzFar : f32,\nisSrcTexRotated : u32\nfn c3_srcToNorm(p : vec2<f32>) -> vec2<f32>\nfn c3_normToSrc(p : vec2<f32>) -> vec2<f32>\nfn c3_srcOriginToNorm(p : vec2<f32>) -> vec2<f32>\nfn c3_normToSrcOrigin(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToSrc(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToSrcOrigin(p : vec2<f32>) -> vec2<f32>\nfn c3_getLayoutPos(p : vec2<f32>) -> vec2<f32>\nfn c3_srcToDest(p : vec2<f32>) -> vec2<f32>\nfn c3_clampToDest(p : vec2<f32>) -> vec2<f32>\nfn c3_linearizeDepth(depthSample : f32) -> f32\n*/\n/*\nfn c3_premultiply(c : vec4<f32>) -> vec4<f32>\nfn c3_unpremultiply(c : vec4<f32>) -> vec4<f32>\nfn c3_grayscale(rgb : vec3<f32>) -> f32\nfn c3_getPixelSize(t : texture_2d<f32>) -> vec2<f32>\nfn c3_RGBtoHSL(color : vec3<f32>) -> vec3<f32>\nfn c3_HSLtoRGB(hsl : vec3<f32>) -> vec3<f32>\n*/\nconst PI:f32 = 3.14159265359;\nconst SAMPLES:i32 = 96;\nconst PASSES:i32 = 64;\n@fragment\nfn main(input : FragmentInput) -> FragmentOutput\n{\nvar outlineAlpha: f32 = 0.0;\nvar actualWidth: vec2<f32>;\nvar widthCopy: f32 = shaderParams.width;\nvar color: vec4<f32> = vec4<f32>(shaderParams.outlinecolor.x, shaderParams.outlinecolor.y, shaderParams.outlinecolor.z, 1.0);\nvar angle: f32;\nlet layoutSize: vec2<f32> = abs(vec2<f32>(c3Params.layoutEnd.x - c3Params.layoutStart.x, c3Params.layoutEnd.y - c3Params.layoutStart.y));\nlet texelSize: vec2<f32> = abs(c3Params.srcOriginEnd - c3Params.srcOriginStart) / layoutSize;\nvar fragColor: vec4<f32>;\nvar testPoint: vec2<f32>;\nvar sampledAlpha: f32;\nlet passes: u32 = u32(clamp(shaderParams.width / shaderParams.precisionStep, 1.0, f32(SAMPLES)));\nlet sampleCount: u32 = u32(clamp(shaderParams.samples, 0.0, f32(SAMPLES)));\nfor (var j: u32 = 0u; j <= passes; j = j + 1u) {\nwidthCopy = mix(0.0, shaderParams.width, f32(j) / f32(passes));\nactualWidth = widthCopy * texelSize;\nangle = 0.0;\nfor (var i: u32 = 0u; i < sampleCount; i = i + 1u) {\nangle = angle + 1.0 / (f32(sampleCount) / 2.0) * PI;\ntestPoint = input.fragUV + actualWidth * vec2<f32>(cos(angle), sin(angle));\nsampledAlpha = textureSample(textureFront, samplerFront, testPoint).a; // Assuming 'samplerFrontSampler' is the sampler associated with 'samplerFront'\noutlineAlpha = max(outlineAlpha, sampledAlpha);\n}\n}\nfragColor = mix( vec4(0.0), color, outlineAlpha );\nvar tex0 : vec4<f32> = textureSample(textureFront, samplerFront, input.fragUV );\nvar output : FragmentOutput;\noutput.color = mix(fragColor, tex0, tex0.a);\nreturn output;\n}",
+	blendsBackground: false,
+	usesDepth: false,
+	extendBoxHorizontal: 50,
+	extendBoxVertical: 50,
+	crossSampling: true,
+	mustPreDraw: true,
+	preservesOpaqueness: false,
+	supports3dDirectRendering: false,
+	animated: false,
+	parameters: [["outlinecolor",0,"color"],["width",0,"float"],["precisionStep",0,"float"],["samples",0,"float"]]
+};
 
 }
 
@@ -5777,8 +5792,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Exps.zeropad,
 		C3.Plugins.Sprite.Cnds.PickParent,
 		C3.Plugins.System.Exps.int,
-		C3.Plugins.Text.Cnds.PickByUID,
-		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.System.Cnds.CompareVar,
 		C3.Plugins.Sprite.Cnds.OnAnimFinished,
 		C3.Plugins.System.Acts.SubVar,
@@ -5788,7 +5801,9 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Cryptography.Acts.EncryptBinary,
 		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.LocalStorage.Acts.SetItem,
-		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
+		C3.Plugins.Text.Cnds.CompareInstanceVar,
+		C3.Plugins.Text.Acts.SetText,
+		C3.Plugins.System.Cnds.OnSignal,
 		C3.Plugins.Browser.Acts.ConsoleLog,
 		C3.Plugins.System.Acts.WaitForPreviousActions,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
@@ -5821,6 +5836,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Exps.ImagePointX,
 		C3.Plugins.Sprite.Exps.ImagePointY,
 		C3.Plugins.Dictionary.Exps.Get,
+		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.Sprite.Acts.AddInstanceVar,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
@@ -5834,6 +5850,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.Compare,
 		C3.Plugins.Sprite.Acts.SetVisible,
 		C3.Plugins.Sprite.Acts.SetAngle,
+		C3.Plugins.Text.Cnds.PickByUID,
 		C3.Plugins.Text.Acts.SetVisible,
 		C3.Plugins.Sprite.Acts.MoveToTop,
 		C3.Behaviors.Tween.Acts.StopTweens,
@@ -5889,72 +5906,18 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.OnLoadComplete,
 		C3.Plugins.System.Acts.SetObjectTimescale,
 		C3.Behaviors.Tween.Cnds.IsPlaying,
-		C3.Plugins.Text.Cnds.CompareInstanceVar,
 		C3.Plugins.Text.Acts.SetInstanceVar,
 		C3.Plugins.Spritefont2.Acts.MoveToLayer,
 		C3.Plugins.Sprite.Acts.SetFlipped,
 		C3.Plugins.System.Cnds.Every,
 		C3.Plugins.Text.Acts.SetPos,
+		C3.Plugins.System.Acts.ToggleBoolVar,
+		C3.Plugins.System.Acts.SetTimescale,
+		C3.Plugins.Text.Cnds.OnCreated,
 		C3.Plugins.System.Acts.ResetGlobals,
 		C3.Plugins.Eponesh_GameScore.Acts.PlayerReset,
 		C3.Plugins.System.Acts.RestartLayout,
-		C3.ScriptsInEvents.Homeevents_Event22_Act1,
-		C3.ScriptsInEvents.Homeevents_Event23_Act1,
-		C3.ScriptsInEvents.Homeevents_Event25_Act1,
-		C3.ScriptsInEvents.Homeevents_Event26_Act1,
-		C3.ScriptsInEvents.Homeevents_Event28_Act1,
-		C3.ScriptsInEvents.Homeevents_Event29_Act1,
-		C3.ScriptsInEvents.Homeevents_Event30_Act1,
-		C3.ScriptsInEvents.Homeevents_Event31_Act1,
-		C3.Plugins.Eponesh_GameScore.Acts.PlayerSetName,
-		C3.ScriptsInEvents.Homeevents_Event32_Act1,
-		C3.ScriptsInEvents.Homeevents_Event32_Act2,
-		C3.ScriptsInEvents.Homeevents_Event32_Act3,
-		C3.ScriptsInEvents.Homeevents_Event32_Act4,
-		C3.ScriptsInEvents.Homeevents_Event33_Act1,
-		C3.ScriptsInEvents.Homeevents_Event33_Act2,
-		C3.ScriptsInEvents.Homeevents_Event33_Act3,
-		C3.ScriptsInEvents.Homeevents_Event33_Act4,
-		C3.ScriptsInEvents.Homeevents_Event33_Act5,
-		C3.ScriptsInEvents.Homeevents_Event34_Act1,
-		C3.ScriptsInEvents.Homeevents_Event34_Act2,
-		C3.ScriptsInEvents.Homeevents_Event34_Act3,
-		C3.ScriptsInEvents.Homeevents_Event34_Act4,
-		C3.ScriptsInEvents.Homeevents_Event34_Act5,
-		C3.ScriptsInEvents.Homeevents_Event34_Act6,
-		C3.ScriptsInEvents.Homeevents_Event34_Act7,
-		C3.ScriptsInEvents.Homeevents_Event34_Act8,
-		C3.ScriptsInEvents.Homeevents_Event34_Act9,
-		C3.ScriptsInEvents.Homeevents_Event34_Act10,
-		C3.ScriptsInEvents.Homeevents_Event34_Act11,
-		C3.ScriptsInEvents.Homeevents_Event34_Act12,
-		C3.ScriptsInEvents.Homeevents_Event34_Act13,
-		C3.ScriptsInEvents.Homeevents_Event34_Act14,
-		C3.ScriptsInEvents.Homeevents_Event34_Act15,
-		C3.ScriptsInEvents.Homeevents_Event34_Act16,
-		C3.ScriptsInEvents.Homeevents_Event34_Act17,
-		C3.ScriptsInEvents.Homeevents_Event34_Act18,
-		C3.ScriptsInEvents.Homeevents_Event34_Act19,
-		C3.ScriptsInEvents.Homeevents_Event34_Act20,
-		C3.ScriptsInEvents.Homeevents_Event34_Act21,
-		C3.ScriptsInEvents.Homeevents_Event34_Act22,
-		C3.ScriptsInEvents.Homeevents_Event34_Act23,
-		C3.ScriptsInEvents.Homeevents_Event34_Act24,
-		C3.ScriptsInEvents.Homeevents_Event34_Act25,
-		C3.ScriptsInEvents.Homeevents_Event34_Act26,
-		C3.ScriptsInEvents.Homeevents_Event34_Act27,
-		C3.ScriptsInEvents.Homeevents_Event40,
-		C3.ScriptsInEvents.Homeevents_Event41,
-		C3.ScriptsInEvents.Homeevents_Event42,
-		C3.ScriptsInEvents.Homeevents_Event43,
 		C3.Plugins.GamePush_Channels.Exps.CurChannelID,
-		C3.ScriptsInEvents.Homeevents_Event74_Act1,
-		C3.ScriptsInEvents.Homeevents_Event74_Act2,
-		C3.ScriptsInEvents.Homeevents_Event74_Act3,
-		C3.ScriptsInEvents.Homeevents_Event74_Act4,
-		C3.ScriptsInEvents.Homeevents_Event74_Act6,
-		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
-		C3.Plugins.GameAnalytics.Acts.initialize,
 		C3.Plugins.BinaryData.Acts.SetFromBase64,
 		C3.Plugins.Cryptography.Acts.DecryptBinary,
 		C3.Plugins.Cryptography.Cnds.OnDecryptionFinished,
@@ -5967,18 +5930,38 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.GamePush_Channels.Acts.CreateChannel,
 		C3.Plugins.GamePush_Channels.Acts.FetchChannel,
 		C3.Plugins.Eponesh_GameScore.Exps.PlayerName,
+		C3.Plugins.Eponesh_GameScore.Acts.PlayerSetName,
 		C3.Plugins.GamePush_Channels.Acts.Join,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreate,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsCreateError,
 		C3.Plugins.GamePush_Channels.Cnds.OnChannelsAnyFetch,
 		C3.Plugins.GamePush_Channels.Cnds.EachMember,
-		C3.ScriptsInEvents.Homeevents_Event122_Act7,
+		C3.ScriptsInEvents.EsHome_Event101_Act7,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsRegistered,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersRegister,
 		C3.Plugins.Eponesh_GameScore.Cnds.SchedulersIsTodayRewardClaimed,
 		C3.Plugins.Eponesh_GameScore.Acts.SchedulersClaimDay,
 		C3.Plugins.Eponesh_GameScore.Cnds.OnSchedulersClaimDay,
-		C3.ScriptsInEvents.Homeevents_Event141_Act1
+		C3.ScriptsInEvents.EsHome_Event120_Act1,
+		C3.Plugins.System.Acts.Signal,
+		C3.Plugins.AJAX.Acts.RequestFile,
+		C3.Plugins.AJAX.Cnds.OnComplete,
+		C3.Plugins.AJAX.Exps.LastData,
+		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
+		C3.ScriptsInEvents.EsMain_Event11_Act1,
+		C3.Plugins.System.Cnds.CompareBoolVar,
+		C3.Plugins.Eponesh_GameScore.Exps.PlayerID,
+		C3.Plugins.System.Acts.SetBoolVar,
+		C3.Plugins.Keyboard.Cnds.OnKey,
+		C3.ScriptsInEvents.EsLoad_Event1_Act1,
+		C3.ScriptsInEvents.EsLoad_Event1_Act2,
+		C3.ScriptsInEvents.EsLoad_Event1_Act3,
+		C3.ScriptsInEvents.EsLoad_Event1_Act4,
+		C3.ScriptsInEvents.EsLoad_Event1_Act6,
+		C3.Plugins.Eponesh_GameScore.Acts.PlayerLoad,
+		C3.Plugins.GameAnalytics.Acts.initialize,
+		C3.ScriptsInEvents.EsLoad_Event4_Act1,
+		C3.Plugins.System.Cnds.OnLoadFinished
 	];
 };
 self.C3_JsPropNameTable = [
@@ -6180,6 +6163,9 @@ self.C3_JsPropNameTable = [
 	{GamePush: 0},
 	{Keyboard: 0},
 	{number: 0},
+	{type: 0},
+	{translate: 0},
+	{textTrenslate: 0},
 	{Text: 0},
 	{Text2: 0},
 	{Browser: 0},
@@ -6251,6 +6237,9 @@ self.C3_JsPropNameTable = [
 	{Text3: 0},
 	{futureTile: 0},
 	{Wall_Explosion: 0},
+	{Sprite2: 0},
+	{buttons: 0},
+	{languageJSON: 0},
 	{Timer: 0},
 	{G_GunFamily: 0},
 	{Bullet: 0},
@@ -6330,6 +6319,7 @@ self.C3_JsPropNameTable = [
 	{wall_healthFullUpgradeNext: 0},
 	{wall_costUpgrade: 0},
 	{wave_test: 0},
+	{gameSpeed: 0},
 	{indexGuide: 0},
 	{id: 0},
 	{first_name: 0},
@@ -6352,7 +6342,15 @@ self.C3_JsPropNameTable = [
 	{Member: 0},
 	{SubGiftInterval: 0},
 	{SubGiftDate: 0},
-	{SubGiftGot: 0}
+	{SubGiftGot: 0},
+	{gamePushID: 0},
+	{test: 0},
+	{loadTrue: 0},
+	{loadComplite: 0},
+	{key: 0},
+	{data: 0},
+	{maxLoadingProgress: 0},
+	{loading_Progress: 0}
 ];
 
 self.InstanceType = {
@@ -6561,6 +6559,9 @@ self.InstanceType = {
 	Text3: class extends self.ITextInstance {},
 	futureTile: class extends self.ITiledBackgroundInstance {},
 	Wall_Explosion: class extends self.ISpriteInstance {},
+	Sprite2: class extends self.ISpriteInstance {},
+	buttons: class extends self.ISpriteInstance {},
+	languageJSON: class extends self.IJSONInstance {},
 	G_GunFamily: class extends self.ISpriteInstance {},
 	G_MonsterFamily: class extends self.ISpriteInstance {},
 	G_BulletFamily: class extends self.ISpriteInstance {},
@@ -6795,12 +6796,10 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar();
 		},
-		() => 158,
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpInstVar() / 10000);
+			return () => (10000 * Math.pow(2, ((n0.ExpInstVar() / 10000) - 1)));
 		},
-		() => 162,
 		() => "press",
 		() => "Press",
 		p => {
@@ -6814,32 +6813,36 @@ self.C3_ExpressionFuncs = [
 		() => "PowerUPD",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpInstVar() + 10000);
+			return () => (n0.ExpInstVar() * 2);
 		},
 		() => "PowerUPD.PUcost",
 		p => {
 			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => (n0.ExpInstVar_Family() + v1.GetValue());
+			return () => n0.ExpInstVar_Family();
 		},
 		() => "SpeedUPD",
 		() => "SpeedTimeUPD",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => (n0.ExpInstVar() + 10000);
+		},
 		() => "SpeedUPD.SUcost",
+		() => "levelAttack",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
-			return () => Math.abs((n0.ExpInstVar_Family() - v1.GetValue()));
+			const n2 = p._GetNode(2);
+			const n3 = p._GetNode(3);
+			return () => and(and(n0.ExpObject(((v1.GetValue() + ".") + n2.ExpInstVar())), " "), (n3.ExpInstVar() / 10000));
 		},
+		() => "levelSpeed",
+		() => "translate",
 		() => "FUCK YEAH",
 		() => "Guns_Get Gun Merge Max",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const n1 = p._GetNode(1);
 			return () => ((v0.GetValue()) < (n1.ExpInstVar_Family()) ? 1 : 0);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar_Family();
 		},
 		() => "Guns_Data",
 		() => "Guns_Apply Upgrade",
@@ -6850,15 +6853,18 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".damage");
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage"), v1.GetValue());
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".damage1");
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage1"), v1.GetValue());
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".damage2");
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".damage2"), v1.GetValue());
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -6874,7 +6880,8 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".time_shoot");
+			const v1 = p._GetNode(1).GetVar();
+			return () => Math.abs(subtract(n0.ExpObject(".time_shoot"), v1.GetValue()));
 		},
 		() => "Guns_Save Data",
 		p => {
@@ -7032,6 +7039,21 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".bullet_type_shoot2");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot1"), v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => add(n0.ExpObject(".speed_shoot2"), v1.GetValue());
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -7344,6 +7366,11 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
 		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => (n0.ExpInstVar_Family() + v1.GetValue());
+		},
 		() => "YES",
 		() => "NO",
 		() => "isGuide",
@@ -7423,6 +7450,10 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => and("G_Monster", v0.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject(".damage");
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -7849,9 +7880,6 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#000000][lineThickness=4]Усиления[/lineThickness][underneath][/outline]",
 		() => 372,
 		() => "[outlineback=#000000][lineThickness=4]Орудия[/lineThickness][underneath][/outline]",
-		() => 351,
-		() => "Уровень",
-		() => 156,
 		() => 379,
 		() => "В ближайших обновлениях",
 		() => 384,
@@ -7898,7 +7926,6 @@ self.C3_ExpressionFuncs = [
 		() => "Speed",
 		() => "[outlineback=#000000][lineThickness=4]Upgrades[/lineThickness][underneath][/outline]",
 		() => "[outlineback=#000000][lineThickness=4]Guns[/lineThickness][underneath][/outline]",
-		() => "Level",
 		() => "Coming soon",
 		() => "[outlineback=#000000][lineThickness=4]Type[/lineThickness][underneath][/outline]",
 		() => "[outlineback=#000000][lineThickness=4]Power[/lineThickness][underneath][/outline]",
@@ -7916,15 +7943,21 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#004C04][lineThickness=4]15000[/lineThickness][underneath][/outline]",
 		() => "[outlineback=#000000][lineThickness=4]1[/lineThickness][underneath][/outline]",
 		() => 401,
-		() => "[outlineback=#000000][lineThickness=4]PowerUPD.PUcost[/lineThickness][underneath][/outline]",
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => (and("[outlineback=#000000][lineThickness=4]", f0(n1.ExpInstVar())) + "[/lineThickness][underneath][/outline]");
+			const n0 = p._GetNode(0);
+			return () => (((and(("[outlineback=#000000][lineThickness=4]" + "[outlineback=#000000][lineThickness=4]"), ((10000 * Math.pow(2, ((n0.ExpInstVar() / 10000) - 1))) / 1000)) + "k") + "[/lineThickness][underneath][/outline]") + "[/lineThickness][underneath][/outline]");
 		},
 		() => 404,
+		p => {
+			const n0 = p._GetNode(0);
+			return () => ((and("[outlineback=#000000][lineThickness=4]", ((10000 * Math.pow(2, ((n0.ExpInstVar() / 10000) - 1))) / 1000)) + "k") + "[/lineThickness][underneath][/outline]");
+		},
 		() => "Default2",
 		() => 387,
+		() => 351,
+		() => 156,
+		() => 162,
+		() => 158,
 		() => 0.7,
 		p => {
 			const n0 = p._GetNode(0);
@@ -7946,11 +7979,23 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 2);
 		},
-		() => 360,
-		() => -500,
+		() => "gameSpeed",
+		() => "timeScale",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (2 - v0.GetValue());
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => and((("Speed" + "\n") + "x"), (2 - v0.GetValue()));
+		},
 		() => "SubGiftDate",
 		() => "SubGiftGot",
-		() => 101,
+		() => "buttonInvite",
+		() => "buttonStart",
+		() => 360,
+		() => "resetData",
+		() => -500,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => ("id          " + v0.GetValue());
@@ -7983,12 +8028,12 @@ self.C3_ExpressionFuncs = [
 		() => 499,
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => and("Мои друзья:   ", (f0() - 1));
+			return () => (f0() - 1);
 		},
 		() => 599,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			return () => (and("Бонус за друзей +  ", ((v0.GetValue() - 1) * 100)) + " % монет");
+			return () => ((and(("[size=21]+[/size]" + "[size=40]"), ((v0.GetValue() - 1) * 100)) + "[/size]") + "[size=24]%[/size]");
 		},
 		() => "Delete all game saves?",
 		() => "Are you sure to delete data?",
@@ -7996,14 +8041,6 @@ self.C3_ExpressionFuncs = [
 		() => "[outlineback=#714035][lineThickness=4]Missions[/lineThickness][underneath][/outline]",
 		() => "[outlineback=#714035][lineThickness=4]Invite friends[/lineThickness][underneath][/outline]",
 		() => "Settings",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => and("My friends:   ", (f0() - 1));
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("Friends bonus +  ", ((v0.GetValue() - 1) * 100)) + " % coins");
-		},
 		() => "decrypt",
 		() => "2",
 		() => "3",
@@ -8081,8 +8118,17 @@ self.C3_ExpressionFuncs = [
 		},
 		() => 1102,
 		() => 877,
-		() => "Monsters_Tween2",
-		() => "Resize"
+		() => "language",
+		() => "en",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const n2 = p._GetNode(2);
+			return () => n0.ExpObject(((v1.GetValue() + ".") + n2.ExpInstVar()));
+		},
+		() => "cloudStorage",
+		() => "gamePushID",
+		() => "test"
 ];
 
 
