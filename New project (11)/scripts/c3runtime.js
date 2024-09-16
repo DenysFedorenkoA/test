@@ -4391,6 +4391,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.System.Exps.loopindex,
 		C3.Plugins.System.Acts.SetVar,
+		C3.Plugins.System.Cnds.CompareVar,
 		C3.Plugins.System.Exps.int,
 		C3.Plugins.System.Cnds.EveryTick,
 		C3.Plugins.System.Cnds.OnLayoutStart
@@ -4409,12 +4410,18 @@ self.C3_JsPropNameTable = [
 	{Sprite4: 0},
 	{Text: 0},
 	{StartDamage: 0},
+	{Sprite5: 0},
+	{powerCoef: 0},
+	{Sprite6: 0},
+	{formulfNumber: 0},
 	{startGunDamage: 0},
 	{gunNumber: 0},
 	{gunCof: 0},
-	{powerLvl: 0},
+	{powerCof: 0},
 	{upgradeNumber: 0},
+	{powerLvl: 0},
 	{wave: 0},
+	{formulaNumber: 0},
 	{Variable2: 0}
 ];
 
@@ -4430,7 +4437,11 @@ self.InstanceType = {
 	Sprite3: class extends self.ISpriteInstance {},
 	Sprite4: class extends self.ISpriteInstance {},
 	Text: class extends self.ITextInstance {},
-	StartDamage: class extends self.ITextInstance {}
+	StartDamage: class extends self.ITextInstance {},
+	Sprite5: class extends self.ISpriteInstance {},
+	powerCoef: class extends self.ITextInstance {},
+	Sprite6: class extends self.ISpriteInstance {},
+	formulfNumber: class extends self.ITextInstance {}
 }
 }
 
@@ -4561,6 +4572,22 @@ self.C3_ExpressionFuncs = [
 			const v9 = p._GetNode(9).GetVar();
 			return () => (and((and("Gun", v0.GetValue()) + " = "), f1(((v2.GetValue() * (v3.GetValue() + (Math.pow(v4.GetValue(), v5.GetValue()) * (v6.GetValue() / 5)))) * (v7.GetValue() + Math.pow(v8.GetValue(), v9.GetValue()))))) + "\n");
 		},
+		() => 2,
+		() => 3,
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const f1 = p._GetNode(1).GetBoundMethod();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			const v4 = p._GetNode(4).GetVar();
+			const v5 = p._GetNode(5).GetVar();
+			const v6 = p._GetNode(6).GetVar();
+			const v7 = p._GetNode(7).GetVar();
+			const v8 = p._GetNode(8).GetVar();
+			const v9 = p._GetNode(9).GetVar();
+			const v10 = p._GetNode(10).GetVar();
+			return () => (and((and("Gun", v0.GetValue()) + " = "), f1(((v2.GetValue() * (v3.GetValue() + (Math.pow(v4.GetValue(), v5.GetValue()) * (v6.GetValue() / 5)))) * (v7.GetValue() + (Math.pow(v8.GetValue(), v9.GetValue()) * v10.GetValue()))))) + "\n");
+		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
@@ -4574,7 +4601,8 @@ self.C3_ExpressionFuncs = [
 			const v5 = p._GetNode(5).GetVar();
 			return () => ((v0.GetValue() * (v1.GetValue() + Math.pow(v2.GetValue(), v3.GetValue()))) * Math.pow(v4.GetValue(), v5.GetValue()));
 		},
-		() => 0.1
+		() => 0.1,
+		() => 0.01
 ];
 
 
