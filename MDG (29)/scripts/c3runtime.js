@@ -7407,6 +7407,7 @@ self.C3_ExpressionFuncs = [
 		() => 1280,
 		() => "language",
 		() => "en",
+		() => "languageComplite",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
@@ -7420,11 +7421,23 @@ self.C3_ExpressionFuncs = [
 		() => "missionButton",
 		() => "Default2",
 		() => "claim",
+		() => "test",
+		() => "open&closeTest",
+		() => "testText",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => and(v0.GetValue(), "\n");
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (v0.GetValue() + "\n");
+		},
+		() => "loadLayoutComplite",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("frnscid");
 		},
-		() => "playerLoad",
+		() => "playerLoadComplite",
 		() => "friends",
 		() => "friends 0",
 		() => 299,
