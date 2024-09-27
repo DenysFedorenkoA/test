@@ -836,10 +836,11 @@ context,this._rasterSurfaceWidth,this._rasterSurfaceHeight,width,height);if(!thi
 {
 'use strict';const C3=self.C3;C3.UTF8_BOM="\ufeff";const NUMERIC_CHARS=new Set("0123456789");C3.IsNumericChar=function IsNumericChar(c){return NUMERIC_CHARS.has(c)};const WHITESPACE_CHARS=new Set(" \t\n\r\u00a0\u0085\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u202f\u205f\u3000");C3.IsWhitespaceChar=function IsWhitespaceChar(c){return WHITESPACE_CHARS.has(c)};C3.FilterWhitespace=function FilterWhitespace(str){return[...str].filter(ch=>!C3.IsWhitespaceChar(ch)).join("")};
 C3.IsStringAllWhitespace=function IsStringAllWhitespace(str){for(const ch of str)if(!C3.IsWhitespaceChar(ch))return false;return true};C3.IsCharArrayAllWhitespace=function IsStringAllWhitespace(chArr){for(const ch of chArr)if(!C3.IsWhitespaceChar(ch))return false;return true};C3.IsUnprintableChar=function IsUnprintableChar(c){return c.length===1&&c.charCodeAt(0)<32};C3.FilterUnprintableChars=function FilterUnprintableChars(str){return[...str].filter(ch=>!C3.IsUnprintableChar(ch)).join("")};
-const CJK_PUNCTUATION_REGEX=/\p{P}(?<=[\u3000-\u303F\uFF00-\uFFEF])/u;C3.IsCJKPunctuationChar=function IsCJKPunctuationChar(ch){return!C3.IsWhitespaceChar(ch)&&CJK_PUNCTUATION_REGEX.test(ch)};const NUMERIC_STRING_CHARS=new Set("0123456789.+-e");C3.IsStringNumber=function IsStringNumber(str){str=str.trim();if(!str.length)return false;let firstChar=str.charAt(0);if(firstChar!=="-"&&!NUMERIC_CHARS.has(firstChar))return false;for(let ch of str)if(!NUMERIC_STRING_CHARS.has(ch))return false;return true};
-C3.RemoveTrailingDigits=function RemoveTrailingDigits(str){let i=str.length;while(i>0){let prev_ch=str.charAt(i-1);if(!C3.IsNumericChar(prev_ch))break;--i}return str.substr(0,i)};C3.IncrementNumberAtEndOf=function IncrementNumberAtEndOf(str){let baseStr=C3.RemoveTrailingDigits(str);let numberStr=str.substr(baseStr.length);if(numberStr)numberStr=(parseInt(numberStr,10)+1).toString();else numberStr="2";return baseStr+numberStr};
-const HTML_ENTITY_MAP=new Map([["&","&amp;"],["<","&lt;"],[">","&gt;"],['"',"&quot;"],["'","&#39;"]]);function lookupHtmlEntity(s){return HTML_ENTITY_MAP.get(s)}const HTML_ENTITY_REGEX=/[&<>"']/g;C3.EscapeHTML=function EscapeHTML(str){return str.replace(HTML_ENTITY_REGEX,lookupHtmlEntity)};C3.EscapeJS=function EscapeJS(str){let ret=C3.ReplaceAll(str,"\\","\\\\");ret=C3.ReplaceAll(ret,'"','\\"');ret=C3.ReplaceAll(ret,"\t","\\t");ret=C3.ReplaceAll(ret,"\r","");return C3.ReplaceAll(ret,"\n","\\n")};
-C3.EscapeXML=function EscapeXML(str){let ret=C3.ReplaceAll(str,"&","&amp;");ret=C3.ReplaceAll(ret,"<","&lt;");ret=C3.ReplaceAll(ret,">","&gt;");return C3.ReplaceAll(ret,'"',"&quot;")};const ESCAPE_REGEX=/[-[\]{}()*+?.,\\^$|#\s]/g;C3.EscapeRegex=function EscapeRegex(str){return str.replace(ESCAPE_REGEX,"\\$&")};C3.CountCharsInString=function CountCharsInString(str,ch){let count=0;for(const c of str)if(c===ch)++count;return count};
+let cjkPunctuationRegex=null;try{cjkPunctuationRegex=new RegExp("\\p{P}(?<=[\\u3000-\\u303F\\uFF00-\\uFFEF])","u")}catch(err){console.warn("Unable to detect CJK punctuation: ",err)}C3.IsCJKPunctuationChar=function IsCJKPunctuationChar(ch){return!C3.IsWhitespaceChar(ch)&&cjkPunctuationRegex&&cjkPunctuationRegex.test(ch)};const NUMERIC_STRING_CHARS=new Set("0123456789.+-e");
+C3.IsStringNumber=function IsStringNumber(str){str=str.trim();if(!str.length)return false;let firstChar=str.charAt(0);if(firstChar!=="-"&&!NUMERIC_CHARS.has(firstChar))return false;for(let ch of str)if(!NUMERIC_STRING_CHARS.has(ch))return false;return true};C3.RemoveTrailingDigits=function RemoveTrailingDigits(str){let i=str.length;while(i>0){let prev_ch=str.charAt(i-1);if(!C3.IsNumericChar(prev_ch))break;--i}return str.substr(0,i)};
+C3.IncrementNumberAtEndOf=function IncrementNumberAtEndOf(str){let baseStr=C3.RemoveTrailingDigits(str);let numberStr=str.substr(baseStr.length);if(numberStr)numberStr=(parseInt(numberStr,10)+1).toString();else numberStr="2";return baseStr+numberStr};const HTML_ENTITY_MAP=new Map([["&","&amp;"],["<","&lt;"],[">","&gt;"],['"',"&quot;"],["'","&#39;"]]);function lookupHtmlEntity(s){return HTML_ENTITY_MAP.get(s)}const HTML_ENTITY_REGEX=/[&<>"']/g;
+C3.EscapeHTML=function EscapeHTML(str){return str.replace(HTML_ENTITY_REGEX,lookupHtmlEntity)};C3.EscapeJS=function EscapeJS(str){let ret=C3.ReplaceAll(str,"\\","\\\\");ret=C3.ReplaceAll(ret,'"','\\"');ret=C3.ReplaceAll(ret,"\t","\\t");ret=C3.ReplaceAll(ret,"\r","");return C3.ReplaceAll(ret,"\n","\\n")};C3.EscapeXML=function EscapeXML(str){let ret=C3.ReplaceAll(str,"&","&amp;");ret=C3.ReplaceAll(ret,"<","&lt;");ret=C3.ReplaceAll(ret,">","&gt;");return C3.ReplaceAll(ret,'"',"&quot;")};
+const ESCAPE_REGEX=/[-[\]{}()*+?.,\\^$|#\s]/g;C3.EscapeRegex=function EscapeRegex(str){return str.replace(ESCAPE_REGEX,"\\$&")};C3.CountCharsInString=function CountCharsInString(str,ch){let count=0;for(const c of str)if(c===ch)++count;return count};
 C3.FindAll=function FindAll(str,find,matchCase=false){if(!find)return[];if(!matchCase){str=str.toLowerCase();find=find.toLowerCase()}const findLen=find.length;let startIndex=0;let index=0;let ret=[];while((index=str.indexOf(find,startIndex))>-1){ret.push(index);startIndex=index+findLen}return ret};C3.ReplaceAll=function ReplaceAll(str,find,replace){return str.replaceAll(find,()=>replace)};
 C3.ReplaceAllCaseInsensitive=function ReplaceAll(str,find,replace){return str.replace(new RegExp(C3.EscapeRegex(find),"gi"),()=>replace)};C3.SetElementContent=function SetElementContent(elem,stringlike){if(typeof stringlike==="string")elem.textContent=stringlike;else if(stringlike.isPlainText())elem.textContent=stringlike.toString();else{elem.innerHTML=stringlike.toHTML();if(stringlike instanceof C3.BBString)stringlike.attachLinkHandlers(elem)}};
 C3.StringLikeEquals=function StringLikeEquals(a,b){if(a instanceof C3.HtmlString||a instanceof C3.BBString)return a.equals(b);else if(b instanceof C3.HtmlString||b instanceof C3.BBString)return b.equals(a);else return a===b};C3.StringSubstitute=function StringSubstitute(str,...arr){let ret=str;for(let i=0,len=arr.length;i<len;++i){const sub=`{${i}}`;if(!str.includes(sub))throw new Error(`missing placeholder '${sub}' in string substitution`);ret=ret.replace(sub,arr[i].toString())}return ret};
@@ -1727,8 +1728,8 @@ callback)}_postToDOM(messageId,data){C3X.RequireString(messageId);if(!this._p_do
 data)}_postToDOMMaybeSync(handler,data){const runtime=map.get(this).GetRuntime();if(runtime.IsInWorker())this._postToDOM(handler,data);else return window["c3_runtimeInterface"]["_OnMessageFromRuntime"]({"type":"event","component":this._p_domComponentId,"handler":handler,"data":data,"responseId":null})}_setTicking(isTicking){isTicking=!!isTicking;if(this._p_isTicking===isTicking)return;this._p_isTicking=isTicking;const runtime=map.get(this).GetRuntime();if(isTicking){if(!this._p_tickFunc)this._p_tickFunc=
 ()=>this._tick();runtime.Dispatcher().addEventListener("tick",this._p_tickFunc)}else runtime.Dispatcher().removeEventListener("tick",this._p_tickFunc)}_isTicking(){return this._p_isTicking}_tick(){}_setTicking2(isTicking){isTicking=!!isTicking;if(this._p_isTicking2===isTicking)return;this._p_isTicking2=isTicking;const runtime=map.get(this).GetRuntime();if(isTicking){if(!this._p_tickFunc2)this._p_tickFunc2=()=>this._tick2();runtime.Dispatcher().addEventListener("tick2",this._p_tickFunc2)}else runtime.Dispatcher().removeEventListener("tick2",
 this._p_tickFunc2)}_isTicking2(){return this._p_isTicking2}_tick2(){}_getDebuggerProperties(){return[]}_saveToJson(){return null}_loadFromJson(o){}_isWrapperExtensionAvailable(){if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);const runtime=map.get(this).GetRuntime();return runtime.HasWrapperComponentId(this._p_wrapperComponentId)}_addWrapperExtensionMessageHandler(messageId,callback){C3X.RequireString(messageId);C3X.RequireFunction(callback);if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);
-const runtime=map.get(this).GetRuntime();runtime.AddWrapperExtensionMessageHandler(this._p_wrapperComponentId,messageId,callback)}_addWrapperMessageHandlers(arr){C3X.RequireArray(arr);for(const [messageId,callback]of arr)this._addWrapperExtensionMessageHandler(messageId,callback)}_sendWrapperExtensionMessage(messageId,params){if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);this.runtime.sendWrapperExtensionMessage(this._p_wrapperComponentId,messageId,params)}_sendWrapperExtensionMessageAsync(messageId,
-params){if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);return this.runtime.sendWrapperExtensionMessageAsync(this._p_wrapperComponentId,messageId,params)}};
+const runtime=map.get(this).GetRuntime();runtime.AddWrapperExtensionMessageHandler(this._p_wrapperComponentId,messageId,callback)}_addWrapperMessageHandlers(arr){C3X.RequireArray(arr);for(const [messageId,callback]of arr)this._addWrapperExtensionMessageHandler(messageId,callback)}_sendWrapperExtensionMessage(messageId,params){if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);this.runtime.sdk.sendWrapperExtensionMessage(this._p_wrapperComponentId,messageId,params)}_sendWrapperExtensionMessageAsync(messageId,
+params){if(!this._p_wrapperComponentId)throw new Error(`no wrapper component id set`);return this.runtime.sdk.sendWrapperExtensionMessageAsync(this._p_wrapperComponentId,messageId,params)}};
 
 }
 
@@ -3192,7 +3193,7 @@ VariadicParameter,StringExpressionParameter,TimelineParameter,BooleanParameter,F
 class ExpressionParameter extends C3.Parameter{constructor(owner,type,index,data){super(owner,type,index);this._solIndex=0;const expData=data[1];this._expressionNumber=expData[0];this._numberedNodes=[];this._expressionFunc=null;for(let i=1,len=expData.length;i<len;++i)this._numberedNodes.push(C3.ExpNode.CreateNode(this,expData[i]));if(this._numberedNodes.length)this.Get=this.GetExpression;else{this.Get=GetExpressionFunc(this._expressionNumber);this._isConstant=true}}_GetNode(i){if(i<0||i>=this._numberedNodes.length)throw new RangeError("invalid numbered node");
 return this._numberedNodes[i]}_PostInit(){for(const node of this._numberedNodes)node._PostInit();const func=GetExpressionFunc(this._expressionNumber);if(this._numberedNodes.length)this._expressionFunc=func(this);else this._expressionFunc=func}GetSolIndex(){return this._solIndex}GetExpression(solIndex){this._solIndex=solIndex;return this._expressionFunc()}}
 class StringExpressionParameter extends ExpressionParameter{constructor(owner,type,index,data){super(owner,type,index,data);this.Get=this.GetStringExpression;if(type===14){this.GetEventBlock().SetAllSolModifiers();if(this._owner instanceof C3.Action)this.GetEventBlock().SetSolWriterAfterCnds()}}GetStringExpression(solIndex){this._solIndex=solIndex;const ret=this._expressionFunc();if(typeof ret==="string")return ret;else return""}_GetFastTriggerValue(){return GetExpressionFunc(this._expressionNumber)()}}
-class LayerExpressionParameter extends ExpressionParameter{constructor(owner,type,index,data){super(owner,type,index,data);if(owner.GetImplementationSdkVersion()>=2)this.Get=this.GetILayer;else this.Get=this.GetLayer;this._isConstant=false}GetLayer(solIndex){this._solIndex=solIndex;const ret=this._expressionFunc();const layout=this.GetRuntime().GetCurrentLayout();return layout.GetLayer(ret)}GetILayer(solIndex){const layer=this.GetLayer();return layer?layer.GetILayer():null}}
+class LayerExpressionParameter extends ExpressionParameter{constructor(owner,type,index,data){super(owner,type,index,data);if(owner.GetImplementationSdkVersion()>=2)this.Get=this.GetILayer;else this.Get=this.GetLayer;this._isConstant=false}GetLayer(solIndex){this._solIndex=solIndex;const ret=this._expressionFunc();const layout=this.GetRuntime().GetCurrentLayout();return layout.GetLayer(ret)}GetILayer(solIndex){const layer=this.GetLayer(solIndex);return layer?layer.GetILayer():null}}
 class ComboParameter extends C3.Parameter{constructor(owner,type,index,data){super(owner,type,index);this._combo=data[1];this.Get=this.GetCombo;this._isConstant=true}GetCombo(){return this._combo}}class BooleanParameter extends C3.Parameter{constructor(owner,type,index,data){super(owner,type,index);this._bool=data[1];this.Get=this.GetBoolean;this._isConstant=true}GetBoolean(){return this._bool}}
 class ObjectParameter extends C3.Parameter{constructor(owner,type,index,data){super(owner,type,index);this._objectClass=this.GetRuntime().GetObjectClassByIndex(data[1]);if(owner.GetImplementationSdkVersion()>=2)this.Get=this.GetIObjectClass;else this.Get=this.GetObjectClass;const eventBlock=this.GetEventBlock();eventBlock._AddSolModifier(this._objectClass);if(this._owner instanceof C3.Action)eventBlock.SetSolWriterAfterCnds();else if(eventBlock.GetParent())eventBlock.GetParent().SetSolWriterAfterCnds();
 this._isConstant=true}GetObjectClass(){return this._objectClass}GetIObjectClass(){return this._objectClass?this._objectClass.GetIObjectClass():null}}
@@ -6003,89 +6004,18 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
-		() => "Create List Upgrade",
-		() => "i",
-		() => 1,
-		() => 5,
-		() => ".data",
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			const f2 = p._GetNode(2).GetBoundMethod();
-			return () => ((n0.ExpObject(".type")) === (((v1.GetValue() * 5) + f2("i"))) ? 1 : 0);
-		},
-		() => "Upgrade",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (f0() / 2);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpObject() * 23);
-		},
-		() => "",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			const v2 = p._GetNode(2).GetVar();
-			const v3 = p._GetNode(3).GetVar();
-			return () => ((n0.ExpObject() + (n1.ExpObject() * v2.GetValue())) + (v3.GetValue() * 10));
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue() + 1);
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => ((v0.GetValue() * 5) + f1("i"));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".level_update");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			const f2 = p._GetNode(2).GetBoundMethod();
-			return () => or(((n0.ExpInstVar()) >= (4) ? 1 : 0), ((n1.ExpInstVar()) > (f2()) ? 1 : 0));
-		},
-		() => 0,
-		p => {
-			const n0 = p._GetNode(0);
-			return () => (n0.ExpInstVar()).toString();
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => n0.ExpObject(and(".price_upgrade", n1.ExpObject(".level_update")));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => ((n0.ExpInstVar()) < (4) ? 1 : 0);
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			const n2 = p._GetNode(2);
-			return () => f0(n1.ExpObject(and(".price_upgrade", n2.ExpObject(".level_update"))));
-		},
-		() => "Max",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => ((n0.ExpInstVar()) <= (n1.ExpObject(".level_update")) ? 1 : 0);
-		},
-		() => "star_fill",
 		() => "Button Open Upgrade",
+		() => "",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() / 1.5);
 		},
 		() => 0.1,
+		() => 1,
 		() => "Container",
 		() => 640,
 		() => 0.2,
+		() => 0,
 		() => "Button Change Page Upgrade",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -6112,28 +6042,6 @@ self.C3_ExpressionFuncs = [
 			return () => (f0((v1.GetValue() + 1), 2) + "/04");
 		},
 		() => "Button Close Upgrade",
-		() => "Button Upgrade",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => ((n0.ExpInstVar()) === (0) ? 1 : 0);
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			const n2 = p._GetNode(2);
-			const n3 = p._GetNode(3);
-			return () => and(((v0.GetValue()) >= (f1(n2.ExpInstVar())) ? 1 : 0), ((n3.ExpInstVar()) < (4) ? 1 : 0));
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			const n2 = p._GetNode(2);
-			return () => (v0.GetValue() - f1(n2.ExpInstVar()));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpInstVar();
-		},
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (10000 * Math.pow(2, ((n0.ExpInstVar() / 10000) - 1)));
@@ -6142,52 +6050,53 @@ self.C3_ExpressionFuncs = [
 		() => "Press",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
+			return () => (10000 * Math.pow(2, ((v0.GetValue() / 10000) - 1)));
+		},
+		() => "coins",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
 		() => "coin",
-		() => "22F8765Wk",
-		() => 100,
-		() => "encrypt",
-		() => "PowerUPD",
+		() => "powerLvl",
+		() => "powerUPD",
+		() => "puCost",
+		() => "saveGame",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (n0.ExpInstVar() + 10000);
+			return () => n0.ExpObject();
 		},
-		() => 10000,
-		() => "PowerUPD.PUcost",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar_Family();
 		},
-		() => "SpeedUPD",
-		() => "SpeedTimeUPD",
-		() => "SpeedUPD.SUcost",
+		() => 5,
+		() => "speedUPD",
+		() => "speedLvl",
+		() => "suCost",
 		() => "levelAttack",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
 			const n2 = p._GetNode(2);
 			const v3 = p._GetNode(3).GetVar();
-			return () => and(and(n0.ExpObject(((v1.GetValue() + ".") + n2.ExpInstVar())), " "), (v3.GetValue() / 10000));
+			return () => and(and(n0.ExpObject(((v1.GetValue() + ".") + n2.ExpInstVar())), " "), v3.GetValue());
 		},
 		() => "levelSpeed",
 		() => "speedUpgradePrice",
 		() => 1000000,
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => and(f0(((10000 * Math.pow(2, ((n1.ExpInstVar() / 10000) - 1))) / 1000)), "k");
+			const v0 = p._GetNode(0).GetVar();
+			return () => and((v0.GetValue() / 1000), "k");
 		},
 		() => 1000000000,
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => and(f0(((10000 * Math.pow(2, ((n1.ExpInstVar() / 10000) - 1))) / 1000000)), "m");
+			const v0 = p._GetNode(0).GetVar();
+			return () => and((v0.GetValue() / 100000), "m");
 		},
 		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			return () => and(f0(((10000 * Math.pow(2, ((n1.ExpInstVar() / 10000) - 1))) / 1000000000)), "b");
+			const v0 = p._GetNode(0).GetVar();
+			return () => and((v0.GetValue() / 100000000), "b");
 		},
 		() => "powerUpgradePrice",
 		() => "translate",
@@ -6199,98 +6108,13 @@ self.C3_ExpressionFuncs = [
 			return () => ((v0.GetValue()) < (n1.ExpInstVar_Family()) ? 1 : 0);
 		},
 		() => "Guns_Data",
-		() => "Guns_Apply Upgrade",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => ((n0.ExpInstVar_Family()) === (n1.ExpObject(".type")) ? 1 : 0);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage1"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".damage2"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".speed_shoot");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".speed_shoot1");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".speed_shoot2");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => Math.abs(subtract(n0.ExpObject(".time_shoot"), v1.GetValue()));
-		},
-		() => "Guns_Save Data",
+		() => "Guns_Get Data",
+		() => ".data",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
 			return () => ((n0.ExpObject(".type")) === (v1.GetValue()) ? 1 : 0);
 		},
-		() => ".damage",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".damage"), n1.ExpObject(".unit_level_damage"));
-		},
-		() => ".damage1",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".damage1"), divide(n1.ExpObject(".unit_level_damage"), 2));
-		},
-		() => ".damage2",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".damage2"), divide(n1.ExpObject(".unit_level_damage"), 2));
-		},
-		() => ".time_shoot",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => subtract(n0.ExpObject(".time_shoot"), n1.ExpObject(".unit_level_time_shoot"));
-		},
-		() => ".speed_shoot",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".speed_shoot"), n1.ExpObject(".unit_level_speed"));
-		},
-		() => ".speed_shoot1",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".speed_shoot1"), divide(n1.ExpObject(".unit_level_speed"), 2));
-		},
-		() => ".speed_shoot2",
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => add(n0.ExpObject(".speed_shoot2"), divide(n1.ExpObject(".unit_level_speed"), 2));
-		},
-		() => ".level_update",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => add(n0.ExpObject(".level_update"), 1);
-		},
-		() => "Guns_Get Data",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
@@ -6304,19 +6128,7 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("dataguns");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("datagunmerge");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => and("gunData = ", n0.ExpObject("data"));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => and("gunMarge = ", n0.ExpObject("data"));
 		},
 		() => "Guns_Get Order Random",
 		p => {
@@ -6380,6 +6192,7 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "Merge_Not Valid",
 		() => "Gun_Merge_No_Valid",
+		() => 100,
 		() => "Guns_Guns Drag Create",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -6387,23 +6200,48 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot1");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".bullet_type_shoot2");
-		},
-		p => {
-			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".number_of_gun");
+		},
+		() => "Guns_Create",
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => n0.ExpObject((and("guns.type", n1.ExpInstVar_Family()) + ".bulletType"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => n0.ExpObject((and("guns.type", n1.ExpInstVar_Family()) + ".bulletColor"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			return () => n0.ExpObject((and("guns.type", n1.ExpInstVar_Family()) + ".barrelCount"));
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const v1 = p._GetNode(1).GetVar();
+			const n2 = p._GetNode(2);
+			const n3 = p._GetNode(3);
+			const v4 = p._GetNode(4).GetVar();
+			const n5 = p._GetNode(5);
+			const v6 = p._GetNode(6).GetVar();
+			const v7 = p._GetNode(7).GetVar();
+			const v8 = p._GetNode(8).GetVar();
+			return () => f0(((v1.GetValue() * (n2.ExpInstVar_Family() + (Math.pow(n3.ExpInstVar_Family(), v4.GetValue()) * (n5.ExpInstVar_Family() / 5)))) * (v6.GetValue() + Math.pow(v7.GetValue(), v8.GetValue()))));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const n1 = p._GetNode(1);
+			const v2 = p._GetNode(2).GetVar();
+			return () => add(n0.ExpObject((and("guns.type", n1.ExpInstVar_Family()) + ".bulletSpeed")), v2.GetValue());
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			return () => (v0.GetValue() - ((v1.GetValue() * v2.GetValue()) * v3.GetValue()));
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -6415,44 +6253,11 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
-		p => {
-			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - 5);
 		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => (and("[outlineback=#000000][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
-		},
-		() => "Guns_Create",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			const n2 = p._GetNode(2);
-			const n3 = p._GetNode(3);
-			const v4 = p._GetNode(4).GetVar();
-			const v5 = p._GetNode(5).GetVar();
-			return () => f0(((2 * (n1.ExpInstVar_Family() + (Math.pow(n2.ExpInstVar_Family(), 0.4) * (n3.ExpInstVar_Family() / 5)))) * (v4.GetValue() + Math.pow(v5.GetValue(), 0.4))));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot1"), v1.GetValue());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => add(n0.ExpObject(".speed_shoot2"), v1.GetValue());
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (2 - ((v0.GetValue() * 2) * 0.1));
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -6518,6 +6323,10 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
+			return () => (v0.GetValue() + 1);
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
 			return () => ((v0.GetValue()) > (10) ? 1 : 0);
 		},
 		() => "Guns_Buy Gun",
@@ -6534,6 +6343,7 @@ self.C3_ExpressionFuncs = [
 			const v3 = p._GetNode(3).GetVar();
 			return () => f0(f1(n2.ExpObject(".cost")), v3.GetValue());
 		},
+		() => "costGun",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const v1 = p._GetNode(1).GetVar();
@@ -6665,22 +6475,18 @@ self.C3_ExpressionFuncs = [
 		() => -367,
 		p => {
 			const n0 = p._GetNode(0);
+			return () => n0.ExpInstVar();
+		},
+		p => {
+			const n0 = p._GetNode(0);
 			return () => ("+" + n0.ExpObject());
 		},
 		() => "saveGuns",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => and("Gun", n0.ExpInstVar_Family());
+			return () => ("Gun" + (n0.ExpInstVar_Family()).toString());
 		},
-		() => "Wall_Defender.health",
-		() => "Wall_Defender.health_full",
-		() => "indexWaveChild",
-		() => "gun",
-		() => 18,
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => and("Gun", f0("gun"));
-		},
+		() => 10000,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => (and("[outlineback=#2A2C62][lineThickness=4]", v0.GetValue()) + "[/lineThickness][underneath][/outline]");
@@ -6690,57 +6496,15 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => (and("[outlineback=#2A2C62][lineThickness=4]", f0(v1.GetValue())) + "[/lineThickness][underneath][/outline]");
 		},
-		() => "Gun1",
-		() => "Gun2",
-		() => "Gun3",
-		() => "Gun4",
-		() => "Gun5",
-		() => "Gun6",
-		() => "Gun7",
-		() => "Gun8",
-		() => "Gun9",
-		() => "Gun10",
-		() => "Gun11",
-		() => "Gun12",
-		() => "Gun13",
-		() => "Gun14",
-		() => "Gun15",
-		() => "Gun16",
-		() => "Gun17",
-		() => "Gun18",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => f0(f1(), 3);
-		},
-		() => "Gun",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const f1 = p._GetNode(1).GetBoundMethod();
-			const f2 = p._GetNode(2).GetBoundMethod();
-			return () => f0(f1(f2(), "Gun", ""));
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => and("G_Gun", f0());
-		},
 		p => {
 			const n0 = p._GetNode(0);
-			return () => (and("[outlineback=#000000][lineThickness=4]", n0.ExpInstVar()) + "[/lineThickness][underneath][/outline]");
+			const n1 = p._GetNode(1);
+			return () => and("G_Gun", n0.ExpObject(("Gun" + (n1.ExpInstVar_Family()).toString())));
 		},
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() / n1.ExpInstVar());
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => (n0.ExpInstVar() * n1.ExpInstVar());
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (and("[outlineback=#000000][lineThickness=4]", (v0.GetValue() + 1)) + "[/lineThickness][underneath][/outline]");
+			return () => n0.ExpObject(("Gun" + (n1.ExpInstVar_Family()).toString()));
 		},
 		() => "YES",
 		() => "NO",
@@ -6828,8 +6592,9 @@ self.C3_ExpressionFuncs = [
 		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			const n1 = p._GetNode(1);
-			return () => (10 + ((v0.GetValue() * 10) * n1.ExpInstVar_Family()));
+			const v1 = p._GetNode(1).GetVar();
+			const n2 = p._GetNode(2);
+			return () => (v0.GetValue() + ((v1.GetValue() * 10) * n2.ExpInstVar_Family()));
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -6840,7 +6605,10 @@ self.C3_ExpressionFuncs = [
 		() => 90,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			return () => (20 + ((20 * 0.01) * v0.GetValue()));
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			return () => (v0.GetValue() + ((v1.GetValue() * v2.GetValue()) * v3.GetValue()));
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
@@ -6921,10 +6689,6 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() + 10);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => ((n0.ExpInstVar()) <= (0) ? 1 : 0);
 		},
 		() => "Monsters_Explosion",
 		() => "Monsters_Tween",
@@ -7012,6 +6776,8 @@ self.C3_ExpressionFuncs = [
 		},
 		() => 470,
 		() => "Wave_Restart",
+		() => "wallHP",
+		() => "indexWaveChild",
 		() => "Wave_Setup",
 		() => "Wave_Button Start",
 		() => "Bottom",
@@ -7044,13 +6810,13 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => ((n0.ExpObject()) === (0) ? 1 : 0);
 		},
-		() => "waveCurrent",
 		() => 658,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const v1 = p._GetNode(1).GetVar();
 			return () => (v0.GetValue() + v1.GetValue());
 		},
+		() => "waveCurrent",
 		() => "Wave_Create",
 		p => {
 			const n0 = p._GetNode(0);
@@ -7080,6 +6846,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject(".");
 		},
+		() => "i",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => (v0.GetValue() - 1);
@@ -7114,22 +6881,14 @@ self.C3_ExpressionFuncs = [
 			const v6 = p._GetNode(6).GetVar();
 			return () => (v0.GetValue() + (((v1.GetValue() * v2.GetValue()) * 10) * f3(f4(v5.GetValue(), (v6.GetValue() - 1), "-"))));
 		},
-		() => "costGun",
-		() => "wall_costUpgrade",
-		() => "wall_levelUpdate",
+		() => "22F8765Wk",
+		() => "encrypt",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const n1 = p._GetNode(1);
 			return () => f0(n1.ExpObject(".0"));
 		},
-		() => 0.0125,
-		() => "CurrentYspeed",
 		() => "tutorial",
-		() => "coinEnc",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => and("Wave:wave", v0.GetValue());
-		},
 		() => "Coin_Format Number",
 		() => "Coin_Update",
 		p => {
@@ -7146,18 +6905,6 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => and("+", v0.GetValue());
 		},
-		() => "Wall_Hurt",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			const n1 = p._GetNode(1);
-			const v2 = p._GetNode(2).GetVar();
-			return () => f0((n1.ExpInstVar() - v2.GetValue()), 0);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const n1 = p._GetNode(1);
-			return () => and(and(n0.ExpInstVar(), "/"), n1.ExpInstVar());
-		},
 		() => "Wall_Destroy",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
@@ -7173,41 +6920,44 @@ self.C3_ExpressionFuncs = [
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0(50, 120);
 		},
-		() => "Wall_Restore",
-		() => "Wall_Setup",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			return () => ((431 / v0.GetValue()) * v1.GetValue());
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			return () => and(and(v0.GetValue(), "/"), v1.GetValue());
+		},
 		() => "Wall_Data",
-		() => "Wall_Data Load Complete",
 		() => "Wall_Data Load",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("datawall");
 		},
+		() => "wallPriceUpgrade",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			return () => f0((v1.GetValue() * Math.pow(3, (v2.GetValue() - 1))));
+		},
+		() => "[outlineback=#2A2C62][lineThickness=4]Max[/lineThickness][underneath][/outline]",
 		() => "Wall_Upgrade",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const v1 = p._GetNode(1).GetVar();
 			const v2 = p._GetNode(2).GetVar();
-			const n3 = p._GetNode(3);
-			return () => and(((v0.GetValue()) <= (v1.GetValue()) ? 1 : 0), ((v2.GetValue()) < (n3.ExpObject(".data")) ? 1 : 0));
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			const v1 = p._GetNode(1).GetVar();
-			return () => ((n0.ExpObject(".order")) === (v1.GetValue()) ? 1 : 0);
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".cost_price");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject(".health");
+			const v3 = p._GetNode(3).GetVar();
+			return () => and(((v0.GetValue()) <= (v1.GetValue()) ? 1 : 0), ((v2.GetValue()) < (v3.GetValue()) ? 1 : 0));
 		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
-			const n1 = p._GetNode(1);
-			return () => ((v0.GetValue()) === (n1.ExpObject(".data")) ? 1 : 0);
+			return () => (v0.GetValue() * 1000);
 		},
+		() => "wallFullHP",
+		() => "wallLvl",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("coin");
@@ -7356,11 +7106,6 @@ self.C3_ExpressionFuncs = [
 		() => "Бонус будет доступен в течение часа",
 		() => "Получить бонус за подписку",
 		() => "Бонус за подписку получен",
-		() => 1101,
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => ("Шифр:  " + v0.GetValue());
-		},
 		() => 2222,
 		() => "Bonus",
 		p => {
@@ -7432,39 +7177,166 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => (v0.GetValue() + "\n");
 		},
-		() => "loadLayoutComplite",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0("frnscid");
 		},
-		() => "playerLoadComplite",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("saveGame");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("defaultData");
+		},
 		() => "friends",
 		() => 299,
 		() => "Создан ли канал: канал не создан",
 		() => "Создан ли канал: канал создан",
+		() => "loadData",
+		() => "loadGunsData",
+		() => "loadGunUpgradePower",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("powerLvl");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("powerUPD");
+		},
+		() => "loadGunSpeedUpgrade",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("speedLvl");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("speedUPD");
+		},
+		() => "loadPricePowerUpgrade",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("puCost");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "puCost"));
+		},
+		() => "loadPriceSpeedUpgrade",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("suCost");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "suCost"));
+		},
+		() => "loadPriceBuyGuns",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("costGun");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "costGun"));
+		},
+		() => "loadGunCof",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "upgradeTimeShot"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "gunPowerCof"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "defaultGunDamage"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "defaultFiringRate"));
+		},
+		() => "loadWaveData",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("waveCurrent");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("indexWaveChild");
+		},
+		() => "loadCoins",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("coins");
+		},
+		() => "loadWallData",
+		() => "loadWallLvl",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("wallLvl");
+		},
+		() => "loadWallHP",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("wallHP");
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "wallHP"));
+		},
+		() => "loadWallMaxHP",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("wallFullHP");
+		},
+		() => "loadWallPriceUpgrade",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "wallPriceUpgrade"));
+		},
+		() => "loadWallMaxUpgradeLvl",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "wallMaxLvl"));
+		},
+		() => "loadMonsters",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "monsterAddSpeedCof"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "monsterStartHp"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => n0.ExpObject((v1.GetValue() + "monsterStartSpeedMove"));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject("tutorial");
+		},
 		() => "gamePushChannel",
 		() => "frnscid",
 		() => "channelCreate",
 		() => "channelCreateERROR",
 		() => "Создан ли канал: ошибка создания канала",
-		() => "channelFeatch",
-		() => "localstorge",
-		() => "powerMiss",
-		() => "powerGet",
-		() => "speedMiss",
-		() => "speedGet",
-		() => "powerUPDMiss",
-		() => "powerUPDGet",
-		() => "speedUPDMiss",
-		() => "speedUPDGet",
-		() => "timeSpeedMiss",
-		() => "timeSpeedGet",
-		() => "0",
-		() => "decrypt",
-		() => "coinGet",
-		() => "coinMiss",
-		() => "waveGet",
-		() => "waveMiss"
+		() => "channelFeatch"
 ];
 
 

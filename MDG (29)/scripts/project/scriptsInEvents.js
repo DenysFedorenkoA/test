@@ -44,7 +44,7 @@ const scriptsInEvents = {
 		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.TGINVITEURL)
 	},
 
-	async EsHome_Event74_Act1(runtime, localVars)
+	async EsHome_Event62_Act1(runtime, localVars)
 	{
 		window.Telegram.WebApp.openTelegramLink('https://t.me/gs_community')
 	},
@@ -98,7 +98,7 @@ const scriptsInEvents = {
 		console.log(runtime.globalVars.Start_param);
 	},
 
-	async EsLoad_Event4_Act1(runtime, localVars)
+	async EsLoad_Event3_Act1(runtime, localVars)
 	{
 		async function readFromCloudStorage(key) {
 		  return new Promise((resolve, reject) => {
