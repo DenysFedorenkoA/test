@@ -3,11 +3,12 @@
 
 const scriptsInEvents = {
 
-	async EventSheet1_Event4_Act3(runtime, localVars)
+	async EventSheet1_Event6_Act3(runtime, localVars)
 	{
 		window.onload = function() {
 		  if (typeof TMAds !== 'undefined' && typeof Telegram !== 'undefined') {
 		    TMAds.init(runtime.globalVars.adsID); // Замените на ваш реальный ключ приложения
+			console.log('Competed')
 		// Включение режима отладки
 			if(runtime.globalVars.adsDebug==true){
 				TMAds.setDebugMode(true); 
@@ -19,7 +20,18 @@ const scriptsInEvents = {
 		};
 	},
 
-	async EventSheet1_Event5_Act1(runtime, localVars)
+	async EventSheet1_Event8_Act1(runtime, localVars)
+	{
+		TMAds.checkInterstitialAd()
+		  .then(()=>{
+		    //interstitial ad preloaded
+		  })
+		  .catch(()=>{
+		    //interstitial ad failed to preload (no fill, network issues etc)
+		  });
+	},
+
+	async EventSheet1_Event9_Act1(runtime, localVars)
 	{
 		TMAds.showInterstitialAd()
 		  .then(()=>{
@@ -30,7 +42,19 @@ const scriptsInEvents = {
 		  });
 	},
 
-	async EventSheet1_Event6_Act1(runtime, localVars)
+	async EventSheet1_Event10_Act1(runtime, localVars)
+	{
+		TMAds.checkRewardedAd()
+		  .then(()=>{
+		    //rewarded ad preloaded
+		  })
+		  .catch(()=>{
+		    //rewarded ad failed to preload (no fill, network issues etc)
+		  });
+		
+	},
+
+	async EventSheet1_Event11_Act1(runtime, localVars)
 	{
 		TMAds.showRewardedAd()
 		  .then(()=>{
@@ -41,12 +65,12 @@ const scriptsInEvents = {
 		  });
 	},
 
-	async EventSheet1_Event7_Act1(runtime, localVars)
+	async EventSheet1_Event12_Act1(runtime, localVars)
 	{
 		TMAds.show('bottom');
 	},
 
-	async EventSheet1_Event8_Act1(runtime, localVars)
+	async EventSheet1_Event13_Act1(runtime, localVars)
 	{
 		TMAds.hide();
 	}

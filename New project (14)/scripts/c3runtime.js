@@ -4569,8 +4569,15 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
-		() => "interstitial",
-		() => "reward"
+		() => "checkInterstitial",
+		() => "chechReward",
+		() => "showInterstitial",
+		() => "showhReward",
+		() => "v",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0();
+		}
 ];
 
 

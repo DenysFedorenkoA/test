@@ -9,11 +9,16 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Sprite.Acts.StopAnim,
-		C3.ScriptsInEvents.EventSheet1_Event4_Act3,
-		C3.ScriptsInEvents.EventSheet1_Event5_Act1,
-		C3.ScriptsInEvents.EventSheet1_Event6_Act1,
-		C3.ScriptsInEvents.EventSheet1_Event7_Act1,
-		C3.ScriptsInEvents.EventSheet1_Event8_Act1
+		C3.ScriptsInEvents.EventSheet1_Event6_Act3,
+		C3.Plugins.Text.Cnds.CompareInstanceVar,
+		C3.Plugins.Text.Acts.SetText,
+		C3.Plugins.System.Exps.projectversion,
+		C3.ScriptsInEvents.EventSheet1_Event8_Act1,
+		C3.ScriptsInEvents.EventSheet1_Event9_Act1,
+		C3.ScriptsInEvents.EventSheet1_Event10_Act1,
+		C3.ScriptsInEvents.EventSheet1_Event11_Act1,
+		C3.ScriptsInEvents.EventSheet1_Event12_Act1,
+		C3.ScriptsInEvents.EventSheet1_Event13_Act1
 	];
 };
 self.C3_JsPropNameTable = [
