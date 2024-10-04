@@ -3,21 +3,16 @@
 
 const scriptsInEvents = {
 
-	async EventSheet1_Event6_Act3(runtime, localVars)
+	async EventSheet1_Event6_Act4(runtime, localVars)
 	{
-		window.onload = function() {
-		  if (typeof TMAds !== 'undefined' && typeof Telegram !== 'undefined') {
-		    TMAds.init(runtime.globalVars.adsID); // Замените на ваш реальный ключ приложения
+		TMAds.init(runtime.globalVars.adsID); // Замените на ваш реальный ключ приложения
 			console.log('Competed')
 		// Включение режима отладки
 			if(runtime.globalVars.adsDebug==true){
 				TMAds.setDebugMode(true); 
-			}
+			};
 		    
-		  } else {
-		    console.error('TMAds или Telegram SDK не загружен!');
-		  }
-		};
+		
 	},
 
 	async EventSheet1_Event8_Act1(runtime, localVars)
