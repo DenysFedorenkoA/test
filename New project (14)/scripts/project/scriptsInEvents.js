@@ -3,7 +3,7 @@
 
 const scriptsInEvents = {
 
-	async EventSheet1_Event6_Act4(runtime, localVars)
+	async EventSheet1_Event7_Act1(runtime, localVars)
 	{
 		TMAds.init(runtime.globalVars.adsID); // Замените на ваш реальный ключ приложения
 			console.log('Competed')
@@ -15,7 +15,7 @@ const scriptsInEvents = {
 		
 	},
 
-	async EventSheet1_Event8_Act1(runtime, localVars)
+	async EventSheet1_Event9_Act1(runtime, localVars)
 	{
 		TMAds.checkInterstitialAd()
 		  .then(()=>{
@@ -26,7 +26,7 @@ const scriptsInEvents = {
 		  });
 	},
 
-	async EventSheet1_Event9_Act1(runtime, localVars)
+	async EventSheet1_Event10_Act1(runtime, localVars)
 	{
 		TMAds.showInterstitialAd()
 		  .then(()=>{
@@ -37,7 +37,7 @@ const scriptsInEvents = {
 		  });
 	},
 
-	async EventSheet1_Event10_Act1(runtime, localVars)
+	async EventSheet1_Event11_Act1(runtime, localVars)
 	{
 		TMAds.checkRewardedAd()
 		  .then(()=>{
@@ -49,7 +49,7 @@ const scriptsInEvents = {
 		
 	},
 
-	async EventSheet1_Event11_Act1(runtime, localVars)
+	async EventSheet1_Event12_Act1(runtime, localVars)
 	{
 		TMAds.showRewardedAd()
 		  .then(()=>{
@@ -60,14 +60,19 @@ const scriptsInEvents = {
 		  });
 	},
 
-	async EventSheet1_Event12_Act1(runtime, localVars)
+	async EventSheet1_Event13_Act1(runtime, localVars)
 	{
 		TMAds.show('bottom');
 	},
 
-	async EventSheet1_Event13_Act1(runtime, localVars)
+	async EventSheet1_Event14_Act1(runtime, localVars)
 	{
 		TMAds.hide();
+	},
+
+	async EventSheet1_Event15_Act1(runtime, localVars)
+	{
+		window.Telegram.WebApp.openTelegramLink(runtime.globalVars.inviteURL)
 	}
 
 };

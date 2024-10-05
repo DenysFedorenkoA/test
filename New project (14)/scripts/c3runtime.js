@@ -4573,6 +4573,7 @@ self.C3_ExpressionFuncs = [
 		() => "chechReward",
 		() => "showInterstitial",
 		() => "showhReward",
+		() => "invite",
 		() => "v",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
