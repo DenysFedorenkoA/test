@@ -4630,11 +4630,11 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => (v0.GetValue()).toString();
 		},
+		() => "invoice",
+		() => "buy item1",
 		() => "",
 		() => 0,
-		() => "invoice",
 		() => "addScore",
-		() => "410694247:TEST:bf626cf0-d005-4410-a89e-97139286479e",
 		() => "invoiceLinkERROR\n"
 ];
 
