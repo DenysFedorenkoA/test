@@ -12,6 +12,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.TelegramMiniAppsSDK.Exps.UserId,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.UserFirstName,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.CloudStorageValue,
+		C3.Plugins.System.Exps.int,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
 		C3.Plugins.Text.Cnds.HasTags,
 		C3.Plugins.Dictionary.Exps.AsJSON,
