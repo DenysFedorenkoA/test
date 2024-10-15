@@ -6,13 +6,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Touch,
 		C3.Plugins.Dictionary,
 		C3.Plugins.System.Cnds.OnLayoutStart,
+		C3.Plugins.System.Acts.SetVar,
+		C3.Plugins.System.Exps.projectname,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.UserId,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.UserFirstName,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.CloudStorageValue,
 		C3.Plugins.Dictionary.Acts.JSONLoad,
-		C3.Plugins.System.Cnds.IsValueType,
-		C3.Plugins.System.Acts.SetVar,
 		C3.Plugins.Text.Cnds.HasTags,
 		C3.Plugins.Dictionary.Exps.AsJSON,
 		C3.Plugins.Touch.Cnds.OnTapGesture,
@@ -27,7 +27,9 @@ self.C3_JsPropNameTable = [
 	{Touch: 0},
 	{Dictionary: 0},
 	{Text2: 0},
-	{score: 0}
+	{score: 0},
+	{scorePath: 0},
+	{savePath: 0}
 ];
 
 self.InstanceType = {

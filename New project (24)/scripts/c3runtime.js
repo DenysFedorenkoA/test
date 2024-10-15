@@ -4520,18 +4520,24 @@ function or(l, r)
 self.C3_ExpressionFuncs = [
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => (f0() + "score");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => (f0() + "save");
+		},
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
 			const f1 = p._GetNode(1).GetBoundMethod();
 			const f2 = p._GetNode(2).GetBoundMethod();
-			const f3 = p._GetNode(3).GetBoundMethod();
-			return () => ((((((((((and("id: ", f0()) + "\n") + "userName: ") + f1()) + "\n") + "score: ") + f2("score")) + "\n") + "save: ") + f3("save")) + "\n");
+			const v3 = p._GetNode(3).GetVar();
+			const f4 = p._GetNode(4).GetBoundMethod();
+			return () => ((((((((((and("id: ", f0()) + "\n") + "userName: ") + f1()) + "\n") + "score: ") + f2(v3.GetValue())) + "\n") + "save: ") + f4("save")) + "\n");
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("save");
-		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("score");
+			const v1 = p._GetNode(1).GetVar();
+			return () => f0(v1.GetValue());
 		},
 		() => "score",
 		p => {
@@ -4547,8 +4553,7 @@ self.C3_ExpressionFuncs = [
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => (v0.GetValue()).toString();
-		},
-		() => "save"
+		}
 ];
 
 
