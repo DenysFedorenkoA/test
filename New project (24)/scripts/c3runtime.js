@@ -4520,11 +4520,13 @@ function or(l, r)
 self.C3_ExpressionFuncs = [
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (f0() + "score");
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => (f0(f1(), " ", "") + "score");
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => (f0() + "save");
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => (f0(f1(), " ", "") + "save");
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
@@ -4532,7 +4534,8 @@ self.C3_ExpressionFuncs = [
 			const f2 = p._GetNode(2).GetBoundMethod();
 			const v3 = p._GetNode(3).GetVar();
 			const f4 = p._GetNode(4).GetBoundMethod();
-			return () => ((((((((((and("id: ", f0()) + "\n") + "userName: ") + f1()) + "\n") + "score: ") + f2(v3.GetValue())) + "\n") + "save: ") + f4("save")) + "\n");
+			const v5 = p._GetNode(5).GetVar();
+			return () => ((((((((((and("id: ", f0()) + "\n") + "userName: ") + f1()) + "\n") + "score: ") + f2(v3.GetValue())) + "\n") + "save: ") + f4(v5.GetValue())) + "\n");
 		},
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();

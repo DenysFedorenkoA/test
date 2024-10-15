@@ -7,6 +7,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Dictionary,
 		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.System.Acts.SetVar,
+		C3.Plugins.System.Exps.replace,
 		C3.Plugins.System.Exps.projectname,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.TelegramMiniAppsSDK.Exps.UserId,
