@@ -4632,6 +4632,7 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "invoice",
 		() => "buy item1",
+		() => "dataData",
 		() => "",
 		() => 0,
 		() => "addScore",
