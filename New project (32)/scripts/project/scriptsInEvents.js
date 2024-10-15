@@ -39,7 +39,7 @@ const scriptsInEvents = {
 		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	},
 
-	async EventSheet1_Event10_Act3(runtime, localVars)
+	async EventSheet1_Event12_Act3(runtime, localVars)
 	{
 		Telegram.WebApp.openInvoice(runtime.globalVars.url1)
 	},
