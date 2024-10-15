@@ -4583,7 +4583,7 @@ function or(l, r)
 
 self.C3_ExpressionFuncs = [
 		() => "item1",
-		() => 0,
+		() => 1,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() + "\n");
@@ -4597,7 +4597,6 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => add(n0.ExpObject("var"), 1);
 		},
-		() => 1,
 		p => {
 			const n0 = p._GetNode(0);
 			return () => n0.ExpObject();
@@ -4605,6 +4604,7 @@ self.C3_ExpressionFuncs = [
 		() => "buy item1",
 		() => "dataData",
 		() => "",
+		() => 0,
 		() => "linkSuccess\n",
 		() => -717706215031807,
 		() => "linkERROR\n",
