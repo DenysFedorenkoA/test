@@ -4588,21 +4588,29 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
 		() => "var",
 		p => {
 			const n0 = p._GetNode(0);
 			return () => add(n0.ExpObject("var"), 1);
 		},
 		() => 1,
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject();
+		},
 		() => "buy item1",
 		() => "dataData",
 		() => "",
 		() => 0,
-		() => -717706215031807
+		() => "linkSuccess\n",
+		() => -717706215031807,
+		() => "linkERROR\n",
+		() => "paymentSuccess\n",
+		() => "paymentError\n",
+		() => "sendSuccess\n",
+		() => "sendError\n",
+		() => "startTransactionSuccess\n",
+		() => "startTransactionError\n"
 ];
 
 
