@@ -36,6 +36,11 @@ const scriptsInEvents = {
 
 	async EventSheet1_Event7_Act1(runtime, localVars)
 	{
+		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
+	},
+
+	async EventSheet1_Event8_Act1(runtime, localVars)
+	{
 		// Инициализация Telegram Web App
 		const tg = window.Telegram.WebApp;
 		
@@ -54,11 +59,6 @@ const scriptsInEvents = {
 		
 		// Вызов функции для отображения счета
 		showInvoice();
-	},
-
-	async EventSheet1_Event8_Act1(runtime, localVars)
-	{
-		Telegram.WebApp.CloudStorage.setItem(localVars.key,localVars.data);
 	}
 
 };
