@@ -1,0 +1,186 @@
+{
+	"coins":1000,
+	"guns":{
+		"defaultFiringRate":2,
+		"defaultGunDamage":2,
+		"upgradeTimeShot":0.1,
+		"gunPowerCof":0.4,
+		"costGun":100,
+		"suCost":10000,
+		"puCost":10000,
+
+		"type1":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":1,
+			"bulletSpeed":400
+
+		},
+		"type2":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":4,
+			"bulletSpeed":400
+
+		},
+		"type3":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":2,
+			"bulletSpeed":500
+
+		},
+		"type4":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":3,
+			"bulletSpeed":500
+
+		},
+		"type5":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":2,
+			"bulletSpeed":500
+
+		},
+		"type6":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":3,
+			"bulletSpeed":500
+
+		},
+		"type7":{
+			"barrelCount":1,
+			"bulletType":1,
+			"bulletColor":4,
+			"bulletSpeed":500
+
+		},
+		"type8":{
+			"barrelCount":2,
+			"bulletType":1,
+			"bulletColor":5,
+			"bulletSpeed":500
+
+		},
+		"type9":{
+			"barrelCount":2,
+			"bulletType":1,
+			"bulletColor":5,
+			"bulletSpeed":500
+
+		},
+		"type10":{
+			"barrelCount":3,
+			"bulletType":1,
+			"bulletColor":6,
+			"bulletSpeed":500
+
+		},
+		"type11":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":7,
+			"bulletSpeed":500
+
+		},
+		"type12":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":4,
+			"bulletSpeed":500
+
+		},
+		"type13":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":6,
+			"bulletSpeed":520
+
+		},
+		"type14":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":8,
+			"bulletSpeed":600
+
+		},
+		"type15":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":7,
+			"bulletSpeed":600
+
+		},
+		"type16":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":7,
+			"bulletSpeed":700
+
+		},
+		"type17":{
+			"barrelCount":1,
+			"bulletType":2,
+			"bulletColor":8,
+			"bulletSpeed":700
+
+		},
+		"type18":{
+			"barrelCount":2,
+			"bulletType":2,
+			"bulletColor":4,
+			"bulletSpeed":650
+
+		},
+		"type19":{
+			"barrelCount":2,
+			"bulletType":2,
+			"bulletColor":6,
+			"bulletSpeed":600
+
+		},
+		"type20":{
+			"barrelCount":2,
+			"bulletType":2,
+			"bulletColor":7,
+			"bulletSpeed":800
+
+		}
+	},
+	"monster":{
+		"monsterStartHp":10,
+		"monsterStartSpeedMove":20,
+		"monsterAddSpeedCof":0.01,
+		"monsterHpCof":10
+		
+	},
+	"wall":{
+		"wallPriceUpgrade":1000,
+		"wallHP":1000,
+		"wallMaxLvl":15
+		
+	},
+	"wave":{
+		"defaultWaveReward":1000,
+		"defaultMonsterCount":10,
+		"minWaveCount":3,
+		"maxWaveCount":7,
+		"createWaveTime":30,
+		"monsterCountCof":10
+	},
+	"bomb":{
+		"iceBobmTime":3,
+		"fireBombDamage":0.4,
+		"bombLifeTime":7,
+		"bombCreateTime":10
+	},
+	"gameSpeedButton":{
+		"chargingTime":30,
+		"timeOn":15
+	}
+
+	
+}
