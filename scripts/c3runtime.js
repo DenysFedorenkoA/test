@@ -1326,11 +1326,20 @@ function or(l, r)
 self.C3_ExpressionFuncs = [
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("qwe");
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => f0(f1("qwe"));
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => v0.GetValue();
 		},
 		() => "Loaded\n",
+		() => 1,
 		() => "qwe",
-		() => "123",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (v0.GetValue()).toString();
+		},
 		() => "SetCompleted\n",
 		() => "SetError\n"
 ];

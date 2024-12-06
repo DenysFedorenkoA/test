@@ -5,10 +5,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text,
 		C3.Plugins.Touch,
 		C3.Plugins.System.Cnds.OnLayoutStart,
-		C3.Plugins.Text.Acts.AppendText,
+		C3.Plugins.System.Acts.SetVar,
+		C3.Plugins.System.Exps.int,
 		C3.Plugins.LostTelegramMiniAppsSDK.Exps.CloudStorageValue,
+		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onCloudStorageLoaded,
 		C3.Plugins.Touch.Cnds.OnTouchObject,
+		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.LostTelegramMiniAppsSDK.Acts.setItem,
 		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onItemSet,
 		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onItemSetError
@@ -18,7 +21,8 @@ self.C3_JsPropNameTable = [
 	{TelegramMiniApps: 0},
 	{Text: 0},
 	{Touch: 0},
-	{Text2: 0}
+	{Text2: 0},
+	{var: 0}
 ];
 
 self.InstanceType = {
