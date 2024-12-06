@@ -1325,14 +1325,15 @@ function or(l, r)
 
 self.C3_ExpressionFuncs = [
 		() => "Loaded\n",
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0("qwe");
-		},
 		() => "qwe",
 		() => "123",
 		() => "SetCompleted\n",
-		() => "SetError\n"
+		() => "SetError\n",
+		() => 1,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0("qwe");
+		}
 ];
 
 
