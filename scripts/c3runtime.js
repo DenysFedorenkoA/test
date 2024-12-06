@@ -1324,9 +1324,11 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
-		() => "Loaded",
+		() => "Loaded\n",
 		() => "qwe",
-		() => "123"
+		() => "123",
+		() => "SetCompleted\n",
+		() => "SetError\n"
 ];
 
 
