@@ -4,14 +4,14 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.LostTelegramMiniAppsSDK,
 		C3.Plugins.Text,
 		C3.Plugins.Touch,
-		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onCloudStorageLoaded,
+		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.Text.Acts.AppendText,
+		C3.Plugins.LostTelegramMiniAppsSDK.Exps.CloudStorageValue,
+		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onCloudStorageLoaded,
 		C3.Plugins.Touch.Cnds.OnTouchObject,
 		C3.Plugins.LostTelegramMiniAppsSDK.Acts.setItem,
 		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onItemSet,
-		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onItemSetError,
-		C3.Plugins.System.Cnds.Every,
-		C3.Plugins.LostTelegramMiniAppsSDK.Exps.CloudStorageValue
+		C3.Plugins.LostTelegramMiniAppsSDK.Cnds.onItemSetError
 	];
 };
 self.C3_JsPropNameTable = [
