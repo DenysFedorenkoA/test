@@ -1212,6 +1212,7 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
+		() => "Group1",
 		() => "score",
 		p => {
 			const n0 = p._GetNode(0);
@@ -1236,7 +1237,17 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "",
 		() => "Load_DATA_HAS",
-		() => "Load_DATA_NO"
+		() => "Load_DATA_NO",
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => f0();
+		},
+		() => "getDataCompleted",
+		() => "GET_DATA_CODE_COMPLETED",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => v0.GetValue();
+		}
 ];
 
 
