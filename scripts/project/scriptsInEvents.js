@@ -18,7 +18,7 @@ const scriptsInEvents = {
 		
 		async function retrieveData() {
 		  try {
-		    const tDayData = await readFromCloudStorage('var');
+		    const tDayData = await readFromCloudStorage('save');
 		
 		
 		    localVars.saveData = String(tDayData);
